@@ -7,7 +7,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT ?? 3000);
+const HOST = process.env.HOST ?? '127.0.0.1';
 
 app.use(express.json({ limit: '10mb' }));
 
@@ -203,7 +204,7 @@ Explain:
   }
 });
 
-async function startServer() {
+async function startServer(port = PORT) {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -218,8 +219,18 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Quantum Pharma-Cash PMS running on http://0.0.0.0:${PORT}`);
+  const server = app.listen(port, HOST, () => {
+    console.log(`Quantum Pharma-Cash PMS running on http://localhost:${port}`);
+  });
+
+  server.on('error', (error: NodeJS.ErrnoException) => {
+    if (error.code === 'EADDRINUSE') {
+      console.warn(`Port ${port} is already in use, trying ${port + 1}...`);
+      void startServer(port + 1);
+      return;
+    }
+
+    throw error;
   });
 }
 

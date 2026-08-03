@@ -1,6 +1,7 @@
 # ZenithRx Pharmacy Management System — Technical Documentation
 
 ## Executive Overview
+
 **ZenithRx** is an enterprise-grade, multi-tenant **Pharmacy Management System (PMS)** engineered for retail, wholesale, and hospital pharmacies. Built using React 18, TypeScript, and Tailwind CSS, ZenithRx integrates core clinical workflow modules with automated inventory control, point-of-sale billing, insurance claims processing, regulatory NDA (National Drug Authority) compliance verifications, and AI-powered clinical counseling via Google Gemini AI.
 
 ---
@@ -8,6 +9,7 @@
 ## Architecture & Technology Stack
 
 ### Core Technologies
+
 * **Frontend Framework:** React 18 with TypeScript
 * **Build System & Tooling:** Vite, ESBuild, PostCSS
 * **Styling & UI:** Tailwind CSS v3 with custom utility classes & responsive flex/grid layouts
@@ -17,6 +19,7 @@
 * **Barcode Handling:** Camera feed simulation & hardware barcode scanner input handler (`src/components/BarcodeScannerModal.tsx`)
 
 ### Directory Structure
+
 ```
 /
 ├── index.html                    # HTML5 entry point & viewport configuration
@@ -52,6 +55,7 @@
 ### Key Entities
 
 #### 1. `DrugItem` (Inventory & Batch Control)
+
 ```typescript
 export interface DrugItem {
   id: string;
@@ -73,6 +77,7 @@ export interface DrugItem {
 ```
 
 #### 2. `Prescription` (Clinical Dispensing Queue)
+
 ```typescript
 export interface Prescription {
   id: string;
@@ -104,6 +109,7 @@ export interface Prescription {
 ```
 
 #### 3. `PharmacyUserAccount` & `UserAccessRights` (Designated Staff Accounts)
+
 ```typescript
 export type UserRoleRank = 
   | 'Supervising Pharmacist'
@@ -141,6 +147,7 @@ export interface PharmacyUserAccount {
 ```
 
 #### 4. `ClientSubscription` (SaaS Multi-Tenancy & NDA Verification)
+
 ```typescript
 export interface ClientSubscription {
   id: string;
@@ -173,6 +180,7 @@ export interface ClientSubscription {
 ```
 
 #### 5. `POSTransaction` & `InsuranceProvider`
+
 * **POSTransaction:** Captures payment method (Cash, Mobile Money, M-Pesa, Card, Insurance, WhatsApp Invoice), items breakdown, tax, co-pay split, and cashier details.
 * **InsuranceProvider:** Tracks provider coverage ratio (e.g. 80%), pending claim balances, and active policy verification.
 
@@ -181,17 +189,20 @@ export interface ClientSubscription {
 ## Key Modules & System Workflows
 
 ### 1. Point of Sale (POS) & Billing Terminal (`PointOfSale.tsx`)
+
 * **Barcode Item Lookup:** Instant inventory filtering by typing or hardware/camera barcode scan.
 * **Prescription Integration:** Pulls pending prescriptions directly into POS cart with automatic dosage/price computation.
 * **Multi-Gateway Payment Processing:** Supports Cash, MTN Mobile Money / Airtel Money, M-Pesa, Credit/Debit Card, Insurance Co-pay splits, and WhatsApp digital invoice links.
 * **Thermal Receipt Printing:** Generates print-ready thermal tax receipts with customizable store branding, QR/Barcode references, tax breakdown, and cashier signatures.
 
 ### 2. Clinical Prescription Digitizer & Processing (`PrescriptionProcessing.tsx`)
+
 * **Gemini AI Note Digitizer:** Uses AI prompt engineering to extract structured medication lists (drug name, dosage, frequency, duration, quantity) from unstructured clinical doctor notes or handwritten prescription transcriptions.
 * **Drug Interaction & Safety Checks:** Validates dosage ranges and alerts pharmacists to potential contraindications or allergy risks.
 * **Dispensing Queue:** Tracks status transitions (`Pending` -> `Partially Dispensed` -> `Dispensed`). Updates stock balances in real time upon fulfillment.
 
 ### 3. Inventory & Expiry Control (`StockInventory.tsx` & `ExpiryAlerts.tsx`)
+
 * **FEFO Protocol (First-Expired, First-Out):** Prioritizes batches approaching expiry during sale and dispensing workflows.
 * **Risk Categorization:** Real-time monitoring into 3 alert tiers:
   * 🔴 **Expired:** Stock locked for immediate write-off.
@@ -200,18 +211,22 @@ export interface ClientSubscription {
 * **Batch Adjustments:** Supports stock counts, damaged batch write-offs, and batch location reassignments.
 
 ### 4. Automated Reordering (`AutomatedReordering.tsx`)
+
 * **Threshold Triggers:** Automatically identifies medications where `stockQty <= reorderLevel`.
 * **Purchase Order (PO) Workflow:** Generates formal supplier POs with unit costs, order quantities, and total estimates. Dispatches directly to suppliers via simulated email/WhatsApp notification channels.
 
 ### 5. Patient Profiles & Chronic Care (`CustomerProfiles.tsx`)
+
 * **Patient Medical Records:** Tracks age, blood group, drug allergies, chronic conditions, and past purchasing history.
 * **WhatsApp Refill Reminders:** Computes refill due dates based on prescription duration and triggers automated WhatsApp gateway reminders.
 
 ### 6. Insurance Claims & Co-Pay Management (`InsuranceSchemes.tsx`)
+
 * **Split Billing Engine:** Calculates insurer coverage amount based on provider ratio (e.g., 80% coverage / 20% patient co-pay) at checkout.
 * **Claims Submissions:** Logs claim IDs, provider approvals, and pending reimbursement balances.
 
 ### 7. Multi-Tenant SaaS & Staff Rights Management (`AdminPackages.tsx`)
+
 * **Uganda NDA Registry Integration:** Includes a pre-seeded Uganda National Drug Authority (NDA) licensed pharmacy register for auto-verifying client license numbers and supervising pharmacists.
 * **Custom Plan Customizer:** Tailors allowed features, maximum designated staff user limits, and monthly UGX rates per client branch.
 * **Granular Role Matrix:** Configures 7 staff roles (`Supervising Pharmacist`, `Assistant Pharmacist`, `Pharmacy Technician`, `POS Cashier`, `Store Manager`, `Claims Officer`, `Intern`) with fine-grained permissions for POS, Inventory, Prescriptions, Reorders, Analytics, Claims, AI, and User Management.
@@ -229,18 +244,21 @@ export interface ClientSubscription {
 ## Build & Deployment Procedures
 
 ### Development Commands
+
 * `npm run dev`: Boots Vite development server on port `3000` (`0.0.0.0:3000`).
 * `npm run lint`: Runs TypeScript compiler (`tsc --noEmit`) to verify strict type compliance.
 * `npm run build`: Bundles static client assets into `dist/`.
 
 ### Deployment Rules
-* ZenithRx is configured as a single-page React client application (SPA).
+
+* ZenithRx is configured as a High End Concrete  Multi Technologies application.
 * Served behind an nginx reverse proxy on port 3000.
 * Environment settings stored in `.env.example` and accessed safely via `import.meta.env` or server proxy endpoints.
 
 ---
 
 ## Summary of Core Capabilities
+
 * **Full-Spectrum Pharmacy Workflow:** From doctor prescription digitization to thermal receipt issuing.
 * **Regulatory Standard:** NDA Uganda registration compliance & PSU registered pharmacist tracking.
 * **AI-Augmented:** Google Gemini AI clinical assistant for drug safety, interaction alerts, and unstructured Rx parsing.
