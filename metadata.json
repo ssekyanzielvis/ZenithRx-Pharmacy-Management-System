@@ -1,0 +1,6 @@
+{
+  "name": "ZenithRx Pharmacy Management System",
+  "description": "Full-featured Pharmacy Management System (PMS) by Quantum Networks Ltd, including Prescription Processing, Inventory Control, Expiry Alerts, Customer Profiles, Auto-Reordering, Billing POS, Sales Reports, and Insurance Claims.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
