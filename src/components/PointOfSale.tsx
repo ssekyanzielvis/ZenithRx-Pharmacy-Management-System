@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DrugItem, POSTransaction } from '../types';
+import { DrugItem, POSTransaction, Prescription } from '../types';
 import {
   ShoppingCart,
   Search,
@@ -14,8 +14,12 @@ import {
   Printer,
   CheckCircle2,
   X,
-  FileText
+  FileText,
+  Receipt
 } from 'lucide-react';
+import { CashUpModal } from './CashUpModal';
+import { PaymentOrchestratorModal } from './PaymentOrchestratorModal';
+import { PaymentIntent } from '../services/paymentOrchestrationService';
 
 interface CartItem {
   drug: DrugItem;
@@ -24,23 +28,68 @@ interface CartItem {
 
 interface PointOfSaleProps {
   drugs: DrugItem[];
+  prescriptions?: Prescription[];
+  transactions?: POSTransaction[];
   onCompleteSale: (transaction: POSTransaction) => void;
   openBarcodeScanner: () => void;
 }
 
 export const PointOfSale: React.FC<PointOfSaleProps> = ({
   drugs,
+  prescriptions = [],
+  transactions = [],
   onCompleteSale,
   openBarcodeScanner,
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showRxModal, setShowRxModal] = useState(false);
   const [customerName, setCustomerName] = useState('Walk-in Customer');
   const [customerPhone, setCustomerPhone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'Cash' | 'M-Pesa / Mobile' | 'Card' | 'Insurance Scheme' | 'WhatsApp Invoice'>('M-Pesa / Mobile');
   const [mpesaRef, setMpesaRef] = useState('QGH' + Math.floor(Math.random() * 900000 + 100000));
   const [insuranceCopayRatio, setInsuranceCopayRatio] = useState<number>(0.20); // 20% patient co-pay
   const [completedReceipt, setCompletedReceipt] = useState<POSTransaction | null>(null);
+  const [isCashUpOpen, setIsCashUpOpen] = useState(false);
+  const [isOrchestratorOpen, setIsOrchestratorOpen] = useState(false);
+
+  const handleOrchestratedSuccess = (paymentIntent: PaymentIntent) => {
+    const year = new Date().getFullYear();
+    const rand = Math.floor(10000 + Math.random() * 90000);
+
+    const transaction: POSTransaction = {
+      id: `POS-${Date.now()}`,
+      receiptNo: paymentIntent.receiptNumber || `REC-${year}-${rand}`,
+      customerName: paymentIntent.patientName || customerName,
+      customerPhone,
+      items: cart.map((c) => ({
+        drugId: c.drug.id,
+        brandName: c.drug.brandName,
+        unitPrice: c.drug.sellingPrice,
+        quantity: c.quantity,
+        total: c.drug.sellingPrice * c.quantity,
+        isPrescription: c.drug.prescriptionRequired,
+      })),
+      subtotal,
+      taxAmount,
+      discountAmount: paymentIntent.discountAmountUgx,
+      insuranceCopayAmount: paymentIntent.splits.find(s => s.method === 'INSURANCE_COPAY')?.amountUgx || 0,
+      insuranceCoveredAmount: 0,
+      totalPaid: paymentIntent.totalCapturedUgx,
+      paymentMethod: paymentIntent.splits.length > 1 ? 'M-Pesa / Mobile' : (paymentIntent.splits[0]?.method as any || 'Cash'),
+      mpesaRef: paymentIntent.splits.find(s => s.method === 'MTN_MOMO' || s.method === 'AIRTEL_MONEY')?.providerReference,
+      cashierName: paymentIntent.initiatedBy || 'David Kintu',
+      timestamp: new Date().toLocaleString('en-UG', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      }),
+    };
+
+    onCompleteSale(transaction);
+    setCompletedReceipt(transaction);
+    setCart([]);
+    setIsOrchestratorOpen(false);
+  };
 
   const filteredDrugs = drugs.filter(
     (d) =>
@@ -80,7 +129,7 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
   };
 
   const subtotal = cart.reduce((acc, curr) => acc + curr.drug.sellingPrice * curr.quantity, 0);
-  const taxAmount = Math.round(subtotal * 0.16); // 16% VAT
+  const taxAmount = Math.round(subtotal * 0.18); // 18% VAT — spec §6.2
   const totalAmount = subtotal + taxAmount;
 
   // Insurance co-pay calculation
@@ -91,9 +140,12 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
   const handleCheckout = () => {
     if (cart.length === 0) return;
 
+    const year = new Date().getFullYear();
+    const rand = Math.floor(10000 + Math.random() * 90000);
+
     const transaction: POSTransaction = {
-      id: `POS-${Math.floor(Math.random() * 9000 + 1000)}`,
-      receiptNo: `REC-2026-0722-${Math.floor(Math.random() * 90 + 10)}`,
+      id: `POS-${Date.now()}`,
+      receiptNo: `REC-${year}-${rand}`,
       customerName,
       customerPhone,
       items: cart.map((c) => ({
@@ -113,7 +165,10 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
       paymentMethod,
       mpesaRef: paymentMethod === 'M-Pesa / Mobile' ? mpesaRef : undefined,
       cashierName: 'Jane Pharmacist',
-      timestamp: '2026-07-22 11:30 AM',
+      timestamp: new Date().toLocaleString('en-UG', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      }),
     };
 
     onCompleteSale(transaction);
@@ -135,13 +190,23 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={openBarcodeScanner}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all"
-        >
-          <QrCode className="w-4 h-4" />
-          <span>Scan Item Barcode</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsCashUpOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all border border-emerald-500/30"
+          >
+            <Receipt className="w-4 h-4" />
+            <span>End-of-Day Cash-Up (Z-Report)</span>
+          </button>
+
+          <button
+            onClick={openBarcodeScanner}
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all"
+          >
+            <QrCode className="w-4 h-4" />
+            <span>Scan Item Barcode</span>
+          </button>
+        </div>
       </div>
 
       {/* POS Grid: Left Drug Catalog Search, Right Checkout Basket */}
@@ -190,6 +255,16 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
               </div>
             ))}
           </div>
+
+          {/* Load Pending Prescription — spec §6.2 */}
+          <button
+            onClick={() => setShowRxModal(true)}
+            disabled={prescriptions.filter(rx => rx.status === 'Pending').length === 0}
+            className="w-full py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-800 font-bold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <FileText className="w-4 h-4" />
+            <span>⚡ Load Pending Prescription ({prescriptions.filter(rx => rx.status === 'Pending').length})</span>
+          </button>
         </div>
 
         {/* Right Column: Active Cart & Billing Terminal */}
@@ -356,14 +431,25 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
 
           </div>
 
-          <button
-            onClick={handleCheckout}
-            disabled={cart.length === 0}
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 cursor-pointer transition-all disabled:opacity-40"
-          >
-            <Printer className="w-4 h-4" />
-            <span>Complete Checkout & Print Receipt</span>
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={() => setIsOrchestratorOpen(true)}
+              disabled={cart.length === 0}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 cursor-pointer transition-all disabled:opacity-40"
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>Multi-Channel Split Payment (§11.18)</span>
+            </button>
+
+            <button
+              onClick={handleCheckout}
+              disabled={cart.length === 0}
+              className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-slate-700 cursor-pointer transition-all disabled:opacity-40"
+            >
+              <Printer className="w-4 h-4 text-emerald-400" />
+              <span>Quick Direct Checkout &amp; Receipt</span>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -371,7 +457,7 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
       {/* Itemized Printable Receipt Modal */}
       {completedReceipt && (
         <div className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4 relative font-mono text-xs text-slate-900">
+        <div id="thermal-receipt" className="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4 relative font-mono text-xs text-slate-900">
             <button
               onClick={() => setCompletedReceipt(null)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 cursor-pointer"
@@ -441,6 +527,79 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
             </button>
           </div>
         </div>
+      )}
+
+      {/* ─── Load Pending Prescription Modal ────────────────────────────────── */}
+      {showRxModal && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="font-bold text-base flex items-center gap-2 text-slate-900">
+                <FileText className="w-5 h-5 text-indigo-500" />
+                Load Pending Prescription to Cart
+              </h3>
+              <button onClick={() => setShowRxModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              {prescriptions.filter(rx => rx.status === 'Pending').length === 0 ? (
+                <p className="text-center text-slate-400 text-xs py-8">No pending prescriptions found.</p>
+              ) : (
+                prescriptions.filter(rx => rx.status === 'Pending').map(rx => (
+                  <button
+                    key={rx.id}
+                    onClick={() => {
+                      setCart([]);
+                      const newCart: CartItem[] = rx.medications.map(med => ({
+                        drug: drugs.find(d => d.id === med.drugId) || {
+                          id: med.drugId, brandName: med.drugName, genericName: med.drugName,
+                          barcode: '', batchNumber: '', category: 'Prescription', shelfLocation: '',
+                          costPrice: med.unitPrice * 0.6, sellingPrice: med.unitPrice,
+                          stockQty: 999, reorderLevel: 5, expiryDate: '2027-12-31',
+                          manufacturer: '', prescriptionRequired: true, unit: 'pcs',
+                        },
+                        quantity: med.quantity,
+                      }));
+                      setCart(newCart);
+                      setCustomerName(rx.patientName);
+                      setCustomerPhone(rx.patientPhone || '');
+                      setShowRxModal(false);
+                    }}
+                    className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 transition-all"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-slate-900">{rx.rxNumber}</span>
+                      <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Pending</span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-0.5">Patient: <b>{rx.patientName}</b> • Dr. {rx.doctorName}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{rx.medications.length} medication(s) — {rx.date}</p>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* End-of-Day Cash-Up Modal */}
+      {isCashUpOpen && (
+        <CashUpModal
+          transactions={transactions}
+          onClose={() => setIsCashUpOpen(false)}
+        />
+      )}
+
+      {/* Payment Orchestrator & Split Modal (§11.18) */}
+      {isOrchestratorOpen && (
+        <PaymentOrchestratorModal
+          totalAmountUgx={totalAmount}
+          taxAmountUgx={taxAmount}
+          customerName={customerName}
+          customerPhone={customerPhone || '+256 772 000000'}
+          onSuccess={handleOrchestratedSuccess}
+          onClose={() => setIsOrchestratorOpen(false)}
+        />
       )}
     </div>
   );

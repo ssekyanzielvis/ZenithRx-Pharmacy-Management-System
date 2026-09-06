@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { DrugItem, PurchaseOrder } from '../types';
 import {
   RefreshCw,
-  Plus,
   Send,
   CheckCircle2,
   AlertCircle,
   Truck,
-  FileText,
-  DollarSign
+  Download,
+  Package,
 } from 'lucide-react';
+import { formatUGX, generatePONumber, generateId, todayISO } from '../services/formatters';
+import { exportToCSV } from '../services/exportService';
+import { Badge } from './ui/Badge';
 
 interface AutomatedReorderingProps {
   drugs: DrugItem[];
@@ -50,11 +52,11 @@ export const AutomatedReordering: React.FC<AutomatedReorderingProps> = ({
     const totalAmt = poItems.reduce((acc, curr) => acc + curr.orderQty * curr.unitCost, 0);
 
     const newPO: PurchaseOrder = {
-      id: `PO-${Math.floor(Math.random() * 900 + 100)}`,
-      poNumber: `PO-2026-${Math.floor(Math.random() * 90000 + 10000)}`,
+      id: generateId('PO'),
+      poNumber: generatePONumber(),
       supplierName: chosenSupplier.name,
       supplierEmail: chosenSupplier.email,
-      dateCreated: '2026-07-22',
+      dateCreated: todayISO(),
       items: poItems,
       status: 'Sent to Supplier',
       totalAmount: totalAmt,
@@ -168,9 +170,14 @@ export const AutomatedReordering: React.FC<AutomatedReorderingProps> = ({
                   <span className="font-mono text-xs font-black text-sky-900 bg-sky-100 px-2 py-0.5 rounded">
                     {po.poNumber}
                   </span>
-                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase">
+                  <Badge variant={
+                    po.status === 'Fulfilled' ? 'success'
+                    : po.status === 'Sent to Supplier' ? 'info'
+                    : po.status === 'Cancelled' ? 'danger'
+                    : 'neutral'
+                  } size="xs">
                     {po.status}
-                  </span>
+                  </Badge>
                 </div>
 
                 <div className="flex items-center justify-between text-xs">
@@ -179,7 +186,7 @@ export const AutomatedReordering: React.FC<AutomatedReorderingProps> = ({
                     <p className="text-[10px] text-slate-500">{po.supplierEmail} • {po.dateCreated}</p>
                   </div>
                   <p className="font-black text-slate-900 font-mono">
-                    UGX {po.totalAmount.toLocaleString()}
+                    {formatUGX(po.totalAmount)}
                   </p>
                 </div>
 

@@ -1305,25 +1305,34 @@ Recommended usage pattern:
 
 ### Database provider recommendation
 
-The best database engine for this system is **PostgreSQL**. The provider should be a managed service with strong backups, monitoring, and regional reliability.
+The best database engine for this system is **PostgreSQL**, and the chosen provider for this project is **Supabase PostgreSQL**.
 
-Recommended providers:
-* **Google Cloud SQL for PostgreSQL** if the broader deployment and AI ecosystem may stay close to Google services.
-* **AWS RDS for PostgreSQL** if the team wants the broadest enterprise infrastructure ecosystem.
-* **Azure Database for PostgreSQL** if the organisation already operates in Microsoft-heavy environments.
+Why Supabase fits this system:
+* Managed PostgreSQL with a strong developer experience.
+* Built-in auth and row-level security patterns that fit multi-tenant access control.
+* Easier alignment with clean architecture because the application can keep domain logic separate from the storage implementation.
+* Good support for a production system that needs rapid delivery without sacrificing control.
 
-The priority is not vendor branding; it is operational maturity, backup quality, availability, compliance posture, and ease of recovery.
+Operational note:
+* Keep business logic in the application layer.
+* Treat Supabase as infrastructure, not as the place where domain rules live.
+* Use Prisma or a well-defined data access layer if the team wants stronger boundary control, or use direct Supabase queries behind repository interfaces if that better matches the codebase style.
 
 ### Authentication provider recommendation
 
-The recommended authentication approach is **OAuth 2.1 / OpenID Connect with a managed identity provider**.
+The recommended authentication approach for this project is **Supabase Auth**.
 
-Recommended providers:
-* **Auth0** for enterprise-grade identity and a fast implementation path.
-* **Clerk** if the team wants a modern developer-first identity platform.
-* **Microsoft Entra External ID** if the business prefers Microsoft ecosystem integration.
+Why Supabase Auth fits this system:
+* It aligns with the chosen Supabase database stack.
+* It supports email/password, magic links, OAuth providers, and session handling.
+* It works cleanly with row-level security and tenant-based access patterns.
+* It keeps authentication implementation simpler while still supporting a professional production setup.
 
-The chosen provider must support MFA, session control, permission claims, audit logs, tenant support, and secure token revocation.
+Implementation note:
+* Use Supabase Auth for identity and session issuance.
+* Keep role, tenant, and collaborator decisions in the application layer and database policies.
+* Do not place critical business permission logic only in the client.
+* Enforce sensitive actions server-side or through protected database policies.
 
 ### CSV export policy for admin and client users
 
@@ -1362,6 +1371,25 @@ Because you want a serious product, the admin system should be designed as a com
 * Visual polish, responsiveness, security, and operational transparency should be uniform across the whole platform.
 
 This is the standard you want if the system is expected to run as a real business product rather than a sketchy prototype.
+
+## 11.22 Supabase-Aligned Clean Architecture Notes
+
+Because this project uses Supabase Auth and Supabase PostgreSQL, the implementation should still follow clean architecture boundaries.
+
+### Recommended layering
+* **Presentation layer:** React UI components and screens.
+* **Application layer:** use cases, orchestration, permissions, workflows.
+* **Domain layer:** entities, value objects, business rules, and invariants.
+* **Infrastructure layer:** Supabase Auth, Supabase database access, Cloudflare R2, notifications, and external integrations.
+
+### Important rule
+* Supabase should be the persistence and identity provider, not the place where domain logic gets mixed into UI code.
+* The application layer should call repository interfaces.
+* Repository implementations can use Supabase behind the scenes.
+* This keeps the system testable, scalable, and easier to refactor later.
+
+### Practical outcome
+Using Supabase for auth and database gives speed and reliability, while clean architecture preserves long-term control, precision, and maintainability.
 
 ## 11.22 Concrete Implementation Plan
 

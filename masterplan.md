@@ -42,7 +42,8 @@ Create the infrastructure and engineering standards required for a serious produ
 - Repository structure with clean separation of concerns
 - Configured TypeScript environment
 - NestJS backend foundation
-- Prisma schema and migration setup
+- Supabase Auth integration and Supabase PostgreSQL connection strategy
+- Prisma schema and migration setup or Supabase-backed repository layer
 - CI/CD pipeline with linting, tests, and security scanning
 - Environment management for development, staging, and production
 - Logging, error tracking, and observability baseline
@@ -72,7 +73,7 @@ Build the platform’s governance backbone.
 #### Deliverables
 - Multi-tenant architecture
 - Branch and client management
-- User accounts, roles, and permissions
+- User accounts, roles, and permissions enforced with Supabase Auth plus application policies
 - Admin and collaborator model
 - MFA and session control
 - Audit logging for sensitive actions
@@ -323,3 +324,13 @@ The product should be built to the following standard:
 ## 8. Final Expectation
 
 If the project is executed to this standard, ZenithRx will become a serious business product rather than a prototype. The system will be professional, governable, secure, and scalable enough to support real pharmacy operations and long-term commercial growth.
+
+## 9. Stack Alignment Note
+
+This masterplan assumes:
+- Supabase Auth for authentication
+- Supabase PostgreSQL for the database
+- clean architecture for separating domain logic from infrastructure
+- Cloudflare R2 for file storage
+
+The technology choices are deliberate: Supabase accelerates delivery, while clean architecture preserves professional control and future maintainability.

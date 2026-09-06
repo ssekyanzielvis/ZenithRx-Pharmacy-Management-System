@@ -14,6 +14,23 @@ import {
   NDA_REGISTERED_PHARMACIES
 } from '../data/mockData';
 import {
+  buildAllClientsExportRows,
+  buildAllStaffExportRows,
+  buildSelectedClientExportRows,
+  downloadCsv,
+} from '../lib/adminExports';
+import { executePolicyCompliantExport } from '../services/csvExportPolicyService';
+import { getDefaultRightsForRole, getRoleBadgeStyle } from '../lib/rolePermissions';
+import { applyPackageTierToClient, getPackageTierConfig } from '../lib/packageTierRules';
+import {
+  createUserAccount,
+  getDefaultStaffFormValues,
+  removeUserAccount,
+  toggleUserStatus,
+  updateUserAccount,
+} from '../lib/adminUserAccounts';
+import { AdminControlPlane } from './AdminControlPlane';
+import {
   Shield,
   CheckCircle2,
   XCircle,
@@ -54,124 +71,40 @@ import {
   CheckSquare,
   Square,
   User,
-  Filter
+  Filter,
+  FileDown
 } from 'lucide-react';
 
 interface AdminPackagesProps {
   activeClient: ClientSubscription;
   setActiveClient: (client: ClientSubscription) => void;
+  subTab?: string;
 }
-
-export const getDefaultRightsForRole = (role: UserRoleRank): UserAccessRights => {
-  switch (role) {
-    case 'Supervising Pharmacist':
-      return {
-        canAccessPOS: true,
-        canManageInventory: true,
-        canProcessPrescriptions: true,
-        canApproveReorders: true,
-        canViewReports: true,
-        canSubmitInsurance: true,
-        canUseAiAssistant: true,
-        canManageStaffAccounts: true,
-      };
-    case 'Assistant Pharmacist':
-      return {
-        canAccessPOS: true,
-        canManageInventory: true,
-        canProcessPrescriptions: true,
-        canApproveReorders: false,
-        canViewReports: false,
-        canSubmitInsurance: true,
-        canUseAiAssistant: true,
-        canManageStaffAccounts: false,
-      };
-    case 'Pharmacy Technician':
-      return {
-        canAccessPOS: true,
-        canManageInventory: true,
-        canProcessPrescriptions: true,
-        canApproveReorders: false,
-        canViewReports: false,
-        canSubmitInsurance: false,
-        canUseAiAssistant: false,
-        canManageStaffAccounts: false,
-      };
-    case 'POS Cashier / Dispenser':
-      return {
-        canAccessPOS: true,
-        canManageInventory: false,
-        canProcessPrescriptions: true,
-        canApproveReorders: false,
-        canViewReports: false,
-        canSubmitInsurance: true,
-        canUseAiAssistant: false,
-        canManageStaffAccounts: false,
-      };
-    case 'Store & Inventory Manager':
-      return {
-        canAccessPOS: false,
-        canManageInventory: true,
-        canProcessPrescriptions: false,
-        canApproveReorders: true,
-        canViewReports: true,
-        canSubmitInsurance: false,
-        canUseAiAssistant: false,
-        canManageStaffAccounts: false,
-      };
-    case 'Finance & Claims Officer':
-      return {
-        canAccessPOS: true,
-        canManageInventory: false,
-        canProcessPrescriptions: false,
-        canApproveReorders: false,
-        canViewReports: true,
-        canSubmitInsurance: true,
-        canUseAiAssistant: false,
-        canManageStaffAccounts: false,
-      };
-    case 'Intern Pharmacist':
-    default:
-      return {
-        canAccessPOS: false,
-        canManageInventory: false,
-        canProcessPrescriptions: true,
-        canApproveReorders: false,
-        canViewReports: false,
-        canSubmitInsurance: false,
-        canUseAiAssistant: true,
-        canManageStaffAccounts: false,
-      };
-  }
-};
-
-export const getRoleBadgeStyle = (role: UserRoleRank) => {
-  switch (role) {
-    case 'Supervising Pharmacist':
-      return 'bg-purple-100 text-purple-900 border-purple-300';
-    case 'Assistant Pharmacist':
-      return 'bg-indigo-100 text-indigo-900 border-indigo-300';
-    case 'Pharmacy Technician':
-      return 'bg-sky-100 text-sky-900 border-sky-300';
-    case 'POS Cashier / Dispenser':
-      return 'bg-emerald-100 text-emerald-900 border-emerald-300';
-    case 'Store & Inventory Manager':
-      return 'bg-amber-100 text-amber-900 border-amber-300';
-    case 'Finance & Claims Officer':
-      return 'bg-teal-100 text-teal-900 border-teal-300';
-    case 'Intern Pharmacist':
-    default:
-      return 'bg-slate-100 text-slate-800 border-slate-300';
-  }
-};
 
 export const AdminPackages: React.FC<AdminPackagesProps> = ({
   activeClient,
   setActiveClient,
+  subTab,
 }) => {
   const [clients, setClients] = useState<ClientSubscription[]>(INITIAL_CLIENT_SUBSCRIPTIONS);
   const [selectedClientId, setSelectedClientId] = useState<string>(activeClient.id);
-  const [activeTab, setActiveTab] = useState<'matrix' | 'userAccounts' | 'showcase' | 'addClient'>('matrix');
+
+  const getTabFromSubTab = (st?: string): 'controlPlane' | 'matrix' | 'userAccounts' | 'showcase' | 'addClient' => {
+    if (st === 'adminControlPlane') return 'controlPlane';
+    if (st === 'adminMatrix') return 'matrix';
+    if (st === 'adminUsers') return 'userAccounts';
+    if (st === 'adminBilling') return 'showcase';
+    if (st === 'adminRegister') return 'addClient';
+    return 'controlPlane';
+  };
+
+  const [activeTab, setActiveTab] = useState<'controlPlane' | 'matrix' | 'userAccounts' | 'showcase' | 'addClient'>(() => getTabFromSubTab(subTab));
+
+  React.useEffect(() => {
+    if (subTab) {
+      setActiveTab(getTabFromSubTab(subTab));
+    }
+  }, [subTab]);
   const [promoCodeInput, setPromoCodeInput] = useState<string>('');
   const [promoApplied, setPromoApplied] = useState<boolean>(false);
   const [promoDiscountPercent, setPromoDiscountPercent] = useState<number>(0);
@@ -264,69 +197,10 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
   };
 
   const handleApplyPresetTier = (tier: TierName) => {
-    const tierTemplate = INITIAL_PACKAGE_TIERS.find((t) => t.id === tier);
-
     setClients((prevClients) =>
       prevClients.map((client) => {
         if (client.id === currentSelectedClient.id) {
-          let updatedFeatures = { ...client.allowedFeatures };
-          let maxUsers = client.customMaxUsers;
-          let rate = client.monthlyUgxRate;
-
-          if (tier === 'Starter') {
-            maxUsers = 5;
-            rate = 40000;
-            updatedFeatures = {
-              basicInventory: true,
-              batchTracking: false,
-              autoReordering: false,
-              expiryAlerts: true,
-              posBilling: true,
-              salesAnalytics: false,
-              insuranceClaims: false,
-              aiCounseling: false,
-              multiLocation: false,
-              apiAccess: false,
-            };
-          } else if (tier === 'Professional') {
-            maxUsers = 15;
-            rate = 72000;
-            updatedFeatures = {
-              basicInventory: true,
-              batchTracking: true,
-              autoReordering: true,
-              expiryAlerts: true,
-              posBilling: true,
-              salesAnalytics: true,
-              insuranceClaims: true,
-              aiCounseling: true,
-              multiLocation: false,
-              apiAccess: false,
-            };
-          } else if (tier === 'Enterprise') {
-            maxUsers = 25;
-            rate = 104000;
-            updatedFeatures = {
-              basicInventory: true,
-              batchTracking: true,
-              autoReordering: true,
-              expiryAlerts: true,
-              posBilling: true,
-              salesAnalytics: true,
-              insuranceClaims: true,
-              aiCounseling: true,
-              multiLocation: true,
-              apiAccess: true,
-            };
-          }
-
-          const updated = {
-            ...client,
-            packageTier: tier,
-            customMaxUsers: maxUsers,
-            monthlyUgxRate: promoApplied ? Math.round(rate * 0.8) : rate,
-            allowedFeatures: updatedFeatures,
-          };
+          const updated = applyPackageTierToClient(client, tier, promoApplied);
 
           if (client.id === activeClient.id) {
             setActiveClient(updated);
@@ -376,35 +250,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
     e.preventDefault();
     if (!newClientName) return;
 
-    let initialFeatures = {
-      basicInventory: true,
-      batchTracking: true,
-      autoReordering: true,
-      expiryAlerts: true,
-      posBilling: true,
-      salesAnalytics: true,
-      insuranceClaims: true,
-      aiCounseling: true,
-      multiLocation: false,
-      apiAccess: false,
-    };
-    let users = 15;
-    let price = 72000;
-
-    if (newClientTier === 'Starter') {
-      users = 5;
-      price = 40000;
-      initialFeatures.batchTracking = false;
-      initialFeatures.autoReordering = false;
-      initialFeatures.salesAnalytics = false;
-      initialFeatures.insuranceClaims = false;
-      initialFeatures.aiCounseling = false;
-    } else if (newClientTier === 'Enterprise') {
-      users = 25;
-      price = 104000;
-      initialFeatures.multiLocation = true;
-      initialFeatures.apiAccess = true;
-    }
+    const tierConfig = getPackageTierConfig(newClientTier);
 
     const assignedNdaLicense = registrationMode === 'ndaLink' && selectedNdaPharmacy
       ? selectedNdaPharmacy.licenseNo
@@ -441,15 +287,15 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
       contactPhone: newClientPhone || '+256 700 000000',
       contactEmail: newClientEmail || `${newClientName.toLowerCase().replace(/\s+/g, '')}@pharmsync.online`,
       packageTier: newClientTier,
-      customMaxUsers: users,
-      monthlyUgxRate: price,
+      customMaxUsers: tierConfig.maxUsers,
+      monthlyUgxRate: tierConfig.monthlyRate,
       billingStatus: 'Active',
       nextBillingDate: '2026-08-30',
       ndaLicenseNo: assignedNdaLicense,
       ndaVerified: isVerified,
       supervisingPharmacist: assignedPharmacist,
       users: initialUsersList,
-      allowedFeatures: initialFeatures,
+      allowedFeatures: tierConfig.allowedFeatures,
     };
 
     setClients([newClientObj, ...clients]);
@@ -471,13 +317,14 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
   // User Account Management Handlers
   const handleOpenAddUserModal = () => {
     setEditingUserId(null);
-    setUserFullName('');
-    setUserEmail('');
-    setUserPhone('');
-    setUserStaffRegNo('');
-    setUserRankRole('Supervising Pharmacist');
-    setUserAccountStatus('Active');
-    setUserAccessRights(getDefaultRightsForRole('Supervising Pharmacist'));
+    const defaults = getDefaultStaffFormValues();
+    setUserFullName(defaults.fullName);
+    setUserEmail(defaults.email);
+    setUserPhone(defaults.phone);
+    setUserStaffRegNo(defaults.staffRegNo);
+    setUserRankRole(defaults.rankRole);
+    setUserAccountStatus(defaults.status);
+    setUserAccessRights(defaults.accessRights);
     setIsUserFormOpen(true);
   };
 
@@ -524,40 +371,34 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
     }
 
     if (editingUserId) {
-      const updatedUsers = currentUsers.map((u) => {
-        if (u.id === editingUserId) {
-          return {
-            ...u,
-            fullName: userFullName,
-            email: userEmail,
-            phone: userPhone,
-            staffRegNo: userStaffRegNo,
-            rankRole: userRankRole,
-            status: userAccountStatus,
-            accessRights: userAccessRights,
-          };
-        }
-        return u;
-      });
+      const updatedUsers = currentUsers.map((user) =>
+        user.id === editingUserId
+          ? updateUserAccount(user, {
+              fullName: userFullName,
+              email: userEmail,
+              phone: userPhone,
+              staffRegNo: userStaffRegNo,
+              rankRole: userRankRole,
+              status: userAccountStatus,
+              accessRights: userAccessRights,
+            })
+          : user
+      );
 
       setClients((prev) =>
         prev.map((c) => (c.id === currentSelectedClient.id ? { ...c, users: updatedUsers } : c))
       );
       setSaveNotification(`Updated designated account for ${userFullName} (${userRankRole})`);
     } else {
-      const newUser: PharmacyUserAccount = {
-        id: `USR-${Math.floor(100 + Math.random() * 900)}-${Date.now().toString().slice(-3)}`,
-        clientId: currentSelectedClient.id,
+      const newUser = createUserAccount(currentSelectedClient, {
         fullName: userFullName,
         email: userEmail,
-        phone: userPhone || '+256 700 000000',
-        staffRegNo: userStaffRegNo || `STAFF-${Math.floor(1000 + Math.random() * 9000)}`,
+        phone: userPhone,
+        staffRegNo: userStaffRegNo,
         rankRole: userRankRole,
         status: userAccountStatus,
         accessRights: userAccessRights,
-        dateCreated: new Date().toISOString().split('T')[0],
-        lastLogin: 'Never (Pending Activation)',
-      };
+      });
 
       const updatedUsers = [...currentUsers, newUser];
 
@@ -575,13 +416,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
 
   const handleToggleUserStatus = (userId: string) => {
     const currentUsers = currentSelectedClient.users || [];
-    const updatedUsers = currentUsers.map((u) => {
-      if (u.id === userId) {
-        const nextStatus: PharmacyUserAccount['status'] = u.status === 'Active' ? 'Suspended' : 'Active';
-        return { ...u, status: nextStatus };
-      }
-      return u;
-    });
+    const updatedUsers = toggleUserStatus(currentUsers, userId);
 
     setClients((prev) =>
       prev.map((c) => (c.id === currentSelectedClient.id ? { ...c, users: updatedUsers } : c))
@@ -592,7 +427,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
 
   const handleDeleteUser = (userId: string) => {
     const currentUsers = currentSelectedClient.users || [];
-    const updatedUsers = currentUsers.filter((u) => u.id !== userId);
+    const updatedUsers = removeUserAccount(currentUsers, userId);
 
     setClients((prev) =>
       prev.map((c) => (c.id === currentSelectedClient.id ? { ...c, users: updatedUsers } : c))
@@ -608,6 +443,12 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
 
   const totalMonthlyRevenueUGX = clients.reduce((acc, c) => acc + c.monthlyUgxRate, 0);
   const totalMaxUsersCombined = clients.reduce((acc, c) => acc + c.customMaxUsers, 0);
+  const totalUsersCombined = clients.reduce((acc, c) => acc + (c.users?.length || 0), 0);
+  const selectedClientUsers = currentSelectedClient.users || [];
+  const activeUserCount = selectedClientUsers.filter((user) => user.status === 'Active').length;
+  const suspendedUserCount = selectedClientUsers.filter((user) => user.status === 'Suspended').length;
+  const pendingInviteCount = selectedClientUsers.filter((user) => user.status === 'Pending Invite').length;
+  const collaboratorCount = selectedClientUsers.filter((user) => user.accessRights.canManageStaffAccounts).length;
 
   const filteredClients = clients.filter(
     (c) =>
@@ -615,6 +456,70 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
       c.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.packageTier.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleExportSelectedClientCsv = async () => {
+    const client = currentSelectedClient;
+    await executePolicyCompliantExport(
+      {
+        userId: 'SUPER-ADMIN-01',
+        userFullName: 'Platform Super Administrator',
+        userRole: 'Super Admin',
+        tenantId: client.id,
+        tenantName: client.clientName,
+        isSuperAdmin: true,
+        permissions: ['EXPORT_ALL_CLIENT_DATA', 'EXPORT_TENANT_DATA'],
+      },
+      {
+        dataset: 'FULL_CROSS_MODULE_BACKUP',
+        format: 'CSV',
+      },
+      async () => buildSelectedClientExportRows(client)
+    );
+    setSaveNotification(`Authorized backup export generated for ${client.clientName}.`);
+    setTimeout(() => setSaveNotification(null), 2500);
+  };
+
+  const handleExportAllClientsCsv = async () => {
+    await executePolicyCompliantExport(
+      {
+        userId: 'SUPER-ADMIN-01',
+        userFullName: 'Platform Super Administrator',
+        userRole: 'Super Admin',
+        tenantId: 'all',
+        tenantName: 'Cross-Tenant Platform',
+        isSuperAdmin: true,
+        permissions: ['EXPORT_ALL_CLIENT_DATA'],
+      },
+      {
+        dataset: 'FULL_CROSS_MODULE_BACKUP',
+        format: 'CSV',
+      },
+      async () => buildAllClientsExportRows(clients)
+    );
+    setSaveNotification('Cross-tenant platform registry CSV export completed.');
+    setTimeout(() => setSaveNotification(null), 2500);
+  };
+
+  const handleExportAllUsersCsv = async () => {
+    await executePolicyCompliantExport(
+      {
+        userId: 'SUPER-ADMIN-01',
+        userFullName: 'Platform Super Administrator',
+        userRole: 'Super Admin',
+        tenantId: 'all',
+        tenantName: 'Cross-Tenant Platform',
+        isSuperAdmin: true,
+        permissions: ['EXPORT_ALL_CLIENT_DATA'],
+      },
+      {
+        dataset: 'STAFF_COLLABORATORS',
+        format: 'CSV',
+      },
+      async () => buildAllStaffExportRows(clients)
+    );
+    setSaveNotification('All designated staff & collaborator accounts exported.');
+    setTimeout(() => setSaveNotification(null), 2500);
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -672,11 +577,53 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               <p className="text-[10px] uppercase font-bold text-cyan-200">User Seats Quota</p>
               <p className="text-xl font-black text-cyan-300 mt-0.5">{totalMaxUsersCombined} Users</p>
             </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+                <p className="text-[10px] uppercase font-bold text-violet-200">Staff Accounts</p>
+                <p className="text-xl font-black text-violet-300 mt-0.5">{totalUsersCombined}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center sm:col-span-2 lg:col-span-1">
+                <p className="text-[10px] uppercase font-bold text-amber-200">Exports</p>
+                <div className="mt-2 flex flex-wrap gap-2 justify-center">
+                  <button
+                    onClick={handleExportSelectedClientCsv}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-slate-950 text-[10px] font-black hover:bg-slate-100 transition-colors"
+                  >
+                    <FileDown className="w-3.5 h-3.5" />
+                    Selected Client CSV
+                  </button>
+                  <button
+                    onClick={handleExportAllClientsCsv}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-400 text-slate-950 text-[10px] font-black hover:bg-sky-300 transition-colors"
+                  >
+                    <FileDown className="w-3.5 h-3.5" />
+                    All Clients CSV
+                  </button>
+                  <button
+                    onClick={handleExportAllUsersCsv}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-400 text-white text-[10px] font-black hover:bg-violet-300 transition-colors"
+                  >
+                    <FileDown className="w-3.5 h-3.5" />
+                    All Staff CSV
+                  </button>
+                </div>
+              </div>
           </div>
         </div>
 
         {/* Navigation Tabs inside Console */}
         <div className="mt-6 pt-4 border-t border-slate-700/60 flex items-center gap-2 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('controlPlane')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'controlPlane'
+                ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-lg font-black'
+                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <Shield className="w-4 h-4" />
+            <span>Superuser Control Plane (§11.17)</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('matrix')}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
@@ -686,7 +633,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
             }`}
           >
             <Sliders className="w-4 h-4" />
-            <span>Client Tailoring Matrix</span>
+            <span>Tenant Feature Matrix</span>
           </button>
 
           <button
@@ -698,7 +645,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
             }`}
           >
             <UserCog className="w-4 h-4" />
-            <span>Designated Staff Accounts & Access Control</span>
+            <span>Branch Staff Accounts</span>
             <span className="bg-purple-900/60 text-purple-200 border border-purple-400/30 text-[10px] px-2 py-0.2 rounded-full font-extrabold">
               {currentSelectedClient.users?.length || 0} Users
             </span>
@@ -713,7 +660,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
             }`}
           >
             <Gift className="w-4 h-4" />
-            <span>PharmSync Package Showcase (UGX Rates)</span>
+            <span>Package &amp; Billing Control</span>
             <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.2 rounded-full font-black">
               -20% OFF
             </span>
@@ -728,10 +675,15 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
             }`}
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Register New Client Pharmacy</span>
+            <span>Register Pharmacy Tenant</span>
           </button>
         </div>
       </div>
+
+      {/* TAB 0: SUPERUSER CONTROL PLANE (§11.17) */}
+      {activeTab === 'controlPlane' && (
+        <AdminControlPlane currentSuperAdminName="Dr. Arthur Ssenabulya" governanceTab={subTab} />
+      )}
 
       {/* TAB 1: CLIENT TAILORING MATRIX */}
       {activeTab === 'matrix' && (
@@ -1593,6 +1545,25 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
                               {usr.fullName.charAt(0)}
                             </div>
                             <div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Active Accounts</p>
+                              <p className="mt-1 text-2xl font-black text-slate-900">{activeUserCount}</p>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Suspended</p>
+                              <p className="mt-1 text-2xl font-black text-rose-700">{suspendedUserCount}</p>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Pending Invites</p>
+                              <p className="mt-1 text-2xl font-black text-amber-700">{pendingInviteCount}</p>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Admin Collaborators</p>
+                              <p className="mt-1 text-2xl font-black text-purple-700">{collaboratorCount}</p>
+                            </div>
+                          </div>
                               <p className="font-extrabold text-slate-900">{usr.fullName}</p>
                               <p className="text-[10px] text-slate-500 font-mono">{usr.email}</p>
                               {usr.staffRegNo && (

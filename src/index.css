@@ -1,1 +1,245 @@
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
 @import "tailwindcss";
+
+/* ============================================================
+   ZenithRx PMS — Global Design System
+   Brand: Deep Navy (#0B1E36) | Sky (#0284C7) | Emerald (#10B981)
+   ============================================================ */
+
+/* --- CSS Custom Properties (Design Tokens) --- */
+:root {
+  /* Technical.md §11.16 Restrained Enterprise Palette */
+  --color-brand-deep:    #0B1E36; /* Deep authority navy */
+  --color-brand-dark:    #1E3A5F; /* Enterprise slate boundary */
+  --color-brand-mid:     #153459; /* Elevated component surfaces */
+  --color-brand-surface: #F8FAFC; /* Neutral soft background */
+  --color-brand-primary: #0284C7; /* Controlled sky blue for primary actions */
+  --color-brand-accent:  #059669; /* Measured success / confirmed state */
+
+  /* Semantic Status & Risk Signaling (§11.16 - Reserved Strictly) */
+  --color-status-danger:  #DC2626; /* Critical / Expired / Emergency */
+  --color-status-warning: #D97706; /* Due / Low Stock / Attention */
+  --color-status-success: #059669; /* Cleared / Dispensed / Validated */
+  --color-status-info:    #0284C7; /* Informational / System */
+
+  /* Standardized Typography Scale */
+  --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Outfit', 'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  /* Standardized Spacing Scale */
+  --space-2xs: 2px;
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Touch & Retail Hardware Targets (§11.16) */
+  --touch-target-min: 44px;
+
+  /* Border Radii Hierarchy */
+  --radius-sm:  6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Shadows — Subtle, functional depth */
+  --shadow-card: 0 1px 3px 0 rgba(11,30,54,.06), 0 1px 2px -1px rgba(11,30,54,.04);
+  --shadow-elevated: 0 4px 20px -2px rgba(11,30,54,.12), 0 2px 8px -2px rgba(11,30,54,.08);
+  --shadow-modal: 0 24px 64px -12px rgba(7,19,38,.45);
+
+  /* Transitions */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 350ms ease;
+}
+
+/* --- Base Resets & Body --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-brand-surface);
+  color: #0f172a;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Typography Utilities --- */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+/* --- Custom Scrollbar --- */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Thin scrollbar — Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+}
+
+/* Hide scrollbar on nav bars */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+/* --- Focus Ring (accessibility) --- */
+*:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- Smooth Animations --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(2, 132, 199, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) ease both;
+}
+
+.animate-slide-down {
+  animation: slideDown var(--transition-base) ease both;
+}
+
+/* Skeleton loader shimmer */
+.skeleton {
+  background: linear-gradient(90deg, #f0f4f8 25%, #e8edf4 50%, #f0f4f8 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: var(--radius-sm);
+}
+
+/* --- Status Risk Colors --- */
+.risk-expired   { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
+.risk-critical  { color: #ea580c; background: #fff7ed; border-color: #fed7aa; }
+.risk-warning   { color: #d97706; background: #fffbeb; border-color: #fde68a; }
+.risk-healthy   { color: #059669; background: #f0fdf4; border-color: #a7f3d0; }
+
+/* --- Chart bar hover effect --- */
+.chart-bar {
+  transition: opacity var(--transition-fast);
+}
+.chart-bar:hover {
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+/* ============================================================
+   THERMAL RECEIPT PRINT STYLES (80mm roll printer)
+   ============================================================ */
+@media print {
+  /* Hide everything except receipt */
+  body * {
+    visibility: hidden;
+  }
+
+  #thermal-receipt,
+  #thermal-receipt * {
+    visibility: visible;
+  }
+
+  #thermal-receipt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80mm;
+    min-height: 100vh;
+    background: white;
+    color: black;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    padding: 4mm 3mm;
+  }
+
+  #thermal-receipt .receipt-divider {
+    border-top: 1px dashed #000;
+    margin: 2mm 0;
+  }
+
+  #thermal-receipt .receipt-logo {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 2mm;
+  }
+
+  #thermal-receipt .receipt-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 1mm 0;
+  }
+
+  #thermal-receipt .receipt-total {
+    font-size: 13px;
+    font-weight: bold;
+    border-top: 2px solid #000;
+    padding-top: 1mm;
+    margin-top: 1mm;
+  }
+
+  /* Page settings */
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+}

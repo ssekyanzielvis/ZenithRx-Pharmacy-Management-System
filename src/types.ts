@@ -6,9 +6,27 @@ export type ModuleTab =
   | 'customers'
   | 'reordering'
   | 'pos'
+  | 'payments'
   | 'reports'
   | 'insurance'
-  | 'adminPackages';
+  | 'audit'
+  | 'collaborators'
+  | 'health'
+  | 'nda'
+  | 'tenancy'
+  | 'adminPackages'
+  | 'adminControlPlane'
+  | 'adminExecutive'
+  | 'adminPolicies'
+  | 'adminDelegated'
+  | 'adminDualControl'
+  | 'adminIncidents'
+  | 'adminMatrix'
+  | 'adminUsers'
+  | 'adminBilling'
+  | 'adminRegister'
+  | 'feedback'
+  | 'adminFeedback';
 
 export type TierName = 'Starter' | 'Professional' | 'Enterprise' | 'Custom Tailored';
 
@@ -153,6 +171,7 @@ export interface CustomerProfile {
   name: string;
   phone: string;
   email: string;
+  dateOfBirth?: string;
   age: number;
   gender: 'Male' | 'Female';
   bloodGroup: string;
@@ -162,8 +181,18 @@ export interface CustomerProfile {
   totalPurchasesCount: number;
   totalAmountSpent: number;
   lastVisit: string;
+  loyaltyPoints?: number;
   insuranceProvider?: string;
   policyNumber?: string;
+  chronicMedications?: Array<{
+    drugName: string;
+    dosage: string;
+    frequency: string;
+    daysSupply: number;
+    nextRefillDate: string;
+    status: 'Due' | 'Upcoming' | 'Refilled';
+  }>;
+  lastRefillReminderSent?: string;
 }
 
 export interface PurchaseOrder {
@@ -219,8 +248,56 @@ export interface InsuranceProvider {
   status: 'Active' | 'Under Review';
 }
 
+export interface InsuranceClaim {
+  id: string;
+  claimNumber: string;
+  providerId: string;
+  providerName: string;
+  memberNumber: string;
+  patientName: string;
+  patientPhone: string;
+  prescriptionId?: string;
+  rxNumber?: string;
+  diagnosisCode?: string;
+  totalAmount: number;
+  coveredAmount: number;
+  copayAmount: number;
+  preAuthCode: string;
+  status: 'Draft' | 'Submitted' | 'Approved' | 'Reconciled' | 'Rejected';
+  submissionDate: string;
+  reconciliationDate?: string;
+  remittanceAdviceNo?: string;
+  rejectionReason?: string;
+  items: Array<{
+    drugName: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+  }>;
+}
+
 export interface ExpiryReportItem {
   drug: DrugItem;
   daysRemaining: number;
   riskStatus: 'Expired' | 'Critical (<30 days)' | 'Warning (<90 days)';
 }
+
+export interface PharmacyFeedbackTicket {
+  id: string;
+  clientId: string;
+  clientName: string;
+  contactEmail: string;
+  contactPhone: string;
+  category: 'Bug Report' | 'Feature Request' | 'Billing Inquiry' | 'NDA Compliance' | 'General Feedback' | 'Performance';
+  urgency: 'Normal' | 'High Priority' | 'Critical';
+  subject: string;
+  message: string;
+  status: 'Pending Admin Review' | 'In Progress' | 'Resolved';
+  dateSubmitted: string;
+  adminReply?: {
+    repliedBy: string;
+    replyMessage: string;
+    dateReplied: string;
+  };
+}
+

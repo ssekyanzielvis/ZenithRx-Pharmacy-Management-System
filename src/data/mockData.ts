@@ -1,4 +1,4 @@
-import { DrugItem, Prescription, CustomerProfile, PurchaseOrder, POSTransaction, InsuranceProvider, PackageTier, ClientSubscription, NdaPharmacyRecord } from '../types';
+import { DrugItem, Prescription, CustomerProfile, PurchaseOrder, POSTransaction, InsuranceProvider, InsuranceClaim, PackageTier, ClientSubscription, NdaPharmacyRecord } from '../types';
 
 export const INITIAL_DRUGS: DrugItem[] = [
   {
@@ -262,6 +262,7 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     name: 'Sarah Wanjiku',
     phone: '+256 712 345 678',
     email: 'sarah.wanjiku@gmail.com',
+    dateOfBirth: '1988-03-15',
     age: 38,
     gender: 'Female',
     bloodGroup: 'O+',
@@ -269,10 +270,29 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     chronicConditions: ['Asthma'],
     activePrescriptionsCount: 1,
     totalPurchasesCount: 8,
-    totalAmountSpent: 14500,
+    totalAmountSpent: 145000,
+    loyaltyPoints: 340,
     lastVisit: '2026-07-21',
     insuranceProvider: 'Jubilee Health Insurance Uganda',
-    policyNumber: 'JUB-883921-A'
+    policyNumber: 'JUB-883921-A',
+    chronicMedications: [
+      {
+        drugName: 'Ventolin Evohaler 100mcg',
+        dosage: '2 puffs',
+        frequency: 'As needed / Twice daily',
+        daysSupply: 30,
+        nextRefillDate: '2026-08-08',
+        status: 'Due'
+      },
+      {
+        drugName: 'Seretide Diskus 50/250mcg',
+        dosage: '1 inhalation',
+        frequency: 'Twice daily',
+        daysSupply: 30,
+        nextRefillDate: '2026-08-15',
+        status: 'Upcoming'
+      }
+    ]
   },
   {
     id: 'CUST-002',
@@ -286,10 +306,29 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     chronicConditions: ['Type 2 Diabetes', 'Hypertension'],
     activePrescriptionsCount: 2,
     totalPurchasesCount: 19,
-    totalAmountSpent: 48900,
+    totalAmountSpent: 489000,
+    loyaltyPoints: 1120,
     lastVisit: '2026-07-20',
     insuranceProvider: 'National Health Insurance Scheme (NHIS)',
-    policyNumber: 'NHIS-5529104'
+    policyNumber: 'NHIS-5529104',
+    chronicMedications: [
+      {
+        drugName: 'Metformin 500mg',
+        dosage: '1 tablet',
+        frequency: 'Twice daily with meals',
+        daysSupply: 30,
+        nextRefillDate: '2026-08-03',
+        status: 'Due'
+      },
+      {
+        drugName: 'Lipitor 20mg',
+        dosage: '1 tablet',
+        frequency: 'Once daily at bedtime',
+        daysSupply: 30,
+        nextRefillDate: '2026-08-04',
+        status: 'Due'
+      }
+    ]
   },
   {
     id: 'CUST-003',
@@ -300,13 +339,52 @@ export const INITIAL_CUSTOMERS: CustomerProfile[] = [
     gender: 'Female',
     bloodGroup: 'B+',
     allergies: ['Sulfa drugs'],
-    chronicConditions: [],
+    chronicConditions: ['GERD / Acid Reflux'],
     activePrescriptionsCount: 0,
     totalPurchasesCount: 3,
-    totalAmountSpent: 3800,
+    totalAmountSpent: 38000,
+    loyaltyPoints: 95,
     lastVisit: '2026-07-15',
     insuranceProvider: 'AAR Insurance Uganda',
-    policyNumber: 'AAR-771029'
+    policyNumber: 'AAR-771029',
+    chronicMedications: [
+      {
+        drugName: 'Esomeprazole 40mg',
+        dosage: '1 capsule',
+        frequency: 'Once daily before breakfast',
+        daysSupply: 28,
+        nextRefillDate: '2026-08-12',
+        status: 'Upcoming'
+      }
+    ]
+  },
+  {
+    id: 'CUST-004',
+    name: 'Emmanuel Ssenyonjo',
+    phone: '+256 701 556 677',
+    email: 'e.ssenyonjo@gmail.com',
+    age: 62,
+    gender: 'Male',
+    bloodGroup: 'O+',
+    allergies: ['Aspirin (bronchospasm)'],
+    chronicConditions: ['Hypertension', 'Dyslipidemia'],
+    activePrescriptionsCount: 2,
+    totalPurchasesCount: 14,
+    totalAmountSpent: 342000,
+    loyaltyPoints: 780,
+    lastVisit: '2026-07-10',
+    insuranceProvider: 'APA Insurance Uganda',
+    policyNumber: 'APA-100922',
+    chronicMedications: [
+      {
+        drugName: 'Amlodipine 5mg',
+        dosage: '1 tablet',
+        frequency: 'Once daily in morning',
+        daysSupply: 30,
+        nextRefillDate: '2026-08-01',
+        status: 'Due'
+      }
+    ]
   }
 ];
 
@@ -352,6 +430,96 @@ export const INITIAL_INSURANCE_PROVIDERS: InsuranceProvider[] = [
     status: 'Active'
   }
 ];
+
+export const INITIAL_INSURANCE_CLAIMS: InsuranceClaim[] = [
+  {
+    id: 'CLM-001',
+    claimNumber: 'CLM-2026-0720-01',
+    providerId: 'INS-01',
+    providerName: 'Jubilee Health Insurance Uganda',
+    memberNumber: 'JUB-883921-A',
+    patientName: 'Sarah Wanjiku',
+    patientPhone: '+256 712 345 678',
+    prescriptionId: 'RX-901',
+    rxNumber: 'RX-2026-0720-01',
+    diagnosisCode: 'J45.909 (Unspecified Asthma)',
+    totalAmount: 52000,
+    coveredAmount: 44200,
+    copayAmount: 7800,
+    preAuthCode: 'JUB-AUTH-77821',
+    status: 'Approved',
+    submissionDate: '2026-07-20',
+    items: [
+      { drugName: 'Ventolin Evohaler 100mcg', quantity: 2, unitPrice: 18000, total: 36000 },
+      { drugName: 'Amoxicillin 500mg', quantity: 20, unitPrice: 800, total: 16000 }
+    ]
+  },
+  {
+    id: 'CLM-002',
+    claimNumber: 'CLM-2026-0721-02',
+    providerId: 'INS-02',
+    providerName: 'National Health Insurance Scheme (NHIS)',
+    memberNumber: 'NHIS-5529104',
+    patientName: 'David Kiptoo',
+    patientPhone: '+256 722 987 654',
+    prescriptionId: 'RX-902',
+    rxNumber: 'RX-2026-0721-02',
+    diagnosisCode: 'E11.9 (Type 2 Diabetes)',
+    totalAmount: 110000,
+    coveredAmount: 99000,
+    copayAmount: 11000,
+    preAuthCode: 'NHIS-UG-99410',
+    status: 'Submitted',
+    submissionDate: '2026-07-21',
+    items: [
+      { drugName: 'Metformin 500mg', quantity: 60, unitPrice: 500, total: 30000 },
+      { drugName: 'Glucophage 1000mg', quantity: 40, unitPrice: 2000, total: 80000 }
+    ]
+  },
+  {
+    id: 'CLM-003',
+    claimNumber: 'CLM-2026-0718-03',
+    providerId: 'INS-03',
+    providerName: 'AAR Insurance Uganda',
+    memberNumber: 'AAR-229104',
+    patientName: 'Mary Mutua',
+    patientPhone: '+256 733 112 233',
+    diagnosisCode: 'K21.9 (GERD / Gastritis)',
+    totalAmount: 78000,
+    coveredAmount: 62400,
+    copayAmount: 15600,
+    preAuthCode: 'AAR-PRE-44109',
+    status: 'Reconciled',
+    submissionDate: '2026-07-18',
+    reconciliationDate: '2026-07-23',
+    remittanceAdviceNo: 'REM-AAR-2026-8819',
+    items: [
+      { drugName: 'Esomeprazole 40mg', quantity: 28, unitPrice: 2000, total: 56000 },
+      { drugName: 'Gaviscon Double Action 150ml', quantity: 1, unitPrice: 22000, total: 22000 }
+    ]
+  },
+  {
+    id: 'CLM-004',
+    claimNumber: 'CLM-2026-0722-04',
+    providerId: 'INS-04',
+    providerName: 'APA Insurance Uganda',
+    memberNumber: 'APA-100922',
+    patientName: 'Emmanuel Ssenyonjo',
+    patientPhone: '+256 701 556677',
+    diagnosisCode: 'I10 (Essential Hypertension)',
+    totalAmount: 45000,
+    coveredAmount: 33750,
+    copayAmount: 11250,
+    preAuthCode: 'APA-AUTH-3321',
+    status: 'Draft',
+    submissionDate: '2026-07-22',
+    items: [
+      { drugName: 'Amlodipine 5mg', quantity: 30, unitPrice: 500, total: 15000 },
+      { drugName: 'Losartan 50mg', quantity: 30, unitPrice: 1000, total: 30000 }
+    ]
+  }
+];
+
 
 export const INITIAL_POS_TRANSACTIONS: POSTransaction[] = [
   {

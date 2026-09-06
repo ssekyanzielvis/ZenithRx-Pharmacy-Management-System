@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { QrCode, X, Camera, CheckCircle2, Search } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { QrCode, X, Camera, CheckCircle2, Search, AlertCircle } from 'lucide-react';
 import { DrugItem } from '../types';
 
 interface BarcodeScannerModalProps {
@@ -17,6 +17,64 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
 }) => {
   const [manualBarcode, setManualBarcode] = useState('');
   const [scannedDrug, setScannedDrug] = useState<DrugItem | null>(null);
+  const [hasCameraError, setHasCameraError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // 1. Hardware Laser Scanner Listener
+    let barcodeBuffer = '';
+    let timeout: NodeJS.Timeout | null = null;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).tagName === 'INPUT') return;
+      
+      if (e.key === 'Enter') {
+        if (barcodeBuffer.length > 3) {
+          const matchedDrug = drugs.find(d => d.barcode === barcodeBuffer);
+          if (matchedDrug) {
+            setScannedDrug(matchedDrug);
+          }
+        }
+        barcodeBuffer = '';
+        if (timeout) clearTimeout(timeout);
+      } else if (e.key.length === 1) {
+        barcodeBuffer += e.key;
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          barcodeBuffer = '';
+        }, 50); // Scanners type very fast
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // 2. WebRTC Camera Initialization
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setHasCameraError(false);
+      } catch (err) {
+        console.error('Failed to access camera:', err);
+        setHasCameraError(true);
+      }
+    };
+
+    startCamera();
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [isOpen, drugs]);
 
   if (!isOpen) return null;
 
@@ -46,10 +104,28 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         {/* Camera Scanner Simulation Frame */}
         <div className="relative w-full h-48 bg-slate-950 rounded-xl border-2 border-sky-500/50 flex flex-col items-center justify-center overflow-hidden">
           {/* Laser scanning beam line */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse shadow-lg shadow-cyan-400"></div>
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse shadow-lg shadow-cyan-400 z-10"></div>
 
-          <Camera className="w-10 h-10 text-sky-400/40" />
-          <p className="text-[11px] text-slate-400 font-mono mt-2">Align medication barcode inside box</p>
+          {!hasCameraError ? (
+            <video 
+              ref={videoRef} 
+              autoPlay 
+              playsInline 
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
+            />
+          ) : (
+            <div className="text-center z-10">
+              <AlertCircle className="w-8 h-8 text-rose-400/60 mx-auto mb-1" />
+              <p className="text-[10px] text-rose-300/80">Camera access denied or unavailable</p>
+            </div>
+          )}
+
+          {!hasCameraError && (
+            <div className="z-10 flex flex-col items-center pointer-events-none mt-8">
+               <Camera className="w-10 h-10 text-sky-400/40" />
+               <p className="text-[11px] text-slate-300 font-mono mt-2 bg-slate-900/60 px-2 py-0.5 rounded">Align medication barcode inside box</p>
+            </div>
+          )}
         </div>
 
         {/* Quick Test Barcode Picks */}
