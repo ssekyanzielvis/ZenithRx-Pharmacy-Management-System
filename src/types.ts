@@ -28,6 +28,9 @@ export type ModuleTab =
   | 'feedback'
   | 'adminFeedback';
 
+export type SubscriptionStatus = 'active' | 'expired' | 'none';
+export type BillingCycle = 'monthly' | 'yearly';
+
 export type TierName = 'Starter' | 'Professional' | 'Enterprise' | 'Custom Tailored';
 
 export interface PackageTier {

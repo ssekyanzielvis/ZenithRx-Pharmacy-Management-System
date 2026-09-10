@@ -33,8 +33,10 @@ import {
   SlidersHorizontal,
   Lock,
   MessageSquarePlus,
-  MessageCircle
+  MessageCircle,
+  LogOut,
 } from 'lucide-react';
+import { AuthUser } from '../hooks/useAuth';
 
 interface SidebarProps {
   activeTab: ModuleTab;
@@ -45,6 +47,8 @@ interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   onOpenFeedbackModal?: () => void;
+  user?: AuthUser | null;
+  onSignOut?: () => void;
 }
 
 interface NavCategory {
@@ -70,6 +74,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   setIsOpen,
   onOpenFeedbackModal,
+  user,
+  onSignOut,
 }) => {
   // Check if current context is Administrator (/admin)
   const isAdminContext =
@@ -473,17 +479,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Sidebar Footer */}
-      {isOpen && (
-        <div className="p-3 border-t border-[#152E4D] bg-[#051121] text-[11px] text-slate-400 space-y-1">
-          <div className="flex items-center gap-1.5 font-semibold text-slate-300">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>{isAdminContext ? 'System Admin Mode' : 'ZenithRx Engine'}</span>
+      <div className="p-3 border-t border-[#152E4D] bg-[#051121] text-[11px] text-slate-400 space-y-2">
+        {user && onSignOut && (
+          <button
+            onClick={onSignOut}
+            className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-rose-950/30 hover:bg-rose-900/40 text-rose-300 hover:text-rose-100 border border-rose-800/40 text-xs font-bold transition-all cursor-pointer shadow-sm ${
+              !isOpen ? 'justify-center px-2' : ''
+            }`}
+            title={`Log Out (${user.email})`}
+          >
+            <LogOut className="w-4 h-4 text-rose-400 shrink-0" />
+            {isOpen && <span className="truncate">Log Out ({user.fullName.split(' ')[0]})</span>}
+          </button>
+        )}
+        {isOpen && (
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5 font-semibold text-slate-300">
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{isAdminContext ? 'System Admin Mode' : 'ZenithRx Engine'}</span>
+            </div>
+            <p className="text-[10px] text-slate-500">
+              {isAdminContext ? 'Strict Least Privilege Enforced' : 'Quantum PMS v3.2 • Enterprise'}
+            </p>
           </div>
-          <p className="text-[10px] text-slate-500">
-            {isAdminContext ? 'Strict Least Privilege Enforced' : 'Quantum PMS v3.2 • Enterprise'}
-          </p>
-        </div>
-      )}
+        )}
+      </div>
     </aside>
   );
 };

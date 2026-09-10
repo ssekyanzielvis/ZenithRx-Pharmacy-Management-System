@@ -258,7 +258,7 @@ const INITIAL_RUNBOOKS: IncidentRunbook[] = [
   {
     id: 'RUNBOOK-MESSAGING-FAILURE',
     title: "Africa's Talking SMS / WhatsApp Gateway Failure",
-    severity: 'LOW',
+    severity: 'MEDIUM',
     category: 'MESSAGING',
     symptoms: [
       'Refill alerts queued but not acknowledged by SMS provider',
@@ -349,15 +349,14 @@ export async function triggerManualBackup(
   currentBackups = [newBackup, ...currentBackups];
 
   logAuditEvent({
-    timestamp: new Date().toISOString(),
-    userId: 'SYS-DR-01',
-    userFullName: initiatedBy,
+    tenantId: 'SYSTEM',
+    performedBy: 'SYS-DR-01',
+    performedByName: initiatedBy,
     userRole: 'Super Admin',
-    action: 'CREATE',
-    module: 'system_health',
-    details: `Manual disaster recovery backup snapshot created: ${newBackup.id} with AES-256-GCM encryption.`,
-    outcome: 'SUCCESS',
-    riskLevel: 'LOW',
+    action: 'create',
+    entityType: 'Backup',
+    notes: `Manual disaster recovery backup snapshot created: ${newBackup.id} with AES-256-GCM encryption.`,
+    severity: 'INFO',
   });
 
   // Simulate cross-region sync completion
@@ -391,15 +390,14 @@ export async function triggerRestoreDryRun(
   currentRestoreTests = [testRun, ...currentRestoreTests];
 
   logAuditEvent({
-    timestamp: new Date().toISOString(),
-    userId: 'SYS-DR-01',
-    userFullName: executedBy,
+    tenantId: 'SYSTEM',
+    performedBy: 'SYS-DR-01',
+    performedByName: executedBy,
     userRole: 'Super Admin',
-    action: 'VERIFY',
-    module: 'system_health',
-    details: `Completed automated restore test dry-run for ${backup.id} (${testRun.dryRunDurationSeconds}s duration, 42 tables verified).`,
-    outcome: 'SUCCESS',
-    riskLevel: 'LOW',
+    action: 'override',
+    entityType: 'RestoreTest',
+    notes: `Completed automated restore test dry-run for ${backup.id} (${testRun.dryRunDurationSeconds}s duration, 42 tables verified).`,
+    severity: 'INFO',
   });
 
   return testRun;
@@ -428,15 +426,14 @@ export async function executeRunbookMitigation(
   const isTripped = currentRunbooks.find((r) => r.id === runbookId)?.circuitBreakerState === 'OPEN';
 
   logAuditEvent({
-    timestamp: new Date().toISOString(),
-    userId: 'SYS-DR-01',
-    userFullName: executedBy,
+    tenantId: 'SYSTEM',
+    performedBy: 'SYS-DR-01',
+    performedByName: executedBy,
     userRole: 'Super Admin',
-    action: 'UPDATE',
-    module: 'system_health',
-    details: `Executed disaster recovery runbook "${runbook.title}". Circuit breaker is now ${isTripped ? 'TRIPPED (Safe Fallback Active)' : 'RESET (Normal Operation)'}.`,
-    outcome: 'SUCCESS',
-    riskLevel: 'MEDIUM',
+    action: 'update',
+    entityType: 'Runbook',
+    notes: `Executed disaster recovery runbook "${runbook.title}". Circuit breaker is now ${isTripped ? 'TRIPPED (Safe Fallback Active)' : 'RESET (Normal Operation)'}.`,
+    severity: 'INFO',
   });
 
   return {
@@ -461,15 +458,14 @@ export async function togglePosDegradationSetting(
   };
 
   logAuditEvent({
-    timestamp: new Date().toISOString(),
-    userId: 'SYS-DR-01',
-    userFullName: updatedBy,
+    tenantId: 'SYSTEM',
+    performedBy: 'SYS-DR-01',
+    performedByName: updatedBy,
     userRole: 'Super Admin',
-    action: 'UPDATE',
-    module: 'system_health',
-    details: `POS Graceful Degradation override updated: ${key} set to ${enabled}.`,
-    outcome: 'SUCCESS',
-    riskLevel: 'LOW',
+    action: 'update',
+    entityType: 'PosDegradationOverride',
+    notes: `POS Graceful Degradation override updated: ${key} set to ${enabled}.`,
+    severity: 'INFO',
   });
 
   return currentPosDegradation;

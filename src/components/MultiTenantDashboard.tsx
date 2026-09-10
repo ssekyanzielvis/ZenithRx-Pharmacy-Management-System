@@ -389,7 +389,7 @@ export const MultiTenantDashboard: React.FC = () => {
                     </div>
                     <p className="text-[11px] text-slate-500">{row.description}</p>
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      {row.allowedTiers.map((t) => <TierBadge key={t} tier={t} />)}
+                      {row.allowedTiers.map((t) => <React.Fragment key={t}><TierBadge tier={t} /></React.Fragment>)}
                       {row.maxPerPharmacy !== -1 && (
                         <span className="text-[9px] font-black px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded-full border border-slate-200">
                           Max {row.maxPerPharmacy}/pharmacy

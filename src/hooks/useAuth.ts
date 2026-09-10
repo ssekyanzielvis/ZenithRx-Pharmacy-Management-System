@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import type { SubscriptionStatus, BillingCycle } from '../types';
 
 export interface AuthUser {
   id:          string;
@@ -27,6 +28,9 @@ export interface AuthUser {
     canManageStaffAccounts:    boolean;
   };
   isSuperAdmin: boolean;
+  subscriptionStatus: SubscriptionStatus;
+  billingCycle: BillingCycle | null;
+  selectedTier: string | null;
 }
 
 export interface UseAuthReturn {
@@ -36,8 +40,10 @@ export interface UseAuthReturn {
   error:      string | null;
   isConfigured: boolean;
   signIn:     (email: string, password: string) => Promise<void>;
+  signUp:     (email: string, password: string, fullName: string, phone: string) => Promise<void>;
   signOut:    () => Promise<void>;
   sendMagicLink: (email: string) => Promise<void>;
+  activateSubscription: (tier: string, cycle: BillingCycle) => void;
   clearError: () => void;
 }
 
@@ -61,6 +67,9 @@ const DEMO_USER: AuthUser = {
     canManageStaffAccounts:  true,
   },
   isSuperAdmin: false,
+  subscriptionStatus: 'active',
+  billingCycle: 'monthly',
+  selectedTier: 'Professional',
 };
 
 export function useAuth(): UseAuthReturn {
@@ -94,6 +103,9 @@ export function useAuth(): UseAuthReturn {
           tenantName:   '',
           accessRights: DEMO_USER.accessRights,
           isSuperAdmin: false,
+          subscriptionStatus: 'none',
+          billingCycle: null,
+          selectedTier: null,
         });
         return;
       }
@@ -118,6 +130,9 @@ export function useAuth(): UseAuthReturn {
           canManageStaffAccounts:  rights['can_manage_staff_accounts']?? false,
         },
         isSuperAdmin: Boolean(supabaseUser.app_metadata?.['is_super_admin']),
+        subscriptionStatus: (profile.subscription_status as SubscriptionStatus) ?? 'none',
+        billingCycle: (profile.billing_cycle as BillingCycle) ?? null,
+        selectedTier: profile.selected_tier ?? null,
       });
     } catch (err) {
       console.error('[useAuth] loadUserProfile error:', err);
@@ -181,6 +196,37 @@ export function useAuth(): UseAuthReturn {
     }
   }, []);
 
+  const signUp = useCallback(async (email: string, password: string, fullName: string, phone: string) => {
+    if (!isSupabaseConfigured || !supabase) {
+      // Demo mode — create a local user without a subscription
+      setUser({
+        ...DEMO_USER,
+        id: `demo-${Date.now()}`,
+        email,
+        fullName,
+        phone,
+        subscriptionStatus: 'none',
+        billingCycle: null,
+        selectedTier: null,
+      });
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    const { error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName, phone },
+      },
+    });
+    setLoading(false);
+    if (signUpError) {
+      setError(signUpError.message);
+      throw signUpError;
+    }
+  }, []);
+
   const sendMagicLink = useCallback(async (email: string) => {
     if (!isSupabaseConfigured || !supabase) {
       setError('Magic link requires Supabase to be configured.');
@@ -191,6 +237,17 @@ export function useAuth(): UseAuthReturn {
       options: { emailRedirectTo: window.location.origin },
     });
     if (mlError) setError(mlError.message);
+  }, []);
+
+  const activateSubscription = useCallback((tier: string, cycle: BillingCycle) => {
+    setUser(prev => prev ? {
+      ...prev,
+      subscriptionStatus: 'active' as SubscriptionStatus,
+      billingCycle: cycle,
+      selectedTier: tier,
+    } : prev);
+    // In production, this would persist to Supabase:
+    // supabase?.from('users').update({ subscription_status: 'active', billing_cycle: cycle, selected_tier: tier }).eq('id', user?.id)
   }, []);
 
   const signOut = useCallback(async () => {
@@ -212,8 +269,10 @@ export function useAuth(): UseAuthReturn {
     error,
     isConfigured: isSupabaseConfigured,
     signIn,
+    signUp,
     signOut,
     sendMagicLink,
+    activateSubscription,
     clearError,
   };
 }

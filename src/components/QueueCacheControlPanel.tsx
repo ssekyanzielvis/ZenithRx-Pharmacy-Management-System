@@ -452,7 +452,7 @@ export const QueueCacheControlPanel: React.FC = () => {
             <div className="divide-y divide-slate-100">
               {(Object.keys(NAMESPACE_TTL_MS) as CacheNamespace[]).map((ns) => {
                 const count = cacheStats.namespaceBreakdown[ns] ?? 0;
-                const maxCount = Math.max(...Object.values(cacheStats.namespaceBreakdown), 1);
+                const maxCount = Math.max(...(Object.values(cacheStats.namespaceBreakdown) as number[]), 1);
 
                 return (
                   <div key={ns} className="p-4 hover:bg-slate-50 transition">

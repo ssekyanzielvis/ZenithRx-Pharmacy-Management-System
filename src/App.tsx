@@ -31,6 +31,8 @@ import { logAuditEvent }          from './repositories/auditRepository';
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import { useAuth }   from './hooks/useAuth';
 import { LoginPage } from './components/auth/LoginPage';
+import { LandingPage } from './components/LandingPage';
+import { SubscriptionPage } from './components/auth/SubscriptionPage';
 
 // ─── Components ───────────────────────────────────────────────────────────────
 import { Header }                from './components/Header';
@@ -78,6 +80,7 @@ export default function App() {
   };
 
   const [activeTab, setActiveTab]         = useState<ModuleTab>(getInitialTab);
+  const [showLanding, setShowLanding]     = useState<boolean>(!window.location.hash.includes('app'));
   const [showPromoFlyer, setShowPromoFlyer] = useState<boolean>(false);
   const [dataLoading, setDataLoading]     = useState(false);
   const [isR2ArchiveOpen, setIsR2ArchiveOpen] = useState(false);
@@ -111,6 +114,16 @@ export default function App() {
 
   useEffect(() => {
     document.title = 'ZenithRx Pharmacy Management System';
+
+    const handleLocationChange = () => {
+      setActiveTab(getInitialTab());
+    };
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
 
   // ─── Load real data from Supabase once the user is authenticated ─────────
@@ -253,7 +266,7 @@ export default function App() {
     );
   };
 
-  // ─── Auth gate ───────────────────────────────────────────────────────────
+  // ─── Unauthenticated Landing & Auth Gate ─────────────────────────────────
   if (auth.loading) {
     return (
       <div className="min-h-screen bg-[#070F1C] flex items-center justify-center">
@@ -268,7 +281,12 @@ export default function App() {
   }
 
   if (!auth.user) {
-    return <LoginPage auth={auth} />;
+    return <LandingPage auth={auth} />;
+  }
+
+  // ─── Subscription Gate ───────────────────────────────────────────────────
+  if (auth.user.subscriptionStatus !== 'active' && !auth.user.isSuperAdmin) {
+    return <SubscriptionPage auth={auth} />;
   }
 
   // ─── Authenticated app shell ─────────────────────────────────────────────
@@ -299,6 +317,8 @@ export default function App() {
         openR2Archive={() => setIsR2ArchiveOpen(true)}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
+        user={auth.user}
+        onSignOut={auth.signOut}
       />
 
       {/* Main Layout Container with Left Sidebar (Only visible when operating active system modules) */}
@@ -313,6 +333,8 @@ export default function App() {
             isOpen={sidebarOpen}
             setIsOpen={setSidebarOpen}
             onOpenFeedbackModal={() => setIsFeedbackModalOpen(true)}
+            user={auth.user}
+            onSignOut={auth.signOut}
           />
         )}
 

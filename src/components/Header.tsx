@@ -9,8 +9,10 @@ import {
   Building2,
   Menu,
   ArrowRight,
-  Shield
+  Shield,
+  LogOut,
 } from 'lucide-react';
+import { AuthUser } from '../hooks/useAuth';
 
 interface HeaderProps {
   activeTab: ModuleTab;
@@ -33,6 +35,8 @@ interface HeaderProps {
   openR2Archive?: () => void;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
+  user?: AuthUser | null;
+  onSignOut?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -51,6 +55,8 @@ export const Header: React.FC<HeaderProps> = ({
   openR2Archive,
   sidebarOpen,
   setSidebarOpen,
+  user,
+  onSignOut,
 }) => {
   const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
 
@@ -133,6 +139,23 @@ export const Header: React.FC<HeaderProps> = ({
               <span>Launch Workspace</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
+
+            {user && onSignOut && (
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-700/60">
+                <div className="hidden sm:flex flex-col text-right leading-none">
+                  <span className="text-xs font-bold text-white truncate max-w-[120px]">{user.fullName}</span>
+                  <span className="text-[10px] text-sky-400 font-medium truncate max-w-[120px]">{user.rankRole}</span>
+                </div>
+                <button
+                  onClick={onSignOut}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white border border-rose-500/40 text-xs font-bold transition-all cursor-pointer shadow-sm"
+                  title={`Log Out (${user.email})`}
+                >
+                  <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
@@ -293,6 +316,24 @@ export const Header: React.FC<HeaderProps> = ({
               <Pill className="w-3.5 h-3.5" />
               <span>Platform Overview</span>
             </button>
+
+            {/* User Profile & Global Logout Button */}
+            {user && onSignOut && (
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-700/60">
+                <div className="hidden lg:flex flex-col text-right leading-none">
+                  <span className="text-xs font-bold text-white truncate max-w-[130px]">{user.fullName}</span>
+                  <span className="text-[10px] text-sky-400 font-medium truncate max-w-[130px]">{user.rankRole}</span>
+                </div>
+                <button
+                  onClick={onSignOut}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 hover:text-white border border-rose-500/40 text-xs font-bold transition-all cursor-pointer shadow-sm"
+                  title={`Log Out (${user.email})`}
+                >
+                  <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
           </div>
 
         </div>

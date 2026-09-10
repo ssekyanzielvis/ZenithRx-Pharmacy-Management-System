@@ -14,15 +14,15 @@ CREATE INDEX IF NOT EXISTS idx_drugs_tenant_barcode
 
 -- FEFO (First-Expired, First-Out) sorting index
 CREATE INDEX IF NOT EXISTS idx_drugs_tenant_expiry_fefo 
-  ON drugs (tenant_id, expiry_date ASC, stock_quantity DESC);
+  ON drugs (tenant_id, expiry_date ASC, stock_qty DESC);
 
 -- Drug category and stock level filtering
 CREATE INDEX IF NOT EXISTS idx_drugs_tenant_category_stock 
-  ON drugs (tenant_id, category, stock_quantity);
+  ON drugs (tenant_id, category, stock_qty);
 
 -- Trigram index for instantaneous multi-word generic and brand name search
 CREATE INDEX IF NOT EXISTS idx_drugs_name_trgm 
-  ON drugs USING gin (name gin_trgm_ops);
+  ON drugs USING gin (brand_name gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS idx_drugs_generic_trgm 
   ON drugs USING gin (generic_name gin_trgm_ops);
@@ -34,55 +34,50 @@ CREATE INDEX IF NOT EXISTS idx_prescriptions_tenant_status_created
 
 -- Fast lookup by official prescription code / registration ID
 CREATE INDEX IF NOT EXISTS idx_prescriptions_tenant_rx_number 
-  ON prescriptions (tenant_id, prescription_number);
+  ON prescriptions (tenant_id, rx_number);
 
 -- Patient prescription history lookup
-CREATE INDEX IF NOT EXISTS idx_prescriptions_tenant_patient_id 
-  ON prescriptions (tenant_id, customer_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_prescriptions_tenant_patient_name 
+  ON prescriptions (tenant_id, patient_name, created_at DESC);
 
 -- 4. POINT OF SALE & TRANSACTIONS INDEXES
 -- Daily/Monthly ledger reporting and sales analytics filter
 CREATE INDEX IF NOT EXISTS idx_pos_transactions_tenant_date 
-  ON pos_transactions (tenant_id, transaction_date DESC, status);
+  ON pos_transactions (tenant_id, created_at DESC);
 
 -- Fast receipt ID / invoice number point lookup
 CREATE INDEX IF NOT EXISTS idx_pos_transactions_tenant_receipt 
-  ON pos_transactions (tenant_id, receipt_number);
+  ON pos_transactions (tenant_id, receipt_no);
 
 -- Payment method breakdown filtering
 CREATE INDEX IF NOT EXISTS idx_pos_transactions_tenant_payment_method 
-  ON pos_transactions (tenant_id, payment_method, transaction_date DESC);
+  ON pos_transactions (tenant_id, payment_method, created_at DESC);
 
 -- 5. FINANCIAL LEDGER & INTENTS INDEXES (§11.18)
-CREATE INDEX IF NOT EXISTS idx_payment_intents_tenant_status 
-  ON payment_intents (tenant_id, status, created_at DESC);
-
-CREATE INDEX IF NOT EXISTS idx_payment_intents_idempotency 
-  ON payment_intents (idempotency_key, tenant_id);
+-- Payment intents not in initial schema, skipping
 
 -- 6. AUDIT TRAIL & COMPLIANCE INDEXES (§11.20)
 CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_timestamp 
-  ON audit_logs (tenant_id, timestamp DESC, risk_level);
+  ON audit_logs (tenant_id, created_at DESC, action);
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_action 
-  ON audit_logs (tenant_id, user_id, action, timestamp DESC);
+  ON audit_logs (tenant_id, performed_by, action, created_at DESC);
 
 -- 7. MATERIALIZED VIEWS FOR ZERO-LATENCY EXECUTIVE DASHBOARDS
 -- Daily aggregated revenue, transactions, and discount totals per tenant
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_daily_pharmacy_sales_summary AS
 SELECT
   tenant_id,
-  DATE_TRUNC('day', transaction_date) AS sales_day,
+  DATE_TRUNC('day', created_at) AS sales_day,
   COUNT(id) AS total_transactions,
-  SUM(total_amount) AS gross_sales_ugx,
+  SUM(total_paid + discount_amount) AS gross_sales_ugx,
   SUM(discount_amount) AS total_discounts_ugx,
-  SUM(net_amount) AS net_revenue_ugx,
+  SUM(total_paid) AS net_revenue_ugx,
   COUNT(CASE WHEN payment_method = 'Mobile Money' THEN 1 END) AS momo_transactions,
   COUNT(CASE WHEN payment_method = 'Cash' THEN 1 END) AS cash_transactions,
   COUNT(CASE WHEN payment_method = 'Insurance' THEN 1 END) AS insurance_transactions
 FROM pos_transactions
-WHERE status = 'Completed'
-GROUP BY tenant_id, DATE_TRUNC('day', transaction_date)
+GROUP BY tenant_id, DATE_TRUNC('day', created_at)
 WITH DATA;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_daily_sales_pk 
@@ -93,9 +88,9 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS mv_drug_stock_health_summary AS
 SELECT
   tenant_id,
   COUNT(id) AS total_skus,
-  SUM(stock_quantity) AS total_units_in_stock,
-  SUM(stock_quantity * unit_price) AS total_inventory_valuation_ugx,
-  COUNT(CASE WHEN stock_quantity <= min_stock_threshold THEN 1 END) AS low_stock_skus,
+  SUM(stock_qty) AS total_units_in_stock,
+  SUM(stock_qty * cost_price) AS total_inventory_valuation_ugx,
+  COUNT(CASE WHEN stock_qty <= reorder_level THEN 1 END) AS low_stock_skus,
   COUNT(CASE WHEN expiry_date <= CURRENT_DATE THEN 1 END) AS expired_skus,
   COUNT(CASE WHEN expiry_date > CURRENT_DATE AND expiry_date <= (CURRENT_DATE + INTERVAL '60 days') THEN 1 END) AS near_expiry_skus
 FROM drugs

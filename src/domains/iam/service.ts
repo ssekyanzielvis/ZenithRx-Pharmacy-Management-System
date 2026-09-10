@@ -27,16 +27,14 @@ export class IamService {
    */
   static logLoginAudit(user: UserSessionDto, success: boolean, ipAddress?: string) {
     logAuditEvent({
-      timestamp: new Date().toISOString(),
-      userId: user.userId,
-      userFullName: user.fullName,
-      userRole: user.role,
       tenantId: user.tenantId,
-      action: success ? 'LOGIN' : 'LOGIN_FAILED',
-      module: 'iam',
-      details: `User ${user.username} (${user.role}) authentication ${success ? 'successful' : 'failed'}${ipAddress ? ` from ${ipAddress}` : ''}.`,
-      outcome: success ? 'SUCCESS' : 'FAILURE',
-      riskLevel: success ? 'LOW' : 'HIGH',
+      performedBy: user.userId,
+      performedByName: user.fullName,
+      userRole: user.role,
+      action: success ? 'login' : 'logout',
+      entityType: 'Authentication',
+      notes: `User ${user.username} (${user.role}) authentication ${success ? 'successful' : 'failed'}${ipAddress ? ` from ${ipAddress}` : ''}.`,
+      severity: success ? 'INFO' : 'WARNING',
     });
   }
 }

@@ -72,13 +72,14 @@ export function useFinancialLedger(transactions: POSTransaction[], tenantId = 'C
           cash += amount;
           break;
         case 'Mobile Money':
-        case 'M-Pesa':
+        case 'MTN Mobile Money / Airtel Money':
+        case 'M-Pesa / Mobile':
           momo += amount;
           break;
-        case 'Credit Card':
+        case 'Card':
           card += amount;
           break;
-        case 'Insurance':
+        case 'Insurance Scheme':
           insurance += amount;
           break;
         case 'WhatsApp Invoice':
