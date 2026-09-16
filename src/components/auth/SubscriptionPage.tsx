@@ -7,11 +7,11 @@ import {
   Rocket,
   Star,
   ArrowRight,
-  Loader2,
 } from 'lucide-react';
 import { UseAuthReturn } from '../../hooks/useAuth';
 import { INITIAL_PACKAGE_TIERS } from '../../data/mockData';
-import type { BillingCycle } from '../../types';
+import type { BillingCycle, PackageTier } from '../../types';
+import { SubscriptionCheckoutModal } from './SubscriptionCheckoutModal';
 
 interface SubscriptionPageProps {
   auth: UseAuthReturn;
@@ -25,7 +25,7 @@ const tierIcons: Record<string, React.ReactNode> = {
 
 export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ auth }) => {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
-  const [activating, setActivating]     = useState<string | null>(null);
+  const [selectedTierForCheckout, setSelectedTierForCheckout] = useState<PackageTier | null>(null);
 
   const yearlyMultiplier = 10; // 10 months = 2 months free
 
@@ -40,13 +40,8 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ auth }) => {
     return `UGX ${amount.toLocaleString('en-UG')}`;
   };
 
-  const handleSubscribe = (tierId: string) => {
-    setActivating(tierId);
-    // Simulate a brief processing delay
-    setTimeout(() => {
-      auth.activateSubscription(tierId, billingCycle);
-      setActivating(null);
-    }, 1500);
+  const handleSubscribe = (tier: PackageTier) => {
+    setSelectedTierForCheckout(tier);
   };
 
   return (
@@ -153,7 +148,6 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ auth }) => {
             const price = getPrice(tier.discountPriceUgx);
             const originalPrice = getPrice(tier.originalPriceUgx);
             const isPopular = tier.isPopular;
-            const isActivating = activating === tier.id;
 
             return (
               <div
@@ -220,19 +214,14 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ auth }) => {
 
                 {/* CTA Button */}
                 <button
-                  onClick={() => handleSubscribe(tier.id)}
-                  disabled={!!activating}
-                  className={`w-full py-3.5 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed ${
+                  onClick={() => handleSubscribe(tier)}
+                  className={`w-full py-3.5 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     isPopular
                       ? 'bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 text-white shadow-lg shadow-sky-500/25'
                       : 'bg-white/5 border border-white/15 text-white hover:bg-white/10 hover:border-white/25'
-                  } disabled:opacity-50`}
+                  }`}
                 >
-                  {isActivating ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
-                  ) : (
-                    <><ArrowRight className="w-4 h-4" /> Subscribe Now</>
-                  )}
+                  <ArrowRight className="w-4 h-4" /> Subscribe Now
                 </button>
 
                 {/* Max Users Info */}
@@ -270,6 +259,17 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ auth }) => {
           Official Web: www.quantumnetworks.com • Powered by Gemini AI Clinical Engine
         </p>
       </footer>
+
+      {/* Checkout Modal with MTN MoMo, Airtel Money, and Universal Card Payment */}
+      {selectedTierForCheckout && (
+        <SubscriptionCheckoutModal
+          isOpen={!!selectedTierForCheckout}
+          onClose={() => setSelectedTierForCheckout(null)}
+          tier={selectedTierForCheckout}
+          billingCycle={billingCycle}
+          auth={auth}
+        />
+      )}
     </div>
   );
 };

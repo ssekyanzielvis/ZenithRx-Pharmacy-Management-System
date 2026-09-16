@@ -1100,3 +1100,32 @@ BEGIN
   REFRESH MATERIALIZED VIEW CONCURRENTLY mv_drug_stock_health_summary;
 END;
 $$;
+-- =====================================================================
+-- FLUTTERWAVE SUBSCRIPTION PAYMENTS (added as per Flutterwave Integration)
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS subscription_payments (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id TEXT,
+    order_id TEXT,
+    provider TEXT NOT NULL,
+    provider_transaction_id TEXT,
+    transaction_reference TEXT NOT NULL UNIQUE,
+    amount NUMERIC(12,2) NOT NULL,
+    currency TEXT NOT NULL DEFAULT 'UGX',
+    payment_method TEXT,
+    mobile_network TEXT,
+    phone_number TEXT,
+    status TEXT NOT NULL DEFAULT 'PENDING',
+    provider_response JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS payment_events (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    payment_id UUID,
+    provider TEXT NOT NULL,
+    event_type TEXT,
+    payload JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);

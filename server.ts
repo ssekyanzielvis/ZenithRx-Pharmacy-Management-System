@@ -424,6 +424,219 @@ Explain:
   }
 });
 
+// ─── Payment Gateway (Flutterwave) Subsystem ─────────────────────────────────
+
+app.post('/api/payments/initiate', async (req, res) => {
+  try {
+    const {
+      gateway,
+      phoneNumber,
+      amountUgx,
+      tierId,
+      tierName,
+      payerName,
+      payerEmail,
+      userId
+    } = req.body;
+
+    if (!gateway || !amountUgx || !tierId || !payerEmail) {
+      return res.status(400).json({ error: 'Missing required payment parameters (gateway, amountUgx, tierId, payerEmail)' });
+    }
+
+    const txRef = `ZR-${Date.now().toString().slice(-8)}-${crypto.randomBytes(4).toString('hex')}`;
+    const flutterwaveSecret = process.env.FLUTTERWAVE_SECRET_KEY;
+
+    if (!flutterwaveSecret) {
+      return res.status(503).json({ error: 'Flutterwave secret key is missing in server environment.' });
+    }
+
+    // Insert into our pending DB state
+    const sb = getSupabaseAdmin();
+    if (sb) {
+      await sb.from('subscription_payments').insert({
+        user_id: userId || null,
+        order_id: tierId,
+        provider: 'flutterwave',
+        transaction_reference: txRef,
+        amount: Number(amountUgx),
+        currency: 'UGX',
+        payment_method: gateway,
+        mobile_network: gateway === 'MTN_MOMO' ? 'MTN' : (gateway === 'AIRTEL_MONEY' ? 'AIRTEL' : null),
+        phone_number: phoneNumber,
+        status: 'PENDING'
+      });
+    }
+
+    if (gateway === 'MTN_MOMO' || gateway === 'AIRTEL_MONEY') {
+      const network = gateway === 'MTN_MOMO' ? 'MTN' : 'AIRTEL';
+      
+      const payload = {
+        tx_ref: txRef,
+        amount: Number(amountUgx),
+        currency: 'UGX',
+        network: network,
+        email: payerEmail,
+        phone_number: phoneNumber,
+        fullname: payerName || 'Subscriber',
+        redirect_url: `${process.env.APP_URL || 'http://localhost:3000'}/subscription/callback`
+      };
+
+      const flwRes = await fetch('https://api.flutterwave.com/v3/charges?type=mobile_money_uganda', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${flutterwaveSecret}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await flwRes.json();
+      
+      if (data.status === 'success') {
+        return res.json({
+          success: true,
+          referenceId: txRef,
+          gateway,
+          status: 'PENDING_USER_PIN',
+          message: `Please check your phone (${phoneNumber}) to enter your ${network} PIN.`,
+          meta: data.meta
+        });
+      } else {
+        return res.status(400).json({ error: data.message || 'Payment initiation failed' });
+      }
+    } else if (gateway === 'CARD_VISA_MC') {
+      // Use Standard Checkout for Cards
+      const payload = {
+        tx_ref: txRef,
+        amount: Number(amountUgx),
+        currency: 'UGX',
+        redirect_url: `${process.env.APP_URL || 'http://localhost:3000'}`,
+        customer: {
+          email: payerEmail,
+          phonenumber: phoneNumber || '',
+          name: payerName || 'Subscriber'
+        },
+        customizations: {
+          title: 'ZenithRx Subscription',
+          description: `Payment for ${tierName} plan`,
+          logo: 'https://cdn.iconscout.com/icon/premium/png-256-thumb/pharmacy-1-105156.png'
+        }
+      };
+
+      const flwRes = await fetch('https://api.flutterwave.com/v3/payments', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${flutterwaveSecret}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await flwRes.json();
+      
+      if (data.status === 'success') {
+        return res.json({
+          success: true,
+          referenceId: txRef,
+          gateway,
+          status: 'REDIRECT_REQUIRED',
+          checkoutUrl: data.data.link
+        });
+      } else {
+        return res.status(400).json({ error: data.message || 'Payment initiation failed' });
+      }
+    } else {
+      return res.status(400).json({ error: 'Unsupported gateway' });
+    }
+  } catch (err: any) {
+    console.error('Payment initiation error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * Poll Payment Status
+ */
+app.get('/api/payments/status/:referenceId', async (req, res) => {
+  const { referenceId } = req.params;
+  const sb = getSupabaseAdmin();
+  if (!sb) return res.status(503).json({ error: 'DB not configured' });
+
+  const { data, error } = await sb
+    .from('subscription_payments')
+    .select('*')
+    .eq('transaction_reference', referenceId)
+    .single();
+
+  if (error || !data) {
+    return res.status(404).json({ error: 'Transaction reference not found' });
+  }
+
+  return res.json({
+    success: true,
+    referenceId: data.transaction_reference,
+    status: data.status,
+    amountUgx: data.amount,
+    providerTxId: data.provider_transaction_id,
+  });
+});
+
+/**
+ * Webhook Callback Receiver (Flutterwave)
+ */
+app.post('/api/payments/webhook/flutterwave', async (req, res) => {
+  const secretHash = process.env.FLUTTERWAVE_WEBHOOK_SECRET;
+  const signature = req.headers['verif-hash'];
+
+  if (!signature || signature !== secretHash) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+
+  const payload = req.body;
+  console.log(`[Webhook] Received payment notification from Flutterwave:`, payload);
+
+  const sb = getSupabaseAdmin();
+  if (sb) {
+    await sb.from('payment_events').insert({
+      provider: 'flutterwave',
+      event_type: payload.event || 'charge.completed',
+      payload: payload
+    });
+
+    if (payload.data?.status === 'successful') {
+      const txRef = payload.data.tx_ref;
+      const amount = payload.data.amount;
+      
+      // Verify payment with Flutterwave API to ensure it wasn't spoofed
+      const flwRes = await fetch(`https://api.flutterwave.com/v3/transactions/${payload.data.id}/verify`, {
+        headers: {
+          'Authorization': `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`
+        }
+      });
+      const verifyData = await flwRes.json();
+
+      if (verifyData.status === 'success' && 
+          verifyData.data.amount >= amount && 
+          verifyData.data.currency === 'UGX') {
+        
+        await sb.from('subscription_payments')
+          .update({ 
+            status: 'SUCCESSFUL',
+            provider_transaction_id: payload.data.id.toString(),
+            provider_response: payload
+          })
+          .eq('transaction_reference', txRef);
+          
+        console.log(`[Webhook] Payment ${txRef} verified and marked SUCCESSFUL`);
+      }
+    }
+  }
+
+  return res.json({ response: 'OK', acknowledged: true });
+});
+
+
+
 async function startServer(port = PORT) {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

@@ -43,7 +43,11 @@ export interface UseAuthReturn {
   signUp:     (email: string, password: string, fullName: string, phone: string) => Promise<void>;
   signOut:    () => Promise<void>;
   sendMagicLink: (email: string) => Promise<void>;
-  activateSubscription: (tier: string, cycle: BillingCycle) => void;
+  activateSubscription: (
+    tier: string,
+    cycle: BillingCycle,
+    paymentMeta?: { method?: string; ref?: string; amount?: number }
+  ) => void;
   clearError: () => void;
 }
 
@@ -239,16 +243,55 @@ export function useAuth(): UseAuthReturn {
     if (mlError) setError(mlError.message);
   }, []);
 
-  const activateSubscription = useCallback((tier: string, cycle: BillingCycle) => {
-    setUser(prev => prev ? {
-      ...prev,
-      subscriptionStatus: 'active' as SubscriptionStatus,
-      billingCycle: cycle,
-      selectedTier: tier,
-    } : prev);
-    // In production, this would persist to Supabase:
-    // supabase?.from('users').update({ subscription_status: 'active', billing_cycle: cycle, selected_tier: tier }).eq('id', user?.id)
-  }, []);
+  const activateSubscription = useCallback(
+    (
+      tier: string,
+      cycle: BillingCycle,
+      paymentMeta?: { method?: string; ref?: string; amount?: number }
+    ) => {
+      setUser(prev => {
+        if (!prev) return prev;
+        const updated = {
+          ...prev,
+          subscriptionStatus: 'active' as SubscriptionStatus,
+          billingCycle: cycle,
+          selectedTier: tier,
+        };
+        try {
+          localStorage.setItem(
+            'zenithrx_subscription',
+            JSON.stringify({
+              tier,
+              cycle,
+              status: 'active',
+              activatedAt: new Date().toISOString(),
+              paymentMeta,
+            })
+          );
+        } catch {
+          // Ignore localStorage errors
+        }
+        return updated;
+      });
+
+      if (isSupabaseConfigured && supabase && user?.id) {
+        (supabase as any)
+          .from('users')
+          .update({
+            subscription_status: 'active',
+            billing_cycle: cycle,
+            selected_tier: tier,
+          })
+          .eq('id', user.id)
+          .then(({ error: subErr }: any) => {
+            if (subErr) {
+              console.warn('[useAuth] Failed to update user subscription in Supabase:', subErr);
+            }
+          });
+      }
+    },
+    [user?.id]
+  );
 
   const signOut = useCallback(async () => {
     if (!isSupabaseConfigured || !supabase) {

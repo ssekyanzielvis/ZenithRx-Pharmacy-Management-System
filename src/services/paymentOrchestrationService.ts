@@ -532,3 +532,107 @@ export function performSettlementReconciliation(
     discrepancies,
   };
 }
+
+export interface SubscriptionPaymentRecordParams {
+  tenantId: string;
+  tenantName: string;
+  userName: string;
+  userEmail: string;
+  tierId: string;
+  tierName: string;
+  billingCycle: 'monthly' | 'yearly';
+  amountUgx: number;
+  method: 'MTN_MOMO' | 'AIRTEL_MONEY' | 'CARD_VISA_MC';
+  phoneNumber?: string;
+  cardLast4?: string;
+  cardBrand?: string;
+  providerReference: string;
+}
+
+/**
+ * Records an official subscription payment into the system payment ledger,
+ * marks it as SETTLED, and writes to the tamper-proof audit trail.
+ */
+export async function recordSubscriptionPayment(
+  params: SubscriptionPaymentRecordParams
+): Promise<PaymentIntent> {
+  const provider =
+    params.method === 'MTN_MOMO'
+      ? 'MTN_UG'
+      : params.method === 'AIRTEL_MONEY'
+      ? 'AIRTEL_UG'
+      : 'PESAPAL_VISA';
+
+  const customerIdentifier =
+    params.method === 'CARD_VISA_MC'
+      ? `${params.cardBrand || 'Card'} •••• ${params.cardLast4 || '4242'}`
+      : params.phoneNumber || params.userEmail;
+
+  const intentId = `SUB-PAY-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const receiptNumber = `REC-SUB-${Date.now().toString().slice(-6)}`;
+  const idempotencyKey = `IDEM-SUB-${params.providerReference}`;
+
+  const taxAmountUgx = Math.round(params.amountUgx * (18 / 118)); // 18% inclusive VAT
+
+  const newIntent: PaymentIntent = {
+    id: intentId,
+    idempotencyKey,
+    tenantId: params.tenantId || 'NEW-TENANT',
+    tenantName: params.tenantName || 'ZenithRx Pharmacy',
+    receiptNumber,
+    grossAmountUgx: params.amountUgx,
+    taxAmountUgx,
+    discountAmountUgx: 0,
+    netPayableUgx: params.amountUgx,
+    totalCapturedUgx: params.amountUgx,
+    balanceDueUgx: 0,
+    splits: [
+      {
+        id: 'SPLIT-1',
+        method: params.method,
+        provider,
+        amountUgx: params.amountUgx,
+        providerReference: params.providerReference,
+        customerIdentifier,
+        status: 'SETTLED',
+        authorizedAt: new Date().toISOString(),
+        capturedAt: new Date().toISOString(),
+      },
+    ],
+    state: 'SETTLED',
+    initiatedBy: params.userName || params.userEmail,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    settlementBatchId: `BATCH-SUB-${new Date().toISOString().slice(0, 10)}`,
+    notes: `ZenithRx ${params.tierName} (${params.billingCycle}) subscription activated. Channel: ${params.method}. Ref: ${params.providerReference}`,
+    auditTrail: [
+      {
+        timestamp: new Date().toISOString(),
+        action: 'SUBSCRIPTION_PAYMENT_SETTLED',
+        actor: params.userName || params.userEmail,
+        details: `UGX ${params.amountUgx.toLocaleString()} paid via ${params.method} (${params.providerReference}). Plan: ${params.tierName} (${params.billingCycle}).`,
+      },
+    ],
+  };
+
+  paymentLedger.unshift(newIntent);
+
+  // Tamper-proof audit event
+  try {
+    await logAuditEvent({
+      tenantId: params.tenantId || 'NEW-TENANT',
+      performedBy: params.userEmail || 'subscriber',
+      performedByName: params.userName || 'Subscriber',
+      userRole: 'Supervising Pharmacist',
+      action: 'PAYMENT_INTENT' as any,
+      entityType: 'SubscriptionBilling',
+      entityId: newIntent.id,
+      severity: 'INFO',
+      notes: `Subscription Payment: ${params.tierName} Plan (${params.billingCycle}) for UGX ${params.amountUgx.toLocaleString()} settled via ${params.method}. Ref: ${params.providerReference}`,
+    });
+  } catch (err) {
+    console.warn('[recordSubscriptionPayment] Audit log warning:', err);
+  }
+
+  return newIntent;
+}
