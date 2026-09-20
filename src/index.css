@@ -4,25 +4,33 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ZenithRx PMS — Global Design System
-   Brand: Deep Navy (#0B1E36) | Sky (#0284C7) | Emerald (#10B981)
+   ZenithRx PMS — Design System
+   Core Identity: Medical Green (#16A34A) | Trust Blue (#2563EB) | Clean White (#FFFFFF)
+   Neutral Base: Dark Slate (#1E293B)
+   Semantic Status: Green (Available/Normal) | Amber (Low/Pending) | Red (Critical/Expired) | Blue (Info)
    ============================================================ */
 
 /* --- CSS Custom Properties (Design Tokens) --- */
 :root {
-  /* Technical.md §11.16 Restrained Enterprise Palette */
-  --color-brand-deep:    #0B1E36; /* Deep authority navy */
-  --color-brand-dark:    #1E3A5F; /* Enterprise slate boundary */
-  --color-brand-mid:     #153459; /* Elevated component surfaces */
-  --color-brand-surface: #F8FAFC; /* Neutral soft background */
-  --color-brand-primary: #0284C7; /* Controlled sky blue for primary actions */
-  --color-brand-accent:  #059669; /* Measured success / confirmed state */
+  /* Brand Core Identity */
+  --color-brand-green:   #16A34A; /* Medical Green: Pharmacy & health actions (dispense, add Rx, in-stock) */
+  --color-brand-blue:    #2563EB; /* Trust Blue: System navigation, sidebar active, analytics, account */
+  --color-brand-white:   #FFFFFF; /* Clean White: Dashboard background, cards, forms, tables, modals */
+  --color-brand-slate:   #1E293B; /* Dark Slate: Professional text, headings, dark sidebar, neutral contrast */
 
-  /* Semantic Status & Risk Signaling (§11.16 - Reserved Strictly) */
-  --color-status-danger:  #DC2626; /* Critical / Expired / Emergency */
-  --color-status-warning: #D97706; /* Due / Low Stock / Attention */
-  --color-status-success: #059669; /* Cleared / Dispensed / Validated */
-  --color-status-info:    #0284C7; /* Informational / System */
+  /* Legacy & Theme Aliases */
+  --color-brand-deep:    #1E293B; 
+  --color-brand-dark:    #0F172A;
+  --color-brand-mid:     #334155;
+  --color-brand-surface: #F8FAFC; 
+  --color-brand-primary: #2563EB; /* Trust Blue */
+  --color-brand-accent:  #16A34A; /* Medical Green */
+
+  /* Semantic Status Colors (Used Strictly for Functional Signaling) */
+  --color-status-success: #16A34A; /* Available / Completed / Normal */
+  --color-status-warning: #D97706; /* Low Stock / Expiring Soon / Pending */
+  --color-status-danger:  #DC2626; /* Out of Stock / Expired / Critical */
+  --color-status-info:    #2563EB; /* Information / Processing */
 
   /* Standardized Typography Scale */
   --font-sans:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
