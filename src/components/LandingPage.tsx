@@ -10,11 +10,12 @@ import { Pill, LogIn, UserPlus } from 'lucide-react';
 interface LandingPageProps {
   onGetStarted?: () => void;
   auth?: UseAuthReturn;
+  onOpenAdmin?: () => void;
 }
 
 type AuthModal = 'none' | 'login' | 'signup';
 
-export const LandingPage: React.FC<LandingPageProps> = ({ auth }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ auth, onOpenAdmin }) => {
   const [authModal, setAuthModal] = useState<AuthModal>(
     window.location.hash.includes('login') ? 'login' : 'none'
   );
@@ -49,6 +50,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth }) => {
         </div>
 
         <div className="flex items-center gap-3">
+          {onOpenAdmin && (
+            <button
+              onClick={onOpenAdmin}
+              className="px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 text-amber-300 font-bold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-1.5"
+              title="Enter System Administrator Control Plane (/admin)"
+            >
+              <span>🔒 Admin Portal</span>
+            </button>
+          )}
           <button
             onClick={handleOpenSignUp}
             className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 hover:border-white/25 text-white font-black text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-2"
@@ -61,7 +71,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth }) => {
             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-500 hover:to-cyan-400 text-white font-black text-xs sm:text-sm shadow-lg shadow-sky-500/25 transition-all cursor-pointer flex items-center gap-2"
           >
             <LogIn className="w-4 h-4" />
-            <span>Sign In</span>
+            <span>Staff Sign In</span>
           </button>
         </div>
       </header>
@@ -77,7 +87,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth }) => {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="bg-[#0B1E36] text-slate-400 py-6 px-4 border-t border-[#1E3A5F] text-center text-xs space-y-1">
+      <footer className="bg-[#0B1E36] text-slate-400 py-6 px-4 border-t border-[#1E3A5F] text-center text-xs space-y-2">
         <p className="text-white font-black tracking-wide">
           ZENITHRX – NEXT-GEN PHARMACY MANAGEMENT PLATFORM
         </p>
@@ -86,9 +96,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth }) => {
           <span className="text-sky-300 font-bold">0200 913 555</span> | Email:{' '}
           <span className="text-slate-200">quantumnetworks@gmail.com</span>
         </p>
-        <p className="text-slate-500 text-[11px] pt-1">
-          Official Web: www.quantumnetworks.com • Powered by Gemini AI Clinical Engine
-        </p>
+        <div className="flex items-center justify-center gap-4 text-slate-500 text-[11px] pt-1">
+          <span>Official Web: www.quantumnetworks.com • Powered by Gemini AI Clinical Engine</span>
+          {onOpenAdmin && (
+            <button
+              onClick={onOpenAdmin}
+              className="text-amber-400 hover:text-amber-300 font-bold underline cursor-pointer"
+            >
+              System Administrator Login (/admin)
+            </button>
+          )}
+        </div>
       </footer>
 
       {/* ── Login Modal Overlay ── */}

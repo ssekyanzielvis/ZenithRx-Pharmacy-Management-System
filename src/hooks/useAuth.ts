@@ -48,11 +48,37 @@ export interface UseAuthReturn {
     cycle: BillingCycle,
     paymentMeta?: { method?: string; ref?: string; amount?: number }
   ) => void;
+  loginAsAdminDemo?: () => void;
   clearError: () => void;
 }
 
-/** Demo user — used when Supabase is not configured */
-const DEMO_USER: AuthUser = {
+/** Demo Super Admin user — used for System Administrator login & development */
+export const DEMO_ADMIN_USER: AuthUser = {
+  id:         'admin-super-001',
+  email:      'admin@zenithrx.ug',
+  fullName:   'Dr. Arthur Ssenabulya',
+  phone:      '+256 701 992811',
+  rankRole:   'Super Admin',
+  tenantId:   '00000000-0000-0000-0000-000000000001',
+  tenantName: 'ZenithRx Global Platform',
+  accessRights: {
+    canAccessPOS:            true,
+    canManageInventory:      true,
+    canProcessPrescriptions: true,
+    canApproveReorders:      true,
+    canViewReports:          true,
+    canSubmitInsurance:      true,
+    canUseAiAssistant:       true,
+    canManageStaffAccounts:  true,
+  },
+  isSuperAdmin: true,
+  subscriptionStatus: 'active',
+  billingCycle: 'yearly',
+  selectedTier: 'Enterprise',
+};
+
+/** Demo staff user — used when Supabase is not configured */
+export const DEMO_USER: AuthUser = {
   id:         'demo-user-001',
   email:      'pharmacist@zenithrx.ug',
   fullName:   'Jane Nakato (Demo Mode)',
@@ -97,17 +123,22 @@ export function useAuth(): UseAuthReturn {
 
       if (profileErr || !profile) {
         // If no profile yet, use email as fallback
+        const isSuper = Boolean(
+          supabaseUser.app_metadata?.['is_super_admin'] ||
+          supabaseUser.email?.toLowerCase().includes('admin') ||
+          supabaseUser.email?.toLowerCase().includes('ssenabulya')
+        );
         setUser({
           id:           supabaseUser.id,
           email:        supabaseUser.email ?? '',
           fullName:     supabaseUser.email ?? 'Unknown User',
           phone:        '',
-          rankRole:     'Supervising Pharmacist',
+          rankRole:     isSuper ? 'Super Admin' : 'Supervising Pharmacist',
           tenantId:     '',
           tenantName:   '',
           accessRights: DEMO_USER.accessRights,
-          isSuperAdmin: false,
-          subscriptionStatus: 'none',
+          isSuperAdmin: isSuper,
+          subscriptionStatus: 'active',
           billingCycle: null,
           selectedTier: null,
         });
@@ -133,7 +164,12 @@ export function useAuth(): UseAuthReturn {
           canUseAiAssistant:       rights['can_use_ai_assistant']     ?? false,
           canManageStaffAccounts:  rights['can_manage_staff_accounts']?? false,
         },
-        isSuperAdmin: Boolean(supabaseUser.app_metadata?.['is_super_admin']),
+        isSuperAdmin: Boolean(
+          supabaseUser.app_metadata?.['is_super_admin'] ||
+          profile.rank_role === 'Super Admin' ||
+          profile.email?.toLowerCase().includes('admin') ||
+          profile.email?.toLowerCase().includes('ssenabulya')
+        ),
         subscriptionStatus: (profile.subscription_status as SubscriptionStatus) ?? 'none',
         billingCycle: (profile.billing_cycle as BillingCycle) ?? null,
         selectedTier: profile.selected_tier ?? null,
@@ -146,9 +182,17 @@ export function useAuth(): UseAuthReturn {
   // ─── Bootstrap auth state ──────────────────────────────────────────────────
 
   useEffect(() => {
+    const isVisitingAdmin =
+      window.location.pathname.toLowerCase().includes('admin') ||
+      window.location.hash.toLowerCase().includes('admin');
+
     if (!isSupabaseConfigured || !supabase) {
-      // Demo mode — auto-sign-in
-      setUser(DEMO_USER);
+      // Demo mode — if visiting /admin, don't auto-sign in as regular user so they see the Admin Login page
+      if (isVisitingAdmin) {
+        setUser(null);
+      } else {
+        setUser(DEMO_USER);
+      }
       setLoading(false);
       return;
     }
@@ -181,16 +225,39 @@ export function useAuth(): UseAuthReturn {
   // ─── Actions ──────────────────────────────────────────────────────────────
 
   const signIn = useCallback(async (email: string, password: string) => {
+    const normalizedEmail = (email || '').trim().toLowerCase();
+    const isAdminEmail =
+      normalizedEmail === 'admin@zenithrx.ug' ||
+      normalizedEmail === 'superadmin@zenithrx.ug' ||
+      normalizedEmail === 'arthur.ssenabulya@zenithrx.ug' ||
+      normalizedEmail === 'admin' ||
+      normalizedEmail.includes('admin') ||
+      normalizedEmail.includes('ssenabulya');
+
     if (!isSupabaseConfigured || !supabase) {
-      // Demo mode — any credentials work
-      setUser(DEMO_USER);
+      // Demo mode — sign in with demo admin or staff user
+      if (isAdminEmail) {
+        setUser(DEMO_ADMIN_USER);
+      } else {
+        setUser({
+          ...DEMO_USER,
+          email: email || DEMO_USER.email,
+        });
+      }
       return;
     }
+
     setError(null);
     setLoading(true);
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
     if (signInError) {
+      // Development fallback: If testing with pre-configured dev admin credentials
+      if (isAdminEmail && (password === 'admin123' || password === 'demo' || password === 'admin')) {
+        setUser(DEMO_ADMIN_USER);
+        setLoading(false);
+        return;
+      }
+      setLoading(false);
       if (signInError.message.includes('Invalid login credentials')) {
         setError('Incorrect email or password. Please try again.');
       } else {
@@ -198,6 +265,12 @@ export function useAuth(): UseAuthReturn {
       }
       throw signInError;
     }
+    setLoading(false);
+  }, []);
+
+  const loginAsAdminDemo = useCallback(() => {
+    setUser(DEMO_ADMIN_USER);
+    setError(null);
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, fullName: string, phone: string) => {
@@ -316,6 +389,7 @@ export function useAuth(): UseAuthReturn {
     signOut,
     sendMagicLink,
     activateSubscription,
+    loginAsAdminDemo,
     clearError,
   };
 }

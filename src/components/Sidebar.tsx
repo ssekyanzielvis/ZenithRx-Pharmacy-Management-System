@@ -371,8 +371,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Sidebar Navigation Body */}
       <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4 scrollbar-thin scrollbar-thumb-sky-900">
         
-        {/* User Navigation Actions (Platform Overview + Send Feedback) */}
-        {!isAdminContext && (
+        {/* Admin / Operational Context Switcher */}
+        {isAdminContext ? (
+          <div className="space-y-1.5">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer text-sky-300 bg-[#0C203A] hover:bg-[#122E54] hover:text-white border border-sky-900/40 shadow-sm"
+              title="Switch to Pharmacy Counter / Clinical Operations"
+            >
+              <LayoutDashboard className="w-4.5 h-4.5 shrink-0 text-sky-400" />
+              {isOpen && <span className="truncate">← Pharmacy Operations</span>}
+            </button>
+          </div>
+        ) : (
           <div className="space-y-1.5">
             <button
               onClick={() => setActiveTab('overview')}
@@ -406,6 +417,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <MessageSquarePlus className="w-4.5 h-4.5 shrink-0 text-emerald-400" />
               {isOpen && <span className="truncate">Send Feedback to Admin</span>}
             </button>
+
+            {/* Switch to Admin Control Plane if user is Super Admin */}
+            {user?.isSuperAdmin && (
+              <button
+                onClick={() => setActiveTab('adminControlPlane')}
+                className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-black flex items-center gap-3 transition-all cursor-pointer text-amber-300 bg-amber-950/30 hover:bg-amber-900/40 hover:text-amber-100 border border-amber-500/30 shadow-sm"
+                title="Open System Administrator Control Plane"
+              >
+                <Shield className="w-4.5 h-4.5 shrink-0 text-amber-400" />
+                {isOpen && <span className="truncate">Admin Control Plane</span>}
+              </button>
+            )}
           </div>
         )}
 

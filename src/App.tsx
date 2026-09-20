@@ -31,6 +31,7 @@ import { logAuditEvent }          from './repositories/auditRepository';
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 import { useAuth }   from './hooks/useAuth';
 import { LoginPage } from './components/auth/LoginPage';
+import { AdminLoginPage } from './components/auth/AdminLoginPage';
 import { LandingPage } from './components/LandingPage';
 import { SubscriptionPage } from './components/auth/SubscriptionPage';
 
@@ -63,7 +64,18 @@ export default function App() {
 
   const getInitialTab = (): ModuleTab => {
     const path = (window.location.pathname + window.location.hash).toLowerCase();
-    if (path.includes('admin')) return 'adminPackages';
+    if (path.includes('admincontrolplane')) return 'adminControlPlane';
+    if (path.includes('adminexecutive')) return 'adminExecutive';
+    if (path.includes('adminpolicies')) return 'adminPolicies';
+    if (path.includes('admindelegated')) return 'adminDelegated';
+    if (path.includes('admindualcontrol')) return 'adminDualControl';
+    if (path.includes('adminincidents')) return 'adminIncidents';
+    if (path.includes('adminmatrix')) return 'adminMatrix';
+    if (path.includes('adminusers')) return 'adminUsers';
+    if (path.includes('adminbilling')) return 'adminBilling';
+    if (path.includes('adminregister')) return 'adminRegister';
+    if (path.includes('adminfeedback')) return 'adminFeedback';
+    if (path.includes('admin')) return 'adminControlPlane';
     if (path.includes('tenancy')) return 'tenancy';
     if (path.includes('pos')) return 'pos';
     if (path.includes('inventory')) return 'inventory';
@@ -280,8 +292,33 @@ export default function App() {
     );
   }
 
+  // ─── Direct Admin Route Gate (/admin) ────────────────────────────────────
+  const isVisitingAdminRoute =
+    activeTab.startsWith('admin') ||
+    window.location.pathname.toLowerCase().includes('admin') ||
+    window.location.hash.toLowerCase().includes('admin');
+
+  if (isVisitingAdminRoute && (!auth.user || !auth.user.isSuperAdmin)) {
+    return (
+      <AdminLoginPage
+        auth={auth}
+        onSuccess={() => {
+          handleTabChange('adminControlPlane');
+        }}
+        onBackToStaff={() => {
+          handleTabChange('overview');
+        }}
+      />
+    );
+  }
+
   if (!auth.user) {
-    return <LandingPage auth={auth} />;
+    return (
+      <LandingPage
+        auth={auth}
+        onOpenAdmin={() => handleTabChange('adminControlPlane')}
+      />
+    );
   }
 
   // ─── Subscription Gate ───────────────────────────────────────────────────
@@ -475,7 +512,8 @@ export default function App() {
               activeTab === 'adminMatrix' ||
               activeTab === 'adminUsers' ||
               activeTab === 'adminBilling' ||
-              activeTab === 'adminRegister') && (
+              activeTab === 'adminRegister' ||
+              activeTab === 'adminFeedback') && (
               <AdminPackages
                 activeClient={activeClient}
                 setActiveClient={setActiveClient}
