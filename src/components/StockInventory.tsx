@@ -234,7 +234,7 @@ export const StockInventory: React.FC<StockInventoryProps> = ({
             </div>
             <p className="text-xs text-slate-400 mt-0.5">{metrics.totalStockItems} SKU items registered</p>
           </div>
-          <div className="p-3 bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 rounded-xl">
+          <div className="p-3 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl">
             <DollarSign className="w-6 h-6" />
           </div>
         </div>
@@ -245,14 +245,14 @@ export const StockInventory: React.FC<StockInventoryProps> = ({
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Potential Retail Turnover
             </span>
-            <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+            <div className="text-xl font-bold text-green-600 dark:text-green-400 mt-1">
               {formatUGX(metrics.totalSellingVal)}
             </div>
-            <p className="text-xs text-emerald-600 font-semibold mt-0.5">
+            <p className="text-xs text-green-600 font-semibold mt-0.5">
               ~{metrics.overallMargin}% Est. Gross Margin
             </p>
           </div>
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-xl">
+          <div className="p-3 bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 rounded-xl">
             <TrendingUp className="w-6 h-6" />
           </div>
         </div>
@@ -303,7 +303,7 @@ export const StockInventory: React.FC<StockInventoryProps> = ({
               placeholder="Search by brand, generic, batch#, barcode..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
             />
           </div>
 
@@ -311,7 +311,7 @@ export const StockInventory: React.FC<StockInventoryProps> = ({
           <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             <button
               onClick={handleExportCSV}
-              className="px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap"
+              className="px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
               title="Export Stock Valuation CSV"
             >
               <Download className="w-4 h-4 text-slate-500" />
@@ -320,7 +320,7 @@ export const StockInventory: React.FC<StockInventoryProps> = ({
 
             <button
               onClick={() => setShowImportModal(true)}
-              className="px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap"
+              className="px-3.5 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
               title="Bulk Import Drugs via CSV"
             >
               <Upload className="w-4 h-4 text-slate-500" />
@@ -329,16 +329,16 @@ export const StockInventory: React.FC<StockInventoryProps> = ({
 
             <button
               onClick={openBarcodeScanner}
-              className="px-3.5 py-2 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap"
+              className="px-3.5 py-2 text-xs font-semibold bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-xl transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
               title="Scan Optical Barcode"
             >
-              <QrCode className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <QrCode className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Scan Barcode</span>
             </button>
 
             <button
               onClick={handleOpenAddModal}
-              className="px-4 py-2 text-xs font-bold bg-[#0284C7] hover:bg-sky-600 text-white rounded-xl shadow-md shadow-sky-500/20 transition-all flex items-center gap-1.5 whitespace-nowrap hover:-translate-y-0.5"
+              className="px-4 py-2 text-xs font-bold bg-green-600 hover:bg-green-500 text-white rounded-xl shadow-md transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Add Medication</span>
@@ -361,9 +361,9 @@ export const StockInventory: React.FC<StockInventoryProps> = ({
               <button
                 key={tab.id}
                 onClick={() => setStatusTab(tab.id)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                   statusTab === tab.id
-                    ? 'bg-[#0B1E36] dark:bg-sky-600 text-white'
+                    ? 'bg-blue-600 text-white shadow-sm'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
@@ -378,9 +378,9 @@ export const StockInventory: React.FC<StockInventoryProps> = ({
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-2.5 py-1 text-[11px] font-medium rounded-full transition-colors whitespace-nowrap ${
+                className={`px-2.5 py-1 text-[11px] font-medium rounded-full transition-colors whitespace-nowrap cursor-pointer ${
                   selectedCategory === cat
-                    ? 'bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold border border-sky-300 dark:border-sky-800'
+                    ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold border border-blue-300 dark:border-blue-800'
                     : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
               >

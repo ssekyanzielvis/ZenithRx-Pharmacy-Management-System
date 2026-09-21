@@ -70,13 +70,13 @@ export const AutomatedReordering: React.FC<AutomatedReorderingProps> = ({
   return (
     <div className="space-y-6">
       {/* Title Banner */}
-      <div className="bg-[#0D223C] text-white p-6 rounded-2xl border border-sky-900/60 shadow-lg flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#1E293B] text-white p-6 rounded-2xl border border-slate-700 shadow-lg flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-white flex items-center gap-2">
-            <RefreshCw className="w-7 h-7 text-sky-400" />
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <RefreshCw className="w-7 h-7 text-blue-400" />
             Automated Re-ordering Engine
           </h2>
-          <p className="text-xs text-sky-200 mt-1">
+          <p className="text-xs text-slate-300 mt-1">
             Min stock threshold monitoring, automated Purchase Order (PO) synthesis, and distributor fulfillment tracking.
           </p>
         </div>
@@ -85,7 +85,7 @@ export const AutomatedReordering: React.FC<AutomatedReorderingProps> = ({
           <select
             value={selectedSupplier}
             onChange={(e) => setSelectedSupplier(e.target.value)}
-            className="px-3 py-2 bg-[#122D50] border border-sky-700/60 text-sky-100 rounded-xl text-xs font-bold outline-none"
+            className="px-3 py-2 bg-slate-800 border border-slate-700 text-slate-100 rounded-xl text-xs font-bold outline-none cursor-pointer"
           >
             {suppliers.map((s) => (
               <option key={s.name} value={s.name}>{s.name}</option>
@@ -95,16 +95,16 @@ export const AutomatedReordering: React.FC<AutomatedReorderingProps> = ({
           <button
             onClick={handleGenerateAutoPO}
             disabled={lowStockDrugs.length === 0}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all disabled:opacity-50"
+            className="px-4 py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all disabled:opacity-50"
           >
             <Send className="w-4 h-4" />
-            <span>Generate & Dispatch PO</span>
+            <span>Generate &amp; Dispatch PO</span>
           </button>
         </div>
       </div>
 
       {poSentSuccess && (
-        <div className="bg-emerald-500 text-slate-950 p-4 rounded-xl font-black text-xs flex items-center justify-between shadow-lg">
+        <div className="bg-green-600 text-white p-4 rounded-xl font-bold text-xs flex items-center justify-between shadow-lg">
           <span className="flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5" />
             Automated Purchase Order successfully dispatched to {selectedSupplier}!

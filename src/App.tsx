@@ -526,13 +526,13 @@ export default function App() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-[#0B1E36] text-slate-400 py-6 px-4 border-t border-[#1E3A5F] text-center text-xs space-y-1">
+      <footer className="bg-[#1E293B] text-slate-400 py-6 px-4 border-t border-slate-700 text-center text-xs space-y-1">
         <p className="text-white font-black tracking-wide">
           ZENITHRX – PHARMACY MANAGEMENT SYSTEM
         </p>
         <p className="text-slate-400">
-          WhatsApp: <span className="text-emerald-400 font-bold">+256-755091826</span> | Call:{' '}
-          <span className="text-sky-300 font-bold">0200 913 555</span> | Email:{' '}
+          WhatsApp: <span className="text-green-400 font-bold">+256-755091826</span> | Call:{' '}
+          <span className="text-blue-400 font-bold">0200 913 555</span> | Email:{' '}
           <span className="text-slate-200">quantumnetworks@gmail.com</span>
         </p>
         <p className="text-slate-500 text-[11px] pt-1">

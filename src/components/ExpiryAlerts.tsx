@@ -78,17 +78,17 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
   return (
     <div className="space-y-6">
       {/* ─── Top Banner & Clearance Engine Header ───────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#0B1E36] via-[#1E3A5F] to-[#0284C7] rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-[#1E293B] rounded-2xl p-6 text-white border border-slate-700 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="bg-amber-500/20 text-amber-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-amber-400/30 flex items-center gap-1">
               <Flame className="w-3.5 h-3.5 text-amber-400" /> Automated FEFO Markdown Engine
             </span>
-            <span className="bg-rose-500/20 text-rose-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-rose-400/30 flex items-center gap-1">
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" /> NDA Quarantine & Disposal Protocol
+            <span className="bg-red-500/20 text-red-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-red-400/30 flex items-center gap-1">
+              <ShieldAlert className="w-3.5 h-3.5 text-red-400" /> NDA Quarantine &amp; Disposal Protocol
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Expiry Alerts & Markdown Engine</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Expiry Alerts &amp; Markdown Engine</h1>
           <p className="text-slate-300 text-sm mt-0.5">
             Prevent pharmaceutical capital write-offs through automated dynamic clearance discounting and strict NDA stock quarantine.
           </p>
@@ -98,9 +98,9 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
           <button
             onClick={handleBulkMarkdownCritical}
             disabled={metrics.criticalCount === 0}
-            className={`px-4 py-2.5 font-bold text-xs rounded-xl shadow-lg flex items-center gap-2 transition-all ${
+            className={`px-4 py-2.5 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer ${
               metrics.criticalCount > 0
-                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-amber-500/30 hover:-translate-y-0.5'
+                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-amber-900/20'
                 : 'bg-slate-700/50 text-slate-400 cursor-not-allowed'
             }`}
           >
@@ -110,9 +110,9 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
 
           <button
             onClick={handlePrintDestructionCertificate}
-            className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 flex items-center gap-1.5 transition-all shadow-md"
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
           >
-            <Printer className="w-4 h-4" />
+            <Printer className="w-4 h-4 text-blue-400" />
             <span>NDA Disposal Certificate</span>
           </button>
         </div>
@@ -124,7 +124,7 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
           className={`p-4 rounded-xl font-bold text-xs flex items-center justify-between shadow-lg animate-in fade-in ${
             notification.type === 'warning'
               ? 'bg-red-600 text-white'
-              : 'bg-emerald-600 text-white'
+              : 'bg-green-600 text-white'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -148,12 +148,12 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Total Capital At Risk
             </span>
-            <div className="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1">
+            <div className="text-xl font-bold text-red-600 dark:text-red-400 mt-1">
               {formatUGX(metrics.totalAtRiskCost)}
             </div>
             <p className="text-xs text-slate-400 mt-0.5">Inventory cost valuation (≤90 days)</p>
           </div>
-          <div className="p-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 rounded-xl">
+          <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-xl">
             <TrendingDown className="w-6 h-6" />
           </div>
         </div>
@@ -197,12 +197,12 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Recoverable Clearance Retail
             </span>
-            <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+            <div className="text-xl font-bold text-green-600 dark:text-green-400 mt-1">
               {formatUGX(metrics.recoverableRetail)}
             </div>
-            <p className="text-xs text-emerald-600 font-semibold mt-0.5">Estimated markdown return</p>
+            <p className="text-xs text-green-600 font-semibold mt-0.5">Estimated markdown return</p>
           </div>
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-xl">
+          <div className="p-3 bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 rounded-xl">
             <Sparkles className="w-6 h-6" />
           </div>
         </div>
@@ -217,7 +217,7 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
             placeholder="Search by brand, generic, batch#..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-900 dark:text-slate-100"
+            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
           />
         </div>
 
@@ -231,9 +231,9 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id as any)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeFilter === tab.id
-                  ? 'bg-[#0B1E36] text-white shadow-sm'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
               }`}
             >

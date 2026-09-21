@@ -179,13 +179,13 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
   return (
     <div className="space-y-6">
       {/* Title Banner */}
-      <div className="bg-[#0D223C] text-white p-6 rounded-2xl border border-sky-900/60 shadow-lg flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#1E293B] text-white p-6 rounded-2xl border border-slate-700 shadow-lg flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black text-white flex items-center gap-2">
-            <ShoppingCart className="w-7 h-7 text-sky-400" />
-            Price & Billing Management (POS)
+            <ShoppingCart className="w-7 h-7 text-blue-400" />
+            Price &amp; Billing Management (POS)
           </h2>
-          <p className="text-xs text-sky-200 mt-1">
+          <p className="text-xs text-slate-300 mt-1">
             High-speed barcode checkout, tax calculation, insurance co-pay splits, and instant receipting.
           </p>
         </div>
@@ -193,15 +193,15 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCashUpOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all border border-emerald-500/30"
+            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all border border-slate-700"
           >
-            <Receipt className="w-4 h-4" />
+            <Receipt className="w-4 h-4 text-blue-400" />
             <span>End-of-Day Cash-Up (Z-Report)</span>
           </button>
 
           <button
             onClick={openBarcodeScanner}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all"
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all"
           >
             <QrCode className="w-4 h-4" />
             <span>Scan Item Barcode</span>
@@ -221,7 +221,7 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
               placeholder="Type drug name, barcode, or category to add to billing..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-sky-500 outline-none text-slate-800"
+              className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none text-slate-800"
             />
           </div>
 
@@ -230,11 +230,11 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
               <div
                 key={drug.id}
                 onClick={() => addToCart(drug)}
-                className="p-3.5 rounded-xl border border-slate-200 hover:border-sky-400 bg-white hover:bg-sky-50/50 transition-all cursor-pointer flex flex-col justify-between space-y-2 group"
+                className="p-3.5 rounded-xl border border-slate-200 hover:border-blue-400 bg-white hover:bg-blue-50/30 transition-all cursor-pointer flex flex-col justify-between space-y-2 group"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-black text-slate-900 group-hover:text-sky-900">
+                    <p className="text-xs font-bold text-slate-900 group-hover:text-blue-600">
                       {drug.brandName}
                     </p>
                     <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.2 rounded">
@@ -245,10 +245,10 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                  <span className="text-xs font-mono font-black text-slate-900">
+                  <span className="text-xs font-mono font-bold text-slate-900">
                     UGX {drug.sellingPrice.toLocaleString()}
                   </span>
-                  <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-full flex items-center gap-1 group-hover:bg-sky-600 group-hover:text-white transition-colors">
+                  <span className="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1 group-hover:bg-green-600 group-hover:text-white transition-colors">
                     <Plus className="w-3 h-3" /> Add
                   </span>
                 </div>
@@ -260,9 +260,9 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
           <button
             onClick={() => setShowRxModal(true)}
             disabled={prescriptions.filter(rx => rx.status === 'Pending').length === 0}
-            className="w-full py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-800 font-bold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 font-bold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-4 h-4 text-blue-600" />
             <span>⚡ Load Pending Prescription ({prescriptions.filter(rx => rx.status === 'Pending').length})</span>
           </button>
         </div>
@@ -271,8 +271,8 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
         <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between space-y-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-sky-600" />
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <ShoppingCart className="w-4 h-4 text-blue-600" />
                 POS Basket ({cart.length} SKUs)
               </h3>
               {cart.length > 0 && (
@@ -328,7 +328,7 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="w-6 text-center font-black text-xs">{quantity}</span>
+                      <span className="w-6 text-center font-bold text-xs">{quantity}</span>
                       <button
                         onClick={() => updateQuantity(drug.id, 1)}
                         className="p-1 rounded bg-slate-200 text-slate-700 hover:bg-slate-300 cursor-pointer"
@@ -353,20 +353,20 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
 
             {/* Payment Gateway Options */}
             <div className="space-y-2 pt-2 border-t border-slate-100">
-              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Select Payment Gateway</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Select Payment Gateway</p>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {[
-                  { id: 'M-Pesa / Mobile', icon: <Smartphone className="w-3.5 h-3.5 text-emerald-600" /> },
-                  { id: 'Cash', icon: <DollarSign className="w-3.5 h-3.5 text-sky-600" /> },
+                  { id: 'M-Pesa / Mobile', icon: <Smartphone className="w-3.5 h-3.5 text-green-600" /> },
+                  { id: 'Cash', icon: <DollarSign className="w-3.5 h-3.5 text-blue-600" /> },
                   { id: 'Card', icon: <CreditCard className="w-3.5 h-3.5 text-blue-600" /> },
-                  { id: 'Insurance Scheme', icon: <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" /> },
+                  { id: 'Insurance Scheme', icon: <ShieldCheck className="w-3.5 h-3.5 text-blue-600" /> },
                 ].map((pm) => (
                   <button
                     key={pm.id}
                     onClick={() => setPaymentMethod(pm.id as any)}
                     className={`p-2 rounded-xl font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
                       paymentMethod === pm.id
-                        ? 'bg-sky-900 text-white border-sky-600 shadow-sm'
+                        ? 'bg-blue-600 text-white border-blue-500 shadow-sm'
                         : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
@@ -377,20 +377,20 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
               </div>
 
               {paymentMethod === 'M-Pesa / Mobile' && (
-                <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1">
-                  <label className="text-[10px] font-bold text-emerald-900 uppercase block">M-Pesa Transaction Ref</label>
+                <div className="p-2.5 bg-green-50 border border-green-200 rounded-xl space-y-1">
+                  <label className="text-[10px] font-bold text-green-900 uppercase block">Mobile Money Reference</label>
                   <input
                     type="text"
                     value={mpesaRef}
                     onChange={(e) => setMpesaRef(e.target.value)}
-                    className="w-full p-1.5 bg-white border border-emerald-300 rounded font-mono font-bold text-xs text-emerald-900 outline-none"
+                    className="w-full p-1.5 bg-white border border-green-300 rounded font-mono font-bold text-xs text-green-900 outline-none"
                   />
                 </div>
               )}
 
               {paymentMethod === 'Insurance Scheme' && (
-                <div className="p-2.5 bg-indigo-50 border border-indigo-200 rounded-xl space-y-1">
-                  <div className="flex justify-between text-[11px] font-bold text-indigo-900">
+                <div className="p-2.5 bg-blue-50 border border-blue-200 rounded-xl space-y-1">
+                  <div className="flex justify-between text-[11px] font-bold text-blue-900">
                     <span>Patient Co-pay Ratio</span>
                     <span>{(insuranceCopayRatio * 100).toFixed(0)}%</span>
                   </div>
@@ -401,7 +401,7 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
                     step={0.05}
                     value={insuranceCopayRatio}
                     onChange={(e) => setInsuranceCopayRatio(parseFloat(e.target.value))}
-                    className="w-full accent-indigo-600"
+                    className="w-full accent-blue-600"
                   />
                 </div>
               )}
@@ -418,14 +418,14 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
                 <span>UGX {taxAmount.toLocaleString()}</span>
               </div>
               {isInsurance && (
-                <div className="flex justify-between text-indigo-300">
+                <div className="flex justify-between text-blue-300">
                   <span>Insurance Covered:</span>
                   <span>UGX {insuranceCoveredAmount.toLocaleString()}</span>
                 </div>
               )}
-              <div className="flex justify-between text-base font-black text-white pt-2 border-t border-slate-800">
+              <div className="flex justify-between text-base font-bold text-white pt-2 border-t border-slate-800">
                 <span>Total Payable:</span>
-                <span className="text-emerald-400">UGX {patientCopayAmount.toLocaleString()}</span>
+                <span className="text-green-400">UGX {patientCopayAmount.toLocaleString()}</span>
               </div>
             </div>
 
@@ -435,10 +435,10 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
             <button
               onClick={() => setIsOrchestratorOpen(true)}
               disabled={cart.length === 0}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 cursor-pointer transition-all disabled:opacity-40"
+              className="w-full py-3 rounded-xl bg-green-600 hover:bg-green-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer transition-all disabled:opacity-40"
             >
               <CreditCard className="w-4 h-4" />
-              <span>Multi-Channel Split Payment (§11.18)</span>
+              <span>Multi-Channel Split Payment</span>
             </button>
 
             <button
@@ -446,7 +446,7 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
               disabled={cart.length === 0}
               className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 border border-slate-700 cursor-pointer transition-all disabled:opacity-40"
             >
-              <Printer className="w-4 h-4 text-emerald-400" />
+              <Printer className="w-4 h-4 text-green-400" />
               <span>Quick Direct Checkout &amp; Receipt</span>
             </button>
           </div>

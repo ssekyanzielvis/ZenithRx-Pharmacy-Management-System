@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
   const isLandingPage = activeTab === 'overview' || showPromoFlyer;
 
   return (
-    <header className="bg-[#0B1E36] text-white border-b border-[#1E3A5F] sticky top-0 z-50 shadow-xl">
+    <header className="bg-[#1E293B] text-white border-b border-slate-700/80 sticky top-0 z-50 shadow-xl">
       
       {/* ── LANDING PAGE HEADER (Clean Public Corporate Bar) ── */}
       {isLandingPage ? (
@@ -78,27 +78,27 @@ export const Header: React.FC<HeaderProps> = ({
             }}
             title="ZenithRx Platform Overview Landing Page"
           >
-            <div className="relative w-10 h-10 bg-gradient-to-br from-cyan-500 to-sky-700 rounded-lg flex items-center justify-center p-1.5 shadow-md shadow-cyan-900/40 group-hover:scale-105 transition-transform">
+            <div className="relative w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center p-1.5 shadow-md shadow-slate-950/40 group-hover:scale-105 transition-transform">
               <div className="grid grid-cols-2 gap-0.5 w-full h-full transform rotate-45 items-center justify-center">
                 <div className="bg-white rounded-xs opacity-90"></div>
-                <div className="bg-sky-200 rounded-xs"></div>
-                <div className="bg-sky-300 rounded-xs"></div>
+                <div className="bg-blue-200 rounded-xs"></div>
+                <div className="bg-green-200 rounded-xs"></div>
                 <div className="bg-white rounded-xs"></div>
               </div>
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs tracking-widest text-sky-300 font-extrabold uppercase">
+                <span className="text-xs tracking-widest text-blue-400 font-extrabold uppercase">
                   QUANTUM NETWORKS LTD
                 </span>
-                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
+                <span className="bg-green-500/20 text-green-300 border border-green-500/30 text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
                   OFFICIAL PLATFORM
                 </span>
               </div>
               <h1 className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
                 ZenithRx
-                <span className="text-xs font-medium text-sky-200 bg-sky-950/80 border border-sky-700/50 px-2 py-0.5 rounded-md">
+                <span className="text-xs font-medium text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-md">
                   PMS v3.2
                 </span>
               </h1>
@@ -112,7 +112,7 @@ export const Header: React.FC<HeaderProps> = ({
                 const el = document.getElementById('pricing-plans-section');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-cyan-300 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-blue-400 transition-colors cursor-pointer"
             >
               Subscription Plans
             </button>
@@ -122,29 +122,27 @@ export const Header: React.FC<HeaderProps> = ({
                 const el = document.getElementById('platform-features-section');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-cyan-300 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-blue-400 transition-colors cursor-pointer"
             >
               Features &amp; Modules
             </button>
-
-
 
             <button
               onClick={() => {
                 setShowPromoFlyer(false);
                 setActiveTab('pos');
               }}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-900/50 transition-all flex items-center gap-1.5 cursor-pointer transform hover:scale-102"
+              className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white font-black text-xs shadow-lg shadow-green-900/40 transition-all flex items-center gap-1.5 cursor-pointer transform hover:scale-102"
             >
               <span>Launch Workspace</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
 
             {user && onSignOut && (
-              <div className="flex items-center gap-2 pl-2 border-l border-slate-700/60">
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
                 <div className="hidden sm:flex flex-col text-right leading-none">
                   <span className="text-xs font-bold text-white truncate max-w-[120px]">{user.fullName}</span>
-                  <span className="text-[10px] text-sky-400 font-medium truncate max-w-[120px]">{user.rankRole}</span>
+                  <span className="text-[10px] text-blue-400 font-medium truncate max-w-[120px]">{user.rankRole}</span>
                 </div>
                 <button
                   onClick={onSignOut}
@@ -167,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-xl bg-[#162C4A] hover:bg-[#1E3B63] border border-[#254B7C] text-sky-300 hover:text-white transition-all cursor-pointer shadow-sm"
+              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-all cursor-pointer shadow-sm"
               title={sidebarOpen ? 'Collapse Navigation Sidebar' : 'Expand Navigation Sidebar'}
             >
               <Menu className="w-5 h-5" />
@@ -181,27 +179,27 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               title="Return to Platform Overview Landing Page"
             >
-              <div className="relative w-10 h-10 bg-gradient-to-br from-cyan-500 to-sky-700 rounded-lg flex items-center justify-center p-1.5 shadow-md shadow-cyan-900/40 group-hover:scale-105 transition-transform">
+              <div className="relative w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg flex items-center justify-center p-1.5 shadow-md shadow-slate-950/40 group-hover:scale-105 transition-transform">
                 <div className="grid grid-cols-2 gap-0.5 w-full h-full transform rotate-45 items-center justify-center">
                   <div className="bg-white rounded-xs opacity-90"></div>
-                  <div className="bg-sky-200 rounded-xs"></div>
-                  <div className="bg-sky-300 rounded-xs"></div>
+                  <div className="bg-blue-200 rounded-xs"></div>
+                  <div className="bg-green-200 rounded-xs"></div>
                   <div className="bg-white rounded-xs"></div>
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs tracking-widest text-sky-300 font-extrabold uppercase">
+                  <span className="text-xs tracking-widest text-blue-400 font-extrabold uppercase">
                     QUANTUM NETWORKS LTD
                   </span>
-                  <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
+                  <span className="bg-green-500/20 text-green-300 border border-green-500/30 text-[10px] px-1.5 py-0.5 rounded-full font-semibold">
                     SYSTEM ONLINE
                   </span>
                 </div>
                 <h1 className="text-xl font-black tracking-tight text-white flex items-center gap-1.5">
                   ZenithRx
-                  <span className="text-xs font-medium text-sky-200 bg-sky-950/80 border border-sky-700/50 px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-medium text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-md">
                     PMS v3.2
                   </span>
                 </h1>
@@ -213,13 +211,13 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="relative">
             <button
               onClick={() => setClientDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#162C4A] border border-[#254B7C] hover:border-sky-400 text-xs transition-all cursor-pointer max-w-xs shadow-inner"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-blue-500 text-xs transition-all cursor-pointer max-w-xs shadow-inner"
               title="Switch active client pharmacy branch"
             >
-              <Building2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-              <span className="text-slate-300 font-medium shrink-0">Client Branch:</span>
-              <span className="text-sky-200 font-black truncate">{activeClient.clientName}</span>
-              <span className="bg-sky-600/30 text-sky-300 text-[9px] font-bold px-1.5 py-0.2 rounded-full shrink-0 border border-sky-600/30">
+              <Building2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <span className="text-slate-300 font-medium shrink-0">Branch:</span>
+              <span className="text-white font-bold truncate">{activeClient.clientName}</span>
+              <span className="bg-blue-600/30 text-blue-300 text-[9px] font-bold px-1.5 py-0.2 rounded-full shrink-0 border border-blue-600/30">
                 {activeClient.packageTier}
               </span>
               <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform ${clientDropdownOpen ? 'rotate-180' : ''}`} />
@@ -227,8 +225,8 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Branch Dropdown Panel */}
             {clientDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1.5 w-80 bg-[#0E2240] border border-[#1E3A5F] rounded-2xl shadow-2xl shadow-slate-950/60 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                <div className="px-4 py-2.5 border-b border-[#1E3A5F]">
+              <div className="absolute top-full left-0 mt-1.5 w-80 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl shadow-slate-950/80 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                <div className="px-4 py-2.5 border-b border-slate-800">
                   <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
                     Registered Client Branches
                   </p>
@@ -243,26 +241,20 @@ export const Header: React.FC<HeaderProps> = ({
                       }}
                       className={`w-full text-left px-4 py-2.5 text-xs flex items-center justify-between gap-3 transition-colors ${
                         client.id === activeClient.id
-                          ? 'bg-sky-600/20 text-white'
-                          : 'text-slate-300 hover:bg-[#162C4A] hover:text-white'
+                          ? 'bg-blue-600 text-white'
+                          : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                       }`}
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <Building2 className={`w-3.5 h-3.5 shrink-0 ${client.id === activeClient.id ? 'text-sky-400' : 'text-slate-500'}`} />
+                        <Building2 className={`w-3.5 h-3.5 shrink-0 ${client.id === activeClient.id ? 'text-white' : 'text-slate-400'}`} />
                         <span className="font-semibold truncate">{client.clientName}</span>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${
-                          client.packageTier === 'Enterprise'
-                            ? 'bg-violet-500/20 text-violet-300 border-violet-500/30'
-                            : client.packageTier === 'Professional'
-                            ? 'bg-sky-500/20 text-sky-300 border-sky-500/30'
-                            : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
-                        }`}>
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full border bg-slate-800 text-slate-300 border-slate-700">
                           {client.packageTier}
                         </span>
                         {client.id === activeClient.id && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-400 shrink-0" />
                         )}
                       </div>
                     </button>
@@ -277,19 +269,19 @@ export const Header: React.FC<HeaderProps> = ({
             {/* AI Clinical Assistant Trigger */}
             <button
               onClick={onOpenAiCounseling}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white font-medium text-xs shadow-md transition-all border border-cyan-400/30 cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs shadow-md transition-all border border-blue-400/30 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-cyan-200 animate-pulse" />
+              <Sparkles className="w-4 h-4 text-blue-200 animate-pulse" />
               <span>AI Clinical Assistant</span>
             </button>
 
             {/* Barcode Scanner */}
             <button
               onClick={onOpenBarcodeScanner}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium text-xs shadow-md transition-all border border-violet-400/30 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold shadow-md transition-all cursor-pointer"
               title="Open Barcode Scanner"
             >
-              <QrCode className="w-3.5 h-3.5" />
+              <QrCode className="w-3.5 h-3.5 text-blue-400" />
               <span className="hidden sm:inline">Scan</span>
             </button>
 
@@ -297,10 +289,10 @@ export const Header: React.FC<HeaderProps> = ({
             {openR2Archive && (
               <button
                 onClick={openR2Archive}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#162C4A] border border-[#254B7C] text-xs text-sky-200 hover:border-sky-400 hover:text-white transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-300 hover:border-blue-500 hover:text-white transition-all cursor-pointer"
                 title="Cloudflare R2 Document Archive & Backup Center"
               >
-                <Cloud className="w-3.5 h-3.5 text-sky-400" />
+                <Cloud className="w-3.5 h-3.5 text-blue-400" />
                 <span>R2 Archive</span>
               </button>
             )}
@@ -311,18 +303,18 @@ export const Header: React.FC<HeaderProps> = ({
                 setActiveTab('overview');
                 setShowPromoFlyer(false);
               }}
-              className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-[#162C4A] text-sky-200 border border-[#254B7C] hover:bg-[#1E3B63] hover:text-white transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-white transition-all cursor-pointer"
             >
-              <Pill className="w-3.5 h-3.5" />
+              <Pill className="w-3.5 h-3.5 text-green-400" />
               <span>Platform Overview</span>
             </button>
 
             {/* User Profile & Global Logout Button */}
             {user && onSignOut && (
-              <div className="flex items-center gap-2 pl-2 border-l border-slate-700/60">
+              <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
                 <div className="hidden lg:flex flex-col text-right leading-none">
                   <span className="text-xs font-bold text-white truncate max-w-[130px]">{user.fullName}</span>
-                  <span className="text-[10px] text-sky-400 font-medium truncate max-w-[130px]">{user.rankRole}</span>
+                  <span className="text-[10px] text-blue-400 font-medium truncate max-w-[130px]">{user.rankRole}</span>
                 </div>
                 <button
                   onClick={onSignOut}

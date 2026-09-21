@@ -91,17 +91,17 @@ export const MultiTenantDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-[#0B1E36] border border-[#1E3A5F] rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#1E293B] border border-slate-700 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-2xl text-purple-400">
+          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400">
             <Layers className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl font-black text-white">
+              <h2 className="text-xl font-bold text-white">
                 Multi-Tenant SaaS Architecture &amp; User Rights Matrix
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20">
                 §8
               </span>
             </div>
@@ -115,12 +115,12 @@ export const MultiTenantDashboard: React.FC = () => {
         <div className="grid grid-cols-4 gap-3 shrink-0">
           {[
             { label: 'Tenants',  value: platform.totalTenants,    color: 'text-white' },
-            { label: 'Active',   value: platform.activeTenants,   color: 'text-emerald-400' },
-            { label: 'MRR',      value: `${(platform.totalMrrUgx / 1000).toFixed(0)}K`, color: 'text-sky-400' },
-            { label: 'NDA OK',   value: platform.ndaCompliantTenants, color: 'text-emerald-400' },
+            { label: 'Active',   value: platform.activeTenants,   color: 'text-green-400' },
+            { label: 'MRR',      value: `${(platform.totalMrrUgx / 1000).toFixed(0)}K`, color: 'text-blue-400' },
+            { label: 'NDA OK',   value: platform.ndaCompliantTenants, color: 'text-green-400' },
           ].map((kpi) => (
-            <div key={kpi.label} className="text-center bg-slate-800/60 rounded-xl px-3 py-2 border border-slate-700">
-              <div className={`text-lg font-black font-mono ${kpi.color}`}>{kpi.value}</div>
+            <div key={kpi.label} className="text-center bg-slate-800/80 rounded-xl px-3 py-2 border border-slate-700">
+              <div className={`text-lg font-bold font-mono ${kpi.color}`}>{kpi.value}</div>
               <div className="text-[9px] text-slate-400 font-bold uppercase">{kpi.label}</div>
             </div>
           ))}
@@ -131,10 +131,10 @@ export const MultiTenantDashboard: React.FC = () => {
       <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto pb-2">
         {(
           [
-            { id: 'overview', label: 'Platform Overview',      icon: <BarChart3 className="w-4 h-4 text-sky-500" /> },
-            { id: 'tiers',    label: 'Subscription Tiers',     icon: <Crown className="w-4 h-4 text-purple-500" /> },
-            { id: 'rights',   label: 'User Rights Matrix',     icon: <Shield className="w-4 h-4 text-indigo-500" /> },
-            { id: 'tenants',  label: 'Tenant Health Monitor',  icon: <Activity className="w-4 h-4 text-emerald-500" /> },
+            { id: 'overview', label: 'Platform Overview',      icon: <BarChart3 className="w-4 h-4 text-blue-500" /> },
+            { id: 'tiers',    label: 'Subscription Tiers',     icon: <Crown className="w-4 h-4 text-blue-500" /> },
+            { id: 'rights',   label: 'User Rights Matrix',     icon: <Shield className="w-4 h-4 text-blue-500" /> },
+            { id: 'tenants',  label: 'Tenant Health Monitor',  icon: <Activity className="w-4 h-4 text-green-500" /> },
           ] as const
         ).map((tab) => (
           <button
@@ -142,7 +142,7 @@ export const MultiTenantDashboard: React.FC = () => {
             onClick={() => setActiveTab(tab.id as MultiTenantTab)}
             className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-[#0B1E36] text-white shadow-md'
+                ? 'bg-blue-600 text-white shadow-md'
                 : 'bg-white text-slate-600 hover:bg-slate-100'
             }`}
           >

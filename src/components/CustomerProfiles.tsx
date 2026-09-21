@@ -224,17 +224,17 @@ export const CustomerProfiles: React.FC<CustomerProfilesProps> = ({
   return (
     <div className="space-y-6">
       {/* ─── Top Banner & Refill Engine Header ───────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#0B1E36] via-[#1E3A5F] to-[#0284C7] rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-[#1E293B] rounded-2xl p-6 text-white border border-slate-700 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-400" /> WhatsApp Automated Outreach
+            <span className="bg-green-500/20 text-green-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-green-400/30 flex items-center gap-1">
+              <MessageSquare className="w-3.5 h-3.5 text-green-400" /> WhatsApp Automated Outreach
             </span>
             <span className="bg-amber-500/20 text-amber-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-amber-400/30 flex items-center gap-1">
               <Award className="w-3.5 h-3.5 text-amber-400" /> ZenithRewards Loyalty Club
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Patient Dossiers & WhatsApp Refill Engine</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Patient Dossiers &amp; WhatsApp Refill Engine</h1>
           <p className="text-slate-300 text-sm mt-0.5">
             Monitor chronic medication refill intervals, clinical allergies, loyalty points, and send 1-click WhatsApp alerts.
           </p>
@@ -242,7 +242,7 @@ export const CustomerProfiles: React.FC<CustomerProfilesProps> = ({
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-sky-500/30 flex items-center gap-2 transition-all hover:-translate-y-0.5 whitespace-nowrap"
+          className="px-5 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           <span>Register New Patient</span>

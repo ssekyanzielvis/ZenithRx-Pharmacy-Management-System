@@ -155,17 +155,17 @@ export const InsuranceSchemes: React.FC<InsuranceSchemesProps> = ({
   return (
     <div className="space-y-6">
       {/* ─── Top Header & EDI Action Banner ─────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#0B1E36] via-[#1E3A5F] to-[#0284C7] rounded-2xl p-6 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-[#1E293B] rounded-2xl p-6 text-white border border-slate-700 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
+            <span className="bg-green-500/20 text-green-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-green-400/30 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" /> Electronic Claims Clearinghouse
             </span>
-            <span className="bg-sky-500/20 text-sky-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-sky-400/30 flex items-center gap-1">
+            <span className="bg-blue-500/20 text-blue-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-blue-400/30 flex items-center gap-1">
               <Calculator className="w-3.5 h-3.5" /> Real-time Co-Pay Split Engine
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Insurance Schemes & Claims Reconciliation</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Insurance Schemes &amp; Claims Reconciliation</h1>
           <p className="text-slate-300 text-sm mt-0.5">
             Verify member pre-authorization eligibility, calculate copay splits, and reconcile remittance payouts.
           </p>
@@ -174,18 +174,18 @@ export const InsuranceSchemes: React.FC<InsuranceSchemesProps> = ({
         <div className="flex items-center gap-2 w-full md:w-auto">
           <button
             onClick={() => setActiveTab('newClaim')}
-            className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/20 flex items-center gap-1.5 transition-all"
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-blue-400" />
             <span>New Claim</span>
           </button>
 
           <button
             onClick={handleBatchSubmit}
             disabled={isBatchSubmitting || metrics.draftCount === 0}
-            className={`px-5 py-2.5 font-bold text-xs rounded-xl shadow-lg flex items-center gap-2 transition-all ${
+            className={`px-5 py-2.5 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer ${
               metrics.draftCount > 0 && !isBatchSubmitting
-                ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/30 hover:-translate-y-0.5'
+                ? 'bg-green-600 hover:bg-green-500 text-white'
                 : 'bg-slate-700/50 text-slate-400 cursor-not-allowed'
             }`}
           >

@@ -67,11 +67,11 @@ export const AICounselingModal: React.FC<AICounselingModalProps> = ({
         </button>
 
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 text-white flex items-center justify-center">
-            <Sparkles className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-blue-200" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-slate-900">Quantum RxAI Patient Counseling Assistant</h3>
+            <h3 className="text-lg font-bold text-slate-900">ZenithRx AI Patient Counseling Assistant</h3>
             <p className="text-xs text-slate-500">Generate personalized patient medication guidance leaflets</p>
           </div>
         </div>
@@ -82,7 +82,7 @@ export const AICounselingModal: React.FC<AICounselingModalProps> = ({
             <select
               value={selectedDrug}
               onChange={(e) => setSelectedDrug(e.target.value)}
-              className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium mt-1"
+              className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium mt-1 focus:ring-2 focus:ring-blue-500"
             >
               {drugs.map((d) => (
                 <option key={d.id} value={d.brandName}>{d.brandName}</option>
@@ -96,7 +96,7 @@ export const AICounselingModal: React.FC<AICounselingModalProps> = ({
               type="text"
               value={patientName}
               onChange={(e) => setPatientName(e.target.value)}
-              className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium mt-1"
+              className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium mt-1 focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -107,14 +107,14 @@ export const AICounselingModal: React.FC<AICounselingModalProps> = ({
             type="text"
             value={dosage}
             onChange={(e) => setDosage(e.target.value)}
-            className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium mt-1"
+            className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium mt-1 focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <button
           onClick={handleGenerateCounseling}
           disabled={isLoading}
-          className="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors"
+          className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors"
         >
           {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           <span>Generate Clinical Patient Advice</span>

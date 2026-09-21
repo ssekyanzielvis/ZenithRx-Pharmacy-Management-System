@@ -151,17 +151,17 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-[#0B1E36] border border-[#1E3A5F] rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#1E293B] border border-slate-700 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-2xl text-sky-400">
+          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400">
             <BarChart3 className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white">
-                Search, Analytics &amp; Reporting (§11.5)
+              <h2 className="text-xl font-bold text-white">
+                Search, Analytics &amp; Reporting
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/20 flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20 flex items-center gap-1">
                 <Database className="w-3 h-3" /> Isolated OLAP Reporting Path
               </span>
             </div>
@@ -174,16 +174,16 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsCashUpOpen(true)}
-            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 shadow-sm transition cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-700 shadow-sm transition cursor-pointer"
           >
-            <Receipt className="w-4 h-4" />
+            <Receipt className="w-4 h-4 text-blue-400" />
             Shift Cash-Up
           </button>
           <button
             onClick={() => exportSalesCSV(filtered)}
             className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-700 transition cursor-pointer"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 text-blue-400" />
             Export CSV
           </button>
         </div>
@@ -197,21 +197,21 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           onClick={() => setActiveTab('salesKpi')}
           className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
             activeTab === 'salesKpi'
-              ? 'bg-[#0B1E36] border-emerald-400 shadow-2xl shadow-emerald-900/40'
-              : 'bg-white border-emerald-400 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-100 border-opacity-40'
+              ? 'bg-[#1E293B] border-blue-500 shadow-xl'
+              : 'bg-white border-slate-200 hover:-translate-y-1 hover:shadow-lg'
           }`}
-          style={{ borderTopColor: activeTab === 'salesKpi' ? '#34d399' : '#6ee7b7' }}
+          style={{ borderTopColor: activeTab === 'salesKpi' ? '#2563EB' : '#93C5FD' }}
         >
           {/* Icon */}
           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-            activeTab === 'salesKpi' ? 'bg-emerald-400/20' : 'bg-emerald-50'
+            activeTab === 'salesKpi' ? 'bg-blue-400/20' : 'bg-blue-50'
           }`}>
-            <TrendingUp className={`w-6 h-6 ${activeTab === 'salesKpi' ? 'text-emerald-300' : 'text-emerald-600'}`} />
+            <TrendingUp className={`w-6 h-6 ${activeTab === 'salesKpi' ? 'text-blue-300' : 'text-blue-600'}`} />
           </div>
 
           {/* Title & description */}
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeTab === 'salesKpi' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-sm font-bold leading-tight ${activeTab === 'salesKpi' ? 'text-white' : 'text-slate-900'}`}>
               Financial KPIs &amp; Revenue
             </h3>
             <p className={`text-[11px] leading-relaxed ${activeTab === 'salesKpi' ? 'text-slate-400' : 'text-slate-500'}`}>
@@ -222,8 +222,8 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           {/* Feature bullets */}
           <ul className="space-y-1">
             {['Net Sales & Gross Profit', 'Avg Order Value (AOV)', 'Payment Channel Breakdown', 'VAT & COGS Settlement'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeTab === 'salesKpi' ? 'text-emerald-300' : 'text-slate-500'}`}>
-                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${activeTab === 'salesKpi' ? 'bg-emerald-400' : 'bg-emerald-400'}`} />
+              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeTab === 'salesKpi' ? 'text-blue-300' : 'text-slate-500'}`}>
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${activeTab === 'salesKpi' ? 'bg-blue-400' : 'bg-blue-400'}`} />
                 {f}
               </li>
             ))}
@@ -232,11 +232,11 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           {/* Footer CTA */}
           <div className="mt-auto pt-2 border-t border-white/10">
             {activeTab === 'salesKpi' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-300 bg-emerald-400/10 px-3 py-1 rounded-full">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-300 bg-blue-400/10 px-3 py-1 rounded-full">
                 <CheckCircle2 className="w-3 h-3" /> Viewing
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full group-hover:bg-emerald-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full group-hover:bg-blue-100 transition">
                 ▶ Open
               </span>
             )}
@@ -248,10 +248,10 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           onClick={() => setActiveTab('stockAgeing')}
           className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
             activeTab === 'stockAgeing'
-              ? 'bg-[#0B1E36] border-amber-400 shadow-2xl shadow-amber-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-100'
+              ? 'bg-[#1E293B] border-amber-400 shadow-xl'
+              : 'bg-white hover:-translate-y-1 hover:shadow-lg'
           }`}
-          style={{ borderTopColor: activeTab === 'stockAgeing' ? '#fbbf24' : '#fcd34d' }}
+          style={{ borderTopColor: activeTab === 'stockAgeing' ? '#D97706' : '#FCD34D' }}
         >
           {/* Badge */}
           <span className={`absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full ${
