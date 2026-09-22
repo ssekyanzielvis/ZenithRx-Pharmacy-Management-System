@@ -33,7 +33,9 @@ export type AuditAction =
   | 'dispense'
   | 'stock_adjust'
   | 'export'
-  | 'override';
+  | 'override'
+  | 'unauthorized_access_blocked'
+  | 'role_change';
 
 // ─── Table Row Types ──────────────────────────────────────────────────────────
 

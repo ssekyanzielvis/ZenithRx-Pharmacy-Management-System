@@ -26,14 +26,14 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 ${className}`}
+      className={`bg-white dark:bg-[#132032] p-5 rounded-2xl border border-slate-200 dark:border-slate-700/60 shadow-sm hover:shadow-md dark:hover:shadow-slate-900/40 transition-shadow duration-200 ${className}`}
     >
       <div className="flex items-start justify-between mb-3">
-        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight">
+        <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider leading-tight">
           {label}
         </p>
         {icon && (
-          <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+          <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500">
             {icon}
           </div>
         )}

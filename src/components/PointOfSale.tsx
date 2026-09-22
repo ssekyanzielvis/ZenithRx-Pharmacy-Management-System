@@ -179,29 +179,29 @@ export const PointOfSale: React.FC<PointOfSaleProps> = ({
   return (
     <div className="space-y-6">
       {/* Title Banner */}
-      <div className="bg-[#1E293B] text-white p-6 rounded-2xl border border-slate-700 shadow-lg flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white text-slate-900 p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-black text-white flex items-center gap-2">
-            <ShoppingCart className="w-7 h-7 text-blue-400" />
+          <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+            <ShoppingCart className="w-7 h-7 text-emerald-600" />
             Price &amp; Billing Management (POS)
           </h2>
-          <p className="text-xs text-slate-300 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             High-speed barcode checkout, tax calculation, insurance co-pay splits, and instant receipting.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setIsCashUpOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all border border-slate-700"
+            className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-xs cursor-pointer transition-all border border-slate-200"
           >
-            <Receipt className="w-4 h-4 text-blue-400" />
+            <Receipt className="w-4 h-4 text-emerald-700" />
             <span>End-of-Day Cash-Up (Z-Report)</span>
           </button>
 
           <button
             onClick={openBarcodeScanner}
-            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-md cursor-pointer transition-all"
+            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-xs cursor-pointer transition-all"
           >
             <QrCode className="w-4 h-4" />
             <span>Scan Item Barcode</span>

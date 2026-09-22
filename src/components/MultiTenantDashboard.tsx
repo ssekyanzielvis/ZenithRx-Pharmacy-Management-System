@@ -91,21 +91,21 @@ export const MultiTenantDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-[#1E293B] border border-slate-700 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400">
+          <div className="p-3 bg-blue-50 border border-blue-100 rounded-2xl text-blue-600">
             <Layers className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-black text-slate-900">
                 Multi-Tenant SaaS Architecture &amp; User Rights Matrix
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200">
                 §8
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               Isolated tenancy per pharmacy · 4 subscription tiers · 7-role rights matrix · Per-tenant feature gate enforcement.
             </p>
           </div>
@@ -114,42 +114,89 @@ export const MultiTenantDashboard: React.FC = () => {
         {/* Platform KPI strip */}
         <div className="grid grid-cols-4 gap-3 shrink-0">
           {[
-            { label: 'Tenants',  value: platform.totalTenants,    color: 'text-white' },
-            { label: 'Active',   value: platform.activeTenants,   color: 'text-green-400' },
-            { label: 'MRR',      value: `${(platform.totalMrrUgx / 1000).toFixed(0)}K`, color: 'text-blue-400' },
-            { label: 'NDA OK',   value: platform.ndaCompliantTenants, color: 'text-green-400' },
+            { label: 'Tenants',  value: platform.totalTenants,    color: 'text-slate-900' },
+            { label: 'Active',   value: platform.activeTenants,   color: 'text-emerald-700' },
+            { label: 'MRR',      value: `${(platform.totalMrrUgx / 1000).toFixed(0)}K`, color: 'text-blue-700' },
+            { label: 'NDA OK',   value: platform.ndaCompliantTenants, color: 'text-emerald-700' },
           ].map((kpi) => (
-            <div key={kpi.label} className="text-center bg-slate-800/80 rounded-xl px-3 py-2 border border-slate-700">
+            <div key={kpi.label} className="text-center bg-slate-50 rounded-xl px-3 py-2 border border-slate-200">
               <div className={`text-lg font-bold font-mono ${kpi.color}`}>{kpi.value}</div>
-              <div className="text-[9px] text-slate-400 font-bold uppercase">{kpi.label}</div>
+              <div className="text-[9px] text-slate-500 font-bold uppercase">{kpi.label}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Sub-tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto pb-2">
+      {/* Multi-Tenant Navigation Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {(
           [
-            { id: 'overview', label: 'Platform Overview',      icon: <BarChart3 className="w-4 h-4 text-blue-500" /> },
-            { id: 'tiers',    label: 'Subscription Tiers',     icon: <Crown className="w-4 h-4 text-blue-500" /> },
-            { id: 'rights',   label: 'User Rights Matrix',     icon: <Shield className="w-4 h-4 text-blue-500" /> },
-            { id: 'tenants',  label: 'Tenant Health Monitor',  icon: <Activity className="w-4 h-4 text-green-500" /> },
+            {
+              id: 'overview',
+              label: 'Platform Overview',
+              desc: 'Macro metrics, tier breakdowns, gross subscription MRR, and platform capacity.',
+              icon: <BarChart3 className="w-5 h-5" />,
+              badge: 'Summary',
+            },
+            {
+              id: 'tiers',
+              label: 'Subscription Tiers',
+              desc: 'Tier feature limits, user seat allocations, AI leafeting quotas, and pricing.',
+              icon: <Crown className="w-5 h-5" />,
+              badge: '4 Tiers',
+            },
+            {
+              id: 'rights',
+              label: 'User Rights Matrix',
+              desc: 'Role-based access permissions across Pharmacy, Pharmacist, Cashier, and Admin.',
+              icon: <Shield className="w-5 h-5" />,
+              badge: 'Permissions',
+            },
+            {
+              id: 'tenants',
+              label: 'Tenant Health Monitor',
+              desc: 'Live telemetry, latency stats, license expirations, and active tenant status.',
+              icon: <Activity className="w-5 h-5" />,
+              badge: 'Health Checks',
+            },
           ] as const
-        ).map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as MultiTenantTab)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-white text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
+        ).map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as MultiTenantTab)}
+              className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border ${
+                isActive
+                  ? 'bg-blue-50 text-blue-900 border-2 border-blue-600 shadow-xs'
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 shadow-xs'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className={`p-2 rounded-xl ${isActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'}`}>
+                    {tab.icon}
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${isActive ? 'bg-blue-100 text-blue-800 border-blue-200' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                    {tab.badge}
+                  </span>
+                </div>
+                <h3 className={`text-xs font-black tracking-tight ${isActive ? 'text-blue-950' : 'text-slate-900'}`}>
+                  {tab.label}
+                </h3>
+                <p className={`text-[11px] mt-1 line-clamp-2 leading-relaxed ${isActive ? 'text-blue-800' : 'text-slate-600'}`}>
+                  {tab.desc}
+                </p>
+              </div>
+              <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                <span className={isActive ? 'text-blue-700 font-bold' : 'text-slate-500 font-medium'}>
+                  {isActive ? '← Current view' : 'Go to section →'}
+                </span>
+                <span className={isActive ? 'text-blue-700 font-bold' : 'text-slate-400'}>→</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* ── OVERVIEW ─────────────────────────────────────────────────────── */}

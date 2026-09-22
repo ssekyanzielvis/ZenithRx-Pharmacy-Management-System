@@ -155,28 +155,28 @@ export const InsuranceSchemes: React.FC<InsuranceSchemesProps> = ({
   return (
     <div className="space-y-6">
       {/* ─── Top Header & EDI Action Banner ─────────────────────────────────── */}
-      <div className="bg-[#1E293B] rounded-2xl p-6 text-white border border-slate-700 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-6 text-slate-900 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="bg-green-500/20 text-green-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-green-400/30 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Electronic Claims Clearinghouse
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Electronic Claims Clearinghouse
             </span>
-            <span className="bg-blue-500/20 text-blue-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-blue-400/30 flex items-center gap-1">
-              <Calculator className="w-3.5 h-3.5" /> Real-time Co-Pay Split Engine
+            <span className="bg-blue-50 text-blue-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-200 flex items-center gap-1">
+              <Calculator className="w-3.5 h-3.5 text-blue-600" /> Real-time Co-Pay Split Engine
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Insurance Schemes &amp; Claims Reconciliation</h1>
-          <p className="text-slate-300 text-sm mt-0.5">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">Insurance Schemes &amp; Claims Reconciliation</h1>
+          <p className="text-slate-600 text-sm mt-0.5">
             Verify member pre-authorization eligibility, calculate copay splits, and reconcile remittance payouts.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
           <button
             onClick={() => setActiveTab('newClaim')}
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all cursor-pointer"
+            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
           >
-            <Plus className="w-4 h-4 text-blue-400" />
+            <Plus className="w-4 h-4 text-emerald-700" />
             <span>New Claim</span>
           </button>
 
@@ -273,96 +273,126 @@ export const InsuranceSchemes: React.FC<InsuranceSchemesProps> = ({
         </div>
       </div>
 
-      {/* ─── Tab Navigation Bar ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-        <button
-          onClick={() => setActiveTab('claims')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 ${
-            activeTab === 'claims'
-              ? 'bg-[#0B1E36] text-white shadow-sm'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span>Claims Reconciliation Portal</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('verifier')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 ${
-            activeTab === 'verifier'
-              ? 'bg-[#0B1E36] text-white shadow-sm'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-          }`}
-        >
-          <FileCheck2 className="w-4 h-4 text-sky-400" />
-          <span>Pre-Auth & Eligibility Verifier</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('providers')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 ${
-            activeTab === 'providers'
-              ? 'bg-[#0B1E36] text-white shadow-sm'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-          }`}
-        >
-          <Building2 className="w-4 h-4" />
-          <span>Insurers & Coverage Schemes</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('newClaim')}
-          className={`px-4 py-2 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 ${
-            activeTab === 'newClaim'
-              ? 'bg-[#0B1E36] text-white shadow-sm'
-              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-          }`}
-        >
-          <Plus className="w-4 h-4" />
-          <span>Create Direct Claim</span>
-        </button>
+      {/* ─── Insurance Navigation Cards ────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          {
+            id: 'claims',
+            label: 'Claims Reconciliation',
+            desc: 'EDI batch transmission, status tracking, settlement review, and remittance advice.',
+            icon: <Layers className="w-5 h-5" />,
+            badge: `${metrics.totalClaims} Claims`,
+          },
+          {
+            id: 'verifier',
+            label: 'Pre-Auth & Eligibility',
+            desc: 'Live smartcard scan, biometric validation, benefit ceiling, and copay calculation.',
+            icon: <FileCheck2 className="w-5 h-5" />,
+            badge: 'Pre-Auth',
+          },
+          {
+            id: 'providers',
+            label: 'Insurers & Schemes',
+            desc: 'Underwriter contracts (UAP, Jubilee, Prudential, Cigna), tariff lists, and formulary.',
+            icon: <Building2 className="w-5 h-5" />,
+            badge: `${providers.length} Underwriters`,
+          },
+          {
+            id: 'newClaim',
+            label: 'Create Direct Claim',
+            desc: 'Manual claim entry, digital voucher attachment, prescription linkage, and submit.',
+            icon: <Plus className="w-5 h-5" />,
+            badge: 'New Claim',
+          },
+        ].map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-lg ring-2 ring-blue-400/40 border-blue-500 scale-[1.01]'
+                  : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-800 shadow-sm'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400'}`}>
+                    {tab.icon}
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'}`}>
+                    {tab.badge}
+                  </span>
+                </div>
+                <h3 className={`text-xs font-black tracking-tight ${isActive ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+                  {tab.label}
+                </h3>
+                <p className={`text-[11px] mt-1 line-clamp-2 leading-relaxed ${isActive ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}>
+                  {tab.desc}
+                </p>
+              </div>
+              <div className="mt-3 pt-2 border-t border-current/10 flex items-center justify-between text-[10px]">
+                <span className={isActive ? 'text-white font-bold' : 'text-slate-400'}>
+                  {isActive ? '← Current view' : 'Go to section →'}
+                </span>
+                <span className={isActive ? 'text-blue-200' : 'text-slate-400'}>→</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* ─── Tab 1: Claims Reconciliation Portal ───────────────────────────── */}
       {activeTab === 'claims' && (
         <div className="space-y-4">
           {/* Search & Filter Bar */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <div className="relative w-full md:w-80">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search by claim#, patient, member#..."
+                placeholder="Search by claim#, patient name, member#..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-900 dark:text-slate-100"
+                className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+            <div className="flex items-center flex-wrap gap-2">
               {/* Status Filter */}
-              <div className="flex items-center gap-1">
-                {(['All', 'Draft', 'Submitted', 'Approved', 'Reconciled', 'Rejected'] as const).map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => setStatusFilter(st)}
-                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
-                      statusFilter === st
-                        ? 'bg-sky-600 text-white'
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
-                    }`}
-                  >
-                    {st}
-                  </button>
-                ))}
+              <div className="flex items-center flex-wrap gap-1.5">
+                {(['All', 'Draft', 'Submitted', 'Approved', 'Reconciled', 'Rejected'] as const).map((st) => {
+                  const isActive = statusFilter === st;
+                  return (
+                    <button
+                      key={st}
+                      onClick={() => setStatusFilter(st)}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-400/30'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60'
+                      }`}
+                    >
+                      {st}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Provider Filter */}
               <select
                 value={providerFilter}
                 onChange={(e) => setProviderFilter(e.target.value)}
-                className="text-xs p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200"
+                className="text-xs px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold cursor-pointer"
               >
                 <option value="All">All Providers</option>
                 {providers.map((p) => (

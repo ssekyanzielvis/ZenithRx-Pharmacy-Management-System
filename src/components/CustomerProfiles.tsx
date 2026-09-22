@@ -224,25 +224,25 @@ export const CustomerProfiles: React.FC<CustomerProfilesProps> = ({
   return (
     <div className="space-y-6">
       {/* ─── Top Banner & Refill Engine Header ───────────────────────────────── */}
-      <div className="bg-[#1E293B] rounded-2xl p-6 text-white border border-slate-700 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-6 text-slate-900 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="bg-green-500/20 text-green-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-green-400/30 flex items-center gap-1">
-              <MessageSquare className="w-3.5 h-3.5 text-green-400" /> WhatsApp Automated Outreach
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+              <MessageSquare className="w-3.5 h-3.5 text-emerald-600" /> WhatsApp Automated Outreach
             </span>
-            <span className="bg-amber-500/20 text-amber-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-amber-400/30 flex items-center gap-1">
-              <Award className="w-3.5 h-3.5 text-amber-400" /> ZenithRewards Loyalty Club
+            <span className="bg-amber-50 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+              <Award className="w-3.5 h-3.5 text-amber-600" /> ZenithRewards Loyalty Club
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Patient Dossiers &amp; WhatsApp Refill Engine</h1>
-          <p className="text-slate-300 text-sm mt-0.5">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">Patient Dossiers &amp; WhatsApp Refill Engine</h1>
+          <p className="text-slate-600 text-sm mt-0.5">
             Monitor chronic medication refill intervals, clinical allergies, loyalty points, and send 1-click WhatsApp alerts.
           </p>
         </div>
 
         <button
           onClick={() => setShowAddModal(true)}
-          className="px-5 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           <span>Register New Patient</span>
@@ -332,38 +332,49 @@ export const CustomerProfiles: React.FC<CustomerProfilesProps> = ({
         {/* Left Column: Patient Directory & Filters */}
         <div className="lg:col-span-5 space-y-4">
           {/* Search and Category Filters */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm space-y-3">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 sm:p-5 shadow-sm space-y-3.5">
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search by patient name, phone, allergy, condition..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 text-slate-900 dark:text-slate-100"
+                className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-1.5 pt-1">
+            <div className="flex flex-wrap gap-2">
               {[
                 { id: 'all', label: 'All Patients' },
-                { id: 'refillsDue', label: '⚠️ Refills Due' },
-                { id: 'chronic', label: '🩺 Chronic Cohort' },
-                { id: 'loyalty', label: '⭐ VIP Loyalty' },
-              ].map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => setActiveFilter(f.id as any)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    activeFilter === f.id
-                      ? 'bg-[#0B1E36] text-white shadow-sm'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
+                { id: 'refillsDue', label: 'Refills Due' },
+                { id: 'chronic', label: 'Chronic Cohort' },
+                { id: 'loyalty', label: 'VIP Loyalty' },
+              ].map((f) => {
+                const isActive = activeFilter === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => setActiveFilter(f.id as any)}
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-400/30'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

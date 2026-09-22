@@ -22,7 +22,8 @@ import {
   Clock,
   CheckCircle2,
   FileText,
-  Filter
+  Filter,
+  X
 } from 'lucide-react';
 import { POSTransaction, DrugItem, Prescription, CustomerProfile } from '../types';
 import { formatUGX, formatUGXCompact, formatTimestamp } from '../services/formatters';
@@ -151,39 +152,39 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-[#1E293B] border border-slate-700 rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-400">
+          <div className="p-3 bg-blue-50 border border-blue-100 rounded-2xl text-blue-600">
             <BarChart3 className="w-7 h-7" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-white">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-xl font-black text-slate-900">
                 Search, Analytics &amp; Reporting
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20 flex items-center gap-1">
-                <Database className="w-3 h-3" /> Isolated OLAP Reporting Path
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200 flex items-center gap-1">
+                <Database className="w-3 h-3 text-blue-600" /> Isolated OLAP Reporting Path
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               Materialized views, stock ageing matrices, OpenSearch full-text cluster &amp; BigQuery data warehouse pipelines.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setIsCashUpOpen(true)}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-700 shadow-sm transition cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-2 border border-slate-200 shadow-xs transition cursor-pointer"
           >
-            <Receipt className="w-4 h-4 text-blue-400" />
+            <Receipt className="w-4 h-4 text-emerald-700" />
             Shift Cash-Up
           </button>
           <button
             onClick={() => exportSalesCSV(filtered)}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-700 transition cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-2 border border-slate-200 shadow-xs transition cursor-pointer"
           >
-            <Download className="w-4 h-4 text-blue-400" />
+            <Download className="w-4 h-4 text-blue-700" />
             Export CSV
           </button>
         </div>
@@ -197,24 +198,24 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           onClick={() => setActiveTab('salesKpi')}
           className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
             activeTab === 'salesKpi'
-              ? 'bg-[#1E293B] border-blue-500 shadow-xl'
-              : 'bg-white border-slate-200 hover:-translate-y-1 hover:shadow-lg'
+              ? 'bg-blue-50/70 border-blue-600 shadow-sm'
+              : 'bg-white border-slate-200 hover:-translate-y-1 hover:shadow-md'
           }`}
           style={{ borderTopColor: activeTab === 'salesKpi' ? '#2563EB' : '#93C5FD' }}
         >
           {/* Icon */}
           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-            activeTab === 'salesKpi' ? 'bg-blue-400/20' : 'bg-blue-50'
+            activeTab === 'salesKpi' ? 'bg-blue-100' : 'bg-blue-50'
           }`}>
-            <TrendingUp className={`w-6 h-6 ${activeTab === 'salesKpi' ? 'text-blue-300' : 'text-blue-600'}`} />
+            <TrendingUp className="w-6 h-6 text-blue-600" />
           </div>
 
           {/* Title & description */}
           <div className="space-y-1">
-            <h3 className={`text-sm font-bold leading-tight ${activeTab === 'salesKpi' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className="text-sm font-black leading-tight text-slate-900">
               Financial KPIs &amp; Revenue
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeTab === 'salesKpi' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className="text-[11px] leading-relaxed text-slate-600">
               Real-time revenue analytics, gross profit, and payment channel distribution.
             </p>
           </div>
@@ -222,18 +223,18 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           {/* Feature bullets */}
           <ul className="space-y-1">
             {['Net Sales & Gross Profit', 'Avg Order Value (AOV)', 'Payment Channel Breakdown', 'VAT & COGS Settlement'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeTab === 'salesKpi' ? 'text-blue-300' : 'text-slate-500'}`}>
-                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${activeTab === 'salesKpi' ? 'bg-blue-400' : 'bg-blue-400'}`} />
+              <li key={f} className="text-[10px] font-semibold flex items-center gap-1.5 text-slate-600">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-blue-500" />
                 {f}
               </li>
             ))}
           </ul>
 
           {/* Footer CTA */}
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200">
             {activeTab === 'salesKpi' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-300 bg-blue-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-800 bg-blue-100 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-blue-700" /> Viewing
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full group-hover:bg-blue-100 transition">
@@ -248,31 +249,29 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           onClick={() => setActiveTab('stockAgeing')}
           className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
             activeTab === 'stockAgeing'
-              ? 'bg-[#1E293B] border-amber-400 shadow-xl'
-              : 'bg-white hover:-translate-y-1 hover:shadow-lg'
+              ? 'bg-amber-50/70 border-amber-600 shadow-sm'
+              : 'bg-white border-slate-200 hover:-translate-y-1 hover:shadow-md'
           }`}
           style={{ borderTopColor: activeTab === 'stockAgeing' ? '#D97706' : '#FCD34D' }}
         >
           {/* Badge */}
-          <span className={`absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full ${
-            activeTab === 'stockAgeing' ? 'bg-amber-400/20 text-amber-300' : 'bg-amber-100 text-amber-700'
-          }`}>
+          <span className="absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
             4 BUCKETS
           </span>
 
           {/* Icon */}
           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-            activeTab === 'stockAgeing' ? 'bg-amber-400/20' : 'bg-amber-50'
+            activeTab === 'stockAgeing' ? 'bg-amber-100' : 'bg-amber-50'
           }`}>
-            <Package className={`w-6 h-6 ${activeTab === 'stockAgeing' ? 'text-amber-300' : 'text-amber-600'}`} />
+            <Package className="w-6 h-6 text-amber-700" />
           </div>
 
           {/* Title & description */}
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeTab === 'stockAgeing' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className="text-sm font-black leading-tight text-slate-900">
               Stock Ageing &amp; Valuation Matrix
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeTab === 'stockAgeing' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className="text-[11px] leading-relaxed text-slate-600">
               Capital exposure by 30-day chronological ageing tranches with FEFO clearance recommendations.
             </p>
           </div>
@@ -280,21 +279,21 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           {/* Feature bullets */}
           <ul className="space-y-1">
             {['0-30 Day Critical Tranche', '31-60 Day Moderate Risk', '61-90 & 90+ Day Healthy', 'FEFO Clearance Guidance'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeTab === 'stockAgeing' ? 'text-amber-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-amber-400" />
+              <li key={f} className="text-[10px] font-semibold flex items-center gap-1.5 text-slate-600">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-amber-500" />
                 {f}
               </li>
             ))}
           </ul>
 
           {/* Footer CTA */}
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200">
             {activeTab === 'stockAgeing' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-amber-300 bg-amber-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-amber-700" /> Viewing
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-700 bg-amber-50 px-3 py-1 rounded-full group-hover:bg-amber-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-3 py-1 rounded-full group-hover:bg-amber-100 transition">
                 ▶ Open
               </span>
             )}
@@ -306,31 +305,29 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           onClick={() => setActiveTab('openSearch')}
           className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
             activeTab === 'openSearch'
-              ? 'bg-[#0B1E36] border-cyan-400 shadow-2xl shadow-cyan-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-100'
+              ? 'bg-cyan-50/70 border-cyan-600 shadow-sm'
+              : 'bg-white border-slate-200 hover:-translate-y-1 hover:shadow-md'
           }`}
-          style={{ borderTopColor: activeTab === 'openSearch' ? '#22d3ee' : '#67e8f9' }}
+          style={{ borderTopColor: activeTab === 'openSearch' ? '#0891b2' : '#67e8f9' }}
         >
           {/* Badge */}
-          <span className={`absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full ${
-            activeTab === 'openSearch' ? 'bg-cyan-400/20 text-cyan-300' : 'bg-cyan-100 text-cyan-700'
-          }`}>
+          <span className="absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-800 border border-cyan-200">
             FULL-TEXT
           </span>
 
           {/* Icon */}
           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-            activeTab === 'openSearch' ? 'bg-cyan-400/20' : 'bg-cyan-50'
+            activeTab === 'openSearch' ? 'bg-cyan-100' : 'bg-cyan-50'
           }`}>
-            <Search className={`w-6 h-6 ${activeTab === 'openSearch' ? 'text-cyan-300' : 'text-cyan-600'}`} />
+            <Search className="w-6 h-6 text-cyan-700" />
           </div>
 
           {/* Title & description */}
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeTab === 'openSearch' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className="text-sm font-black leading-tight text-slate-900">
               OpenSearch Global Search
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeTab === 'openSearch' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className="text-[11px] leading-relaxed text-slate-600">
               Sub-millisecond fuzzy BM25 search across all drugs, prescriptions, patients, and invoices.
             </p>
           </div>
@@ -338,21 +335,21 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           {/* Feature bullets */}
           <ul className="space-y-1">
             {['BM25 Relevance Scoring', 'Entity-Type Filtering', 'Fuzzy & Partial Matching', 'af-south-1 Cluster Node'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeTab === 'openSearch' ? 'text-cyan-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-cyan-400" />
+              <li key={f} className="text-[10px] font-semibold flex items-center gap-1.5 text-slate-600">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-cyan-500" />
                 {f}
               </li>
             ))}
           </ul>
 
           {/* Footer CTA */}
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200">
             {activeTab === 'openSearch' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-cyan-800 bg-cyan-100 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-cyan-700" /> Viewing
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-cyan-700 bg-cyan-50 px-3 py-1 rounded-full group-hover:bg-cyan-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-cyan-800 bg-cyan-50 px-3 py-1 rounded-full group-hover:bg-cyan-100 transition">
                 ▶ Open
               </span>
             )}
@@ -364,24 +361,24 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           onClick={() => setActiveTab('warehouseCdc')}
           className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
             activeTab === 'warehouseCdc'
-              ? 'bg-[#0B1E36] border-purple-400 shadow-2xl shadow-purple-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-100'
+              ? 'bg-purple-50/70 border-purple-600 shadow-sm'
+              : 'bg-white border-slate-200 hover:-translate-y-1 hover:shadow-md'
           }`}
-          style={{ borderTopColor: activeTab === 'warehouseCdc' ? '#c084fc' : '#d8b4fe' }}
+          style={{ borderTopColor: activeTab === 'warehouseCdc' ? '#9333ea' : '#d8b4fe' }}
         >
           {/* Icon */}
           <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
-            activeTab === 'warehouseCdc' ? 'bg-purple-400/20' : 'bg-purple-50'
+            activeTab === 'warehouseCdc' ? 'bg-purple-100' : 'bg-purple-50'
           }`}>
-            <Layers className={`w-6 h-6 ${activeTab === 'warehouseCdc' ? 'text-purple-300' : 'text-purple-600'}`} />
+            <Layers className="w-6 h-6 text-purple-700" />
           </div>
 
           {/* Title & description */}
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeTab === 'warehouseCdc' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className="text-sm font-black leading-tight text-slate-900">
               Data Warehouse &amp; Materialized Views
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeTab === 'warehouseCdc' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className="text-[11px] leading-relaxed text-slate-600">
               CDC streaming to BigQuery with pre-aggregated OLAP materialized views and sub-minute replication lag.
             </p>
           </div>
@@ -389,21 +386,21 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
           {/* Feature bullets */}
           <ul className="space-y-1">
             {['CDC Stream to BigQuery', 'Sub-Minute Replication Lag', 'Pre-Aggregated OLAP Views', 'Columnar Partition Export'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeTab === 'warehouseCdc' ? 'text-purple-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-purple-400" />
+              <li key={f} className="text-[10px] font-semibold flex items-center gap-1.5 text-slate-600">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-purple-500" />
                 {f}
               </li>
             ))}
           </ul>
 
           {/* Footer CTA */}
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200">
             {activeTab === 'warehouseCdc' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-purple-300 bg-purple-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-purple-800 bg-purple-100 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-purple-700" /> Viewing
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-purple-700 bg-purple-50 px-3 py-1 rounded-full group-hover:bg-purple-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-800 bg-purple-50 px-3 py-1 rounded-full group-hover:bg-purple-100 transition">
                 ▶ Open
               </span>
             )}
@@ -627,34 +624,45 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
 
             {/* Search Input Bar */}
             <div className="relative">
-              <Search className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search across all drugs, active prescriptions, patients, or invoices..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white transition"
+                className="w-full pl-11 pr-10 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition placeholder-slate-400"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             {/* Entity Filters */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-              <span className="text-slate-400 font-bold flex items-center gap-1">
-                <Filter className="w-3 h-3" /> Filter:
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-slate-400 font-bold flex items-center gap-1 mr-1">
+                <Filter className="w-3.5 h-3.5 text-blue-500" /> Filter:
               </span>
-              {(['ALL', 'DRUG', 'PRESCRIPTION', 'PATIENT', 'INVOICE'] as const).map((ent) => (
-                <button
-                  key={ent}
-                  onClick={() => setSelectedEntityFilter(ent)}
-                  className={`px-3 py-1 rounded-xl font-bold transition cursor-pointer ${
-                    selectedEntityFilter === ent
-                      ? 'bg-cyan-600 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {ent}
-                </button>
-              ))}
+              {(['ALL', 'DRUG', 'PRESCRIPTION', 'PATIENT', 'INVOICE'] as const).map((ent) => {
+                const isActive = selectedEntityFilter === ent;
+                return (
+                  <button
+                    key={ent}
+                    onClick={() => setSelectedEntityFilter(ent)}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-400/30'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60'
+                    }`}
+                  >
+                    {ent}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

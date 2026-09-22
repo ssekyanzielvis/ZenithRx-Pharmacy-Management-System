@@ -51,7 +51,10 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
   const [successNotification, setSuccessNotification] = useState<string | null>(null);
 
   // Check if subscription plan is active
-  const isSubscriptionActive = activeClient.billingStatus === 'Active' || activeClient.billingStatus === 'Pending Renewal' || activeClient.billingStatus === 'Grace Period';
+  const isSubscriptionActive =
+    activeClient.billingStatus === 'Active' ||
+    activeClient.billingStatus === 'Pending Renewal' ||
+    activeClient.billingStatus === 'Grace Period';
 
   const loadTickets = () => {
     const list = getTicketsForClient(activeClient.id);
@@ -91,7 +94,7 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
 
     setSubmitting(false);
     setSuccessNotification(`Feedback ticket ${created.id} sent to System Admin!`);
-    
+
     // Reset form
     setSubject('');
     setMessage('');
@@ -104,24 +107,28 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn select-none">
-      <div className="bg-[#0B1E36] rounded-3xl border border-[#1E3B63] shadow-2xl max-w-2xl w-full overflow-hidden text-white relative flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn select-none overflow-y-auto">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-2xl w-full text-slate-900 dark:text-slate-100 relative flex flex-col max-h-[90vh] my-auto overflow-hidden">
         
         {/* Modal Header Bar */}
-        <div className="p-5 border-b border-[#1E3B63] bg-[#071629] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center text-slate-950 shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs shrink-0">
               <MessageSquarePlus className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase text-sky-400 tracking-wider">Pharmacy Support Desk</span>
-              <h3 className="text-lg font-black text-white">Send Feedback to ZenithRx Admin</h3>
+              <span className="text-[10px] font-bold uppercase text-emerald-700 dark:text-emerald-400 tracking-wider">
+                Pharmacy Support Desk
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                Send Feedback to ZenithRx Admin
+              </h3>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -129,36 +136,37 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
 
         {/* IF PLAN IS NOT ACTIVE: SHOW PLAN ACTIVATION REQUIRED LOCK SCREEN */}
         {!isSubscriptionActive ? (
-          <div className="p-6 space-y-6 text-center">
-            <div className="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto shadow-lg">
+          <div className="p-6 space-y-6 text-center overflow-y-auto flex-1 min-h-0">
+            <div className="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto shadow-xs">
               <Lock className="w-8 h-8" />
             </div>
 
             <div className="space-y-2 max-w-md mx-auto">
-              <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black uppercase tracking-widest">
+              <span className="px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold uppercase tracking-wider">
                 Subscription Plan Activation Required
               </span>
-              <h3 className="text-xl font-black text-white">Unlock Pharmacy Support &amp; Admin Desk</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                Unlock Pharmacy Support &amp; Admin Desk
+              </h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 The <strong>Pharmacy Support &amp; Feedback Desk</strong> is reserved for pharmacies on an active plan. Select and activate a plan below to send feedback, request priority technical assistance, and receive official admin responses.
               </p>
             </div>
 
             {/* Quick Plan Activation Options */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-              
               {/* Starter Plan */}
-              <div className="bg-[#071629] p-4 rounded-2xl border border-sky-900/60 hover:border-cyan-400/80 transition-all flex flex-col justify-between space-y-3">
+              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 transition-all flex flex-col justify-between space-y-3 shadow-xs">
                 <div>
-                  <span className="text-[10px] font-extrabold text-sky-400 uppercase tracking-widest">Starter Package</span>
-                  <h4 className="text-base font-black text-white mt-0.5">UGX 40,000<span className="text-xs text-slate-400 font-normal">/mo</span></h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Dispensary sales, POS receipting &amp; support desk.</p>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Starter Package</span>
+                  <h4 className="text-base font-black text-slate-900 dark:text-white mt-0.5">
+                    UGX 40,000<span className="text-xs text-slate-400 font-normal">/mo</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">Dispensary sales, POS receipting &amp; support desk.</p>
                 </div>
                 <button
-                  onClick={() => {
-                    if (onActivatePlan) onActivatePlan('Starter');
-                  }}
-                  className="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  onClick={() => onActivatePlan && onActivatePlan('Starter')}
+                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer"
                 >
                   <span>Activate Starter</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -166,20 +174,20 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
               </div>
 
               {/* Professional Plan */}
-              <div className="bg-[#0F2847] p-4 rounded-2xl border border-cyan-500/50 hover:border-cyan-300 transition-all flex flex-col justify-between space-y-3 shadow-lg relative">
-                <span className="absolute -top-2.5 right-3 bg-cyan-500 text-slate-950 text-[9px] font-black uppercase px-2 py-0.5 rounded-full">
+              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border-2 border-emerald-500 hover:border-emerald-600 transition-all flex flex-col justify-between space-y-3 shadow-xs relative">
+                <span className="absolute -top-2.5 right-3 bg-emerald-600 text-white text-[9px] font-bold uppercase px-2 py-0.5 rounded-full">
                   Most Popular
                 </span>
                 <div>
-                  <span className="text-[10px] font-extrabold text-cyan-300 uppercase tracking-widest">Professional Package</span>
-                  <h4 className="text-base font-black text-white mt-0.5">UGX 100,000<span className="text-xs text-slate-400 font-normal">/mo</span></h4>
-                  <p className="text-[11px] text-slate-300 mt-1">Prescription AI OCR, automated POs &amp; support desk.</p>
+                  <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Professional Package</span>
+                  <h4 className="text-base font-black text-slate-900 dark:text-white mt-0.5">
+                    UGX 100,000<span className="text-xs text-slate-400 font-normal">/mo</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">Prescription AI OCR, automated POs &amp; support desk.</p>
                 </div>
                 <button
-                  onClick={() => {
-                    if (onActivatePlan) onActivatePlan('Professional');
-                  }}
-                  className="w-full py-2.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black text-xs rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  onClick={() => onActivatePlan && onActivatePlan('Professional')}
+                  className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer"
                 >
                   <span>Activate Professional</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -187,63 +195,90 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
               </div>
 
               {/* Enterprise Plan */}
-              <div className="bg-[#1A122E] p-4 rounded-2xl border border-purple-900/60 hover:border-purple-400 transition-all flex flex-col justify-between space-y-3">
+              <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-500 transition-all flex flex-col justify-between space-y-3 shadow-xs">
                 <div>
-                  <span className="text-[10px] font-extrabold text-purple-300 uppercase tracking-widest">Enterprise Package</span>
-                  <h4 className="text-base font-black text-white mt-0.5">UGX 220,000<span className="text-xs text-slate-400 font-normal">/mo</span></h4>
-                  <p className="text-[11px] text-slate-400 mt-1">Uganda NDA Registry sync &amp; priority admin channel.</p>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Enterprise Package</span>
+                  <h4 className="text-base font-black text-slate-900 dark:text-white mt-0.5">
+                    UGX 220,000<span className="text-xs text-slate-400 font-normal">/mo</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-600 dark:text-slate-300 mt-1">Uganda NDA Registry sync &amp; priority admin channel.</p>
                 </div>
                 <button
-                  onClick={() => {
-                    if (onActivatePlan) onActivatePlan('Enterprise');
-                  }}
-                  className="w-full py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  onClick={() => onActivatePlan && onActivatePlan('Enterprise')}
+                  className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1 cursor-pointer"
                 >
                   <span>Activate Enterprise</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
-
             </div>
           </div>
         ) : (
           <>
-            {/* Tab Navigation inside Modal */}
-            <div className="px-6 pt-4 bg-[#071629] border-b border-[#1E3B63] flex items-center gap-3">
-              <button
-                onClick={() => setActiveTab('submit')}
-                className={`px-4 py-2 rounded-t-xl text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'submit'
-                    ? 'border-cyan-400 text-cyan-300 bg-[#0B1E36]'
-                    : 'border-transparent text-slate-400 hover:text-white'
-                }`}
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>Submit New Feedback</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('history')}
-                className={`px-4 py-2 rounded-t-xl text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
-                  activeTab === 'history'
-                    ? 'border-cyan-400 text-cyan-300 bg-[#0B1E36]'
-                    : 'border-transparent text-slate-400 hover:text-white'
-                }`}
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-                <span>Ticket History &amp; Admin Replies</span>
-                <span className="bg-sky-500/20 text-sky-300 text-[10px] px-1.5 py-0.2 rounded-full border border-sky-500/30">
-                  {tickets.length}
-                </span>
-              </button>
+            {/* Navigation Cards inside Modal */}
+            <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800 shrink-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {[
+                  {
+                    id: 'submit',
+                    title: 'Submit New Feedback',
+                    desc: 'Log feature requests, bug reports, workflow friction, or clinical UX feedback.',
+                    icon: <Send className="w-4 h-4" />,
+                    badge: 'Direct Dispatch',
+                  },
+                  {
+                    id: 'history',
+                    title: 'Ticket History & Admin Replies',
+                    desc: 'Track ticket status, super admin responses, and resolution timelines in real-time.',
+                    icon: <MessageCircle className="w-4 h-4" />,
+                    badge: `${tickets.length} Tickets`,
+                  },
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`p-3 rounded-xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border ${
+                        isActive
+                          ? 'bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-200 border-2 border-emerald-600 shadow-xs'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 shadow-xs'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <div className={`p-1.5 rounded-lg ${isActive ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600'}`}>
+                            {tab.icon}
+                          </div>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${isActive ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600'}`}>
+                            {tab.badge}
+                          </span>
+                        </div>
+                        <h4 className={`text-xs font-bold tracking-tight ${isActive ? 'text-emerald-950 dark:text-white' : 'text-slate-900 dark:text-white'}`}>
+                          {tab.title}
+                        </h4>
+                        <p className={`text-[11px] mt-0.5 line-clamp-1 leading-relaxed ${isActive ? 'text-emerald-800 dark:text-emerald-300' : 'text-slate-500 dark:text-slate-400'}`}>
+                          {tab.desc}
+                        </p>
+                      </div>
+                      <div className="mt-2 pt-1.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-[10px]">
+                        <span className={isActive ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-slate-500 dark:text-slate-400 font-medium'}>
+                          {isActive ? 'Active Mode' : 'Switch Mode'}
+                        </span>
+                        <span className={isActive ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-slate-400'}>→</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-6 space-y-5 overflow-y-auto max-h-[70vh]">
+            {/* Modal Scrollable Body */}
+            <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
               
               {/* Success Alert Banner */}
               {successNotification && (
-                <div className="bg-emerald-500 text-white p-3.5 rounded-2xl text-xs font-bold flex items-center gap-2 animate-bounce shadow-lg">
+                <div className="bg-emerald-600 text-white p-3.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-xs">
                   <CheckCircle2 className="w-5 h-5 shrink-0" />
                   <span>{successNotification}</span>
                 </div>
@@ -251,34 +286,34 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
 
               {/* ── TAB 1: SUBMIT FEEDBACK FORM ── */}
               {activeTab === 'submit' && (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-3.5">
                   
                   {/* Branch & Contact Bar */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-[#071629] p-3.5 rounded-2xl border border-sky-900/40">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                     <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                        <Building2 className="w-3 h-3 text-cyan-400" />
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <Building2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                         Pharmacy Client Branch
                       </label>
-                      <p className="text-xs font-black text-white mt-0.5">{activeClient.clientName}</p>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white mt-0.5">{activeClient.clientName}</p>
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                         Subscription Tier
                       </label>
-                      <p className="text-xs font-bold text-sky-300 mt-0.5">{activeClient.packageTier} Package (Active)</p>
+                      <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">{activeClient.packageTier} Package (Active)</p>
                     </div>
                   </div>
 
                   {/* Category & Urgency Row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-bold text-slate-300 block mb-1">Feedback Category</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Feedback Category</label>
                       <select
                         value={category}
                         onChange={(e) => setCategory(e.target.value as any)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#071629] border border-sky-900/60 text-xs font-semibold text-white focus:outline-none focus:border-cyan-400"
+                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                       >
                         <option value="General Feedback">General Feedback</option>
                         <option value="Bug Report">Bug Report</option>
@@ -290,11 +325,11 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
                     </div>
 
                     <div>
-                      <label className="text-xs font-bold text-slate-300 block mb-1">Urgency Level</label>
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Urgency Level</label>
                       <select
                         value={urgency}
                         onChange={(e) => setUrgency(e.target.value as any)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#071629] border border-sky-900/60 text-xs font-semibold text-white focus:outline-none focus:border-cyan-400"
+                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                       >
                         <option value="Normal">Normal Urgency</option>
                         <option value="High Priority">High Priority</option>
@@ -305,48 +340,48 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
 
                   {/* Subject Line */}
                   <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1">Subject / Summary</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Subject / Summary</label>
                     <input
                       type="text"
                       placeholder="Brief summary of your feedback or inquiry..."
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#071629] border border-sky-900/60 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                       required
                     />
                   </div>
 
                   {/* Message Input */}
                   <div>
-                    <label className="text-xs font-bold text-slate-300 block mb-1">Detailed Message / Feedback</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Detailed Message / Feedback</label>
                     <textarea
-                      rows={4}
+                      rows={3}
                       placeholder="Describe your issue, feature suggestion, or question in detail..."
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#071629] border border-sky-900/60 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 resize-none"
+                      className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 resize-none"
                       required
                     />
                   </div>
 
                   {/* Contact Email & Phone row */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] font-semibold text-slate-400 block mb-1">Reply Contact Email</label>
+                      <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 block mb-1">Reply Contact Email</label>
                       <input
                         type="email"
                         value={contactEmail}
                         onChange={(e) => setContactEmail(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#071629] border border-slate-800 text-xs text-white"
+                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-semibold text-slate-400 block mb-1">Reply Contact Phone</label>
+                      <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 block mb-1">Reply Contact Phone</label>
                       <input
                         type="text"
                         value={contactPhone}
                         onChange={(e) => setContactPhone(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl bg-[#071629] border border-slate-800 text-xs text-white"
+                        className="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                       />
                     </div>
                   </div>
@@ -356,7 +391,7 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-950/40 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                       <Send className="w-4 h-4" />
                       <span>{submitting ? 'Sending Ticket...' : 'Send Feedback to System Admin'}</span>
@@ -368,65 +403,65 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
 
               {/* ── TAB 2: TICKET HISTORY & ADMIN REPLIES ── */}
               {activeTab === 'history' && (
-                <div className="space-y-4">
+                <div className="space-y-3.5">
                   {tickets.length === 0 ? (
-                    <div className="text-center py-10 text-slate-400 space-y-2 bg-[#071629] rounded-2xl border border-sky-900/30">
-                      <MessageCircle className="w-8 h-8 text-slate-500 mx-auto" />
-                      <p className="text-xs font-bold">No feedback tickets submitted yet.</p>
-                      <p className="text-[11px] text-slate-500">Submit a ticket in the first tab to communicate directly with System Admin.</p>
+                    <div className="text-center py-10 text-slate-500 dark:text-slate-400 space-y-2 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                      <MessageCircle className="w-8 h-8 text-slate-400 mx-auto" />
+                      <p className="text-xs font-bold text-slate-700 dark:text-slate-200">No feedback tickets submitted yet.</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">Submit a ticket in the first tab to communicate directly with System Admin.</p>
                     </div>
                   ) : (
                     tickets.map((t) => (
                       <div
                         key={t.id}
-                        className="bg-[#071629] rounded-2xl p-4 border border-sky-900/40 space-y-3 shadow-md"
+                        className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 space-y-3 shadow-xs"
                       >
                         {/* Ticket Header */}
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest">{t.id}</span>
-                              <span className={`text-[9px] font-extrabold px-2 py-0.2 rounded-full border ${
+                              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">{t.id}</span>
+                              <span className={`text-[9px] font-bold px-2 py-0.2 rounded-full border ${
                                 t.status === 'Resolved'
-                                  ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
                                   : t.status === 'In Progress'
-                                  ? 'bg-sky-500/20 text-sky-300 border-sky-500/30'
-                                  : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                  ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800'
+                                  : 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800'
                               }`}>
                                 {t.status}
                               </span>
-                              <span className="text-[9px] bg-slate-800 text-slate-300 px-2 py-0.2 rounded-full font-semibold">
+                              <span className="text-[9px] bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600 px-2 py-0.2 rounded-full font-semibold">
                                 {t.category}
                               </span>
                             </div>
-                            <h4 className="text-sm font-black text-white mt-1">{t.subject}</h4>
+                            <h4 className="text-sm font-bold text-slate-900 dark:text-white mt-1">{t.subject}</h4>
                           </div>
 
-                          <span className="text-[10px] text-slate-400 shrink-0 font-medium">{t.dateSubmitted}</span>
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 font-medium">{t.dateSubmitted}</span>
                         </div>
 
                         {/* Pharmacy Submitted Message */}
-                        <div className="bg-[#0E2542] p-3 rounded-xl border border-sky-900/30 text-xs text-slate-200">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Your Submitted Feedback:</p>
+                        <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300">
+                          <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-1">Your Submitted Feedback:</p>
                           <p className="leading-relaxed">{t.message}</p>
                         </div>
 
                         {/* Admin Reply Box */}
                         {t.adminReply ? (
-                          <div className="bg-gradient-to-r from-[#0C2D4A] to-[#12385C] p-3.5 rounded-xl border border-cyan-500/40 text-xs space-y-1.5 shadow-inner">
-                            <div className="flex items-center justify-between text-[10px] font-black text-cyan-300 uppercase tracking-wider">
+                          <div className="bg-emerald-50 dark:bg-emerald-950/40 p-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs space-y-1.5 shadow-xs">
+                            <div className="flex items-center justify-between text-[10px] font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">
                               <span className="flex items-center gap-1">
-                                <Sparkles className="w-3 h-3 text-cyan-400" />
+                                <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                 Admin Official Response — {t.adminReply.repliedBy}
                               </span>
-                              <span className="text-slate-400 font-semibold">{t.adminReply.dateReplied}</span>
+                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{t.adminReply.dateReplied}</span>
                             </div>
-                            <p className="text-white text-xs leading-relaxed font-medium pt-1">
+                            <p className="text-slate-900 dark:text-slate-100 text-xs leading-relaxed font-medium pt-1">
                               "{t.adminReply.replyMessage}"
                             </p>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2 text-[11px] text-amber-400/90 font-medium pt-1">
+                          <div className="flex items-center gap-2 text-[11px] text-amber-700 dark:text-amber-400 font-medium pt-1">
                             <Clock className="w-3.5 h-3.5 shrink-0" />
                             <span>Awaiting reply from ZenithRx System Administration...</span>
                           </div>
@@ -442,11 +477,11 @@ export const PharmacyFeedbackModal: React.FC<PharmacyFeedbackModalProps> = ({
         )}
 
         {/* Modal Footer */}
-        <div className="p-4 border-t border-[#1E3B63] bg-[#071629] flex items-center justify-between text-xs text-slate-400">
+        <div className="p-3 sm:p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 shrink-0">
           <span className="text-[11px]">Quantum Networks Support Desk • Live Admin Response</span>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold cursor-pointer transition-colors"
           >
             Close
           </button>

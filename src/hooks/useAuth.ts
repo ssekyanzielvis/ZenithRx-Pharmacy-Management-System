@@ -7,7 +7,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import type { SubscriptionStatus, BillingCycle } from '../types';
+import type { SubscriptionStatus, BillingCycle, UserRoleRank } from '../types';
+import { getDefaultRightsForRole } from '../lib/rolePermissions';
 
 export interface AuthUser {
   id:          string;
@@ -49,6 +50,7 @@ export interface UseAuthReturn {
     paymentMeta?: { method?: string; ref?: string; amount?: number }
   ) => void;
   loginAsAdminDemo?: () => void;
+  switchRoleDemo: (role: UserRoleRank | 'Super Admin') => void;
   clearError: () => void;
 }
 
@@ -376,6 +378,24 @@ export function useAuth(): UseAuthReturn {
     setSession(null);
   }, []);
 
+  const switchRoleDemo = useCallback((role: UserRoleRank | 'Super Admin') => {
+    if (role === 'Super Admin') {
+      setUser(DEMO_ADMIN_USER);
+      return;
+    }
+
+    const rights = getDefaultRightsForRole(role);
+    setUser(prev => {
+      const base = prev || DEMO_USER;
+      return {
+        ...base,
+        rankRole: role,
+        isSuperAdmin: false,
+        accessRights: rights,
+      };
+    });
+  }, []);
+
   const clearError = useCallback(() => setError(null), []);
 
   return {
@@ -390,6 +410,7 @@ export function useAuth(): UseAuthReturn {
     sendMagicLink,
     activateSubscription,
     loginAsAdminDemo,
+    switchRoleDemo,
     clearError,
   };
 }

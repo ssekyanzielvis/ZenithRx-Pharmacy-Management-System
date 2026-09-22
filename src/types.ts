@@ -25,6 +25,11 @@ export type ModuleTab =
   | 'adminUsers'
   | 'adminBilling'
   | 'adminRegister'
+  | 'adminCapacity'
+  | 'adminPharmacyRegistry'
+  | 'adminMessagingHub'
+  | 'adminQuantumWorkbench'
+  | 'adminRevenueLedger'
   | 'feedback'
   | 'adminFeedback';
 
@@ -303,4 +308,191 @@ export interface PharmacyFeedbackTicket {
     dateReplied: string;
   };
 }
+
+export type NotificationChannel = 'in_system' | 'email' | 'phone' | 'admin_call';
+
+export interface TenantCapacityMetrics {
+  id?: string;
+  tenantId: string;
+  tenantName?: string;
+  currentTier: TierName;
+  recommendedTier?: TierName;
+  staffCount: number;
+  staffLimit: number;
+  drugsCount: number;
+  drugsLimit: number;
+  prescriptionsCount: number;
+  prescriptionsLimit: number;
+  transactionsCount: number;
+  transactionsLimit: number;
+  storageMb: number;
+  storageLimitMb: number;
+  staffUsagePercent: number;
+  drugsUsagePercent: number;
+  prescriptionsUsagePercent: number;
+  transactionsUsagePercent: number;
+  storageUsagePercent: number;
+  overallUsagePercent: number;
+  recordedAt: string;
+}
+
+export interface CapacityAlert {
+  id: string;
+  tenantId: string;
+  tenantName?: string;
+  alertType: 'warning_70' | 'critical_85' | 'breach_95' | 'limit_exceeded' | 'upgrade_recommended';
+  metric: 'staff' | 'drugs' | 'prescriptions' | 'transactions' | 'storage' | 'overall';
+  usagePercent: number;
+  currentValue: number;
+  maxLimit: number;
+  currentTier: TierName;
+  recommendedTier?: TierName;
+  status: 'active' | 'acknowledged' | 'resolved' | 'dismissed';
+  notificationChannels: NotificationChannel[];
+  adminNotes?: string;
+  createdAt: string;
+  resolvedAt?: string;
+}
+
+export interface PlanEnforcementEvent {
+  id: string;
+  tenantId: string;
+  tenantName?: string;
+  userId?: string;
+  userName?: string;
+  actionAttempted: string;
+  featureKey: string;
+  requiredTier: TierName;
+  currentTier: TierName;
+  blockedReason: string;
+  ipAddress?: string;
+  createdAt: string;
+}
+
+export interface SystemNotification {
+  id: string;
+  tenantId?: string; // empty/null = global
+  recipientUserId?: string;
+  targetRole?: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'critical' | 'upgrade_recommendation' | 'compliance_notice' | 'system_alert';
+  actionUrl?: string;
+  metadata?: Record<string, any>;
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+}
+
+export interface AdminPharmacyMessage {
+  id: string;
+  threadId: string;
+  tenantId: string;
+  tenantName?: string;
+  senderUserId: string;
+  senderName: string;
+  senderType: 'admin' | 'pharmacy';
+  recipientType: 'admin' | 'pharmacy';
+  subject: string;
+  message: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  category: 'general' | 'plan_upgrade' | 'compliance_nda' | 'support' | 'billing' | 'escalation';
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+}
+
+export interface NdaComplianceCheckRecord {
+  id: string;
+  tenantId: string;
+  tenantName?: string;
+  checkedBy?: string;
+  checkerName?: string;
+  status: 'compliant' | 'warning' | 'breach_flagged' | 'suspended' | 'under_review';
+  ndaLicenseNumber?: string;
+  verificationNotes: string;
+  patientDataSafetyVerified: boolean;
+  auditTrailVerified: boolean;
+  nextReviewDate?: string;
+  createdAt: string;
+}
+
+// ─── Subscription Revenue & SaaS Bookkeeping Types ─────────────────────────
+
+export type SubscriptionPaymentChannel =
+  | 'MTN_MOMO'
+  | 'AIRTEL_MONEY'
+  | 'PESAPAL_VISA_MC'
+  | 'BANK_EFT_STANBIC'
+  | 'BANK_EFT_CENTENARY'
+  | 'SYSTEM_ESCROW_SETTLEMENT';
+
+export type SubscriptionPaymentStatus =
+  | 'COMPLETED'
+  | 'PENDING_CLEARANCE'
+  | 'FAILED'
+  | 'OVERDUE'
+  | 'ESCROW_HOLD'
+  | 'REFUNDED';
+
+export interface SubscriptionPaymentRecord {
+  id: string;
+  invoiceNumber: string; // e.g. QNT-INV-2026-0812
+  fiscalReceiptNumber: string; // e.g. URA-EFRIS-REC-991204
+  tenantId: string;
+  tenantName: string;
+  packageTier: TierName;
+  billingCycle: BillingCycle;
+  grossAmountUgx: number;
+  taxVatUgx: number; // 18% URA VAT
+  netRevenueUgx: number;
+  amountUsdEquivalent: number;
+  paymentChannel: SubscriptionPaymentChannel;
+  providerReference: string; // MoMo TxID / PesaPal Ref / Bank EFT Code
+  paymentPhoneOrAccount?: string;
+  paymentStatus: SubscriptionPaymentStatus;
+  paidAt: string;
+  periodStart: string;
+  periodEnd: string;
+  onboardingSource: 'ADMIN_PANEL_SYSTEM' | 'SELF_SERVICE_PORTAL' | 'RENEWAL_GATEWAY';
+  processedByUserId: string;
+  processedByUserName: string;
+  digitalSignatureHash: string;
+  qrVerificationUrl?: string;
+  accountDebitGlCode: string; // e.g. 1020 - Mobile Money Clearing / 1010 - Stanbic Bank Account
+  accountCreditGlCode: string; // e.g. 4010 - SaaS Subscription Revenue
+  accountVatGlCode: string; // e.g. 2150 - Output VAT Payable (18%)
+  notes?: string;
+}
+
+export interface GeneralLedgerJournalEntry {
+  id: string;
+  entryDate: string;
+  referenceNumber: string;
+  tenantId: string;
+  tenantName: string;
+  description: string;
+  accountCode: string;
+  accountName: string;
+  debitUgx: number;
+  creditUgx: number;
+  reconciled: boolean;
+  reconciledAt?: string;
+}
+
+export interface PlatformRevenueSummary {
+  grossArrUgx: number;
+  grossMrrUgx: number;
+  netSaaSYtdUgx: number;
+  totalVatCollectedUgx: number;
+  activePaidTenantsCount: number;
+  pendingPaymentTenantsCount: number;
+  mtnMomoClearingBalanceUgx: number;
+  airtelMoneyClearingBalanceUgx: number;
+  bankSettlementBalanceUgx: number;
+  pesapalGatewayBalanceUgx: number;
+  systemComplianceRatePercent: number; // 100% when all subscriptions are mediated through system
+}
+
+
 

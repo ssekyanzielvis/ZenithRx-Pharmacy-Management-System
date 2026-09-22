@@ -111,62 +111,104 @@ export const SecurityComplianceCentre: React.FC<SecurityComplianceCentreProps> =
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-[#0B1E36] border border-[#1E3A5F] rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400">
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700">
             <Shield className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white">
+              <h2 className="text-xl font-bold text-slate-900">
                 Security &amp; Compliance Control Centre
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                 §11.7 / §11.19
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               MFA enforcement, session policy, SIEM event monitoring, rate limiting and NDA compliance verification.
             </p>
           </div>
         </div>
 
-        <div className={`flex items-center justify-center w-20 h-20 rounded-full border-4 ${scoreRing} bg-[#0B1E36] shrink-0 self-start md:self-auto`}>
+        <div className={`flex items-center justify-center w-20 h-20 rounded-full border-4 ${scoreRing} bg-slate-50 shrink-0 self-start md:self-auto shadow-xs`}>
           <div className="text-center">
             <span className={`text-2xl font-black font-mono ${scoreColor}`}>{report.overallScore}</span>
-            <span className="text-[9px] text-slate-400 block font-bold">SCORE</span>
+            <span className="text-[9px] text-slate-500 block font-bold">SCORE</span>
           </div>
         </div>
       </div>
 
-      {/* Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto pb-2">
+      {/* Security Compliance Navigation Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {(
           [
-            { id: 'overview', label: 'Compliance Overview', icon: <ShieldCheck className="w-4 h-4 text-emerald-500" /> },
-            { id: 'events', label: 'SIEM Security Events', icon: <AlertTriangle className="w-4 h-4 text-rose-500" />, count: pendingReview.length },
-            { id: 'mfa', label: 'MFA & Session Policy', icon: <Fingerprint className="w-4 h-4 text-sky-500" /> },
-            { id: 'rateLimit', label: 'Rate Limiting & Abuse Detection', icon: <Zap className="w-4 h-4 text-amber-500" /> },
+            {
+              id: 'overview',
+              label: 'Compliance Overview',
+              desc: 'Holistic security posture, compliance scorecards, NDA audits, and data privacy.',
+              icon: <ShieldCheck className="w-5 h-5" />,
+              badge: `${report.overallScore}/100 Score`,
+            },
+            {
+              id: 'events',
+              label: 'SIEM Security Events',
+              desc: 'Live anomaly detection, brute force protection, audit violations, and alert triage.',
+              icon: <AlertTriangle className="w-5 h-5" />,
+              badge: pendingReview.length > 0 ? `${pendingReview.length} Pending Review` : 'No Critical Events',
+            },
+            {
+              id: 'mfa',
+              label: 'MFA & Session Policy',
+              desc: 'Enforce multi-factor authentication, biometric timeouts, and concurrent session rules.',
+              icon: <Fingerprint className="w-5 h-5" />,
+              badge: 'Enforced',
+            },
+            {
+              id: 'rateLimit',
+              label: 'Rate Limiting & Abuse',
+              desc: 'Token bucket thresholds, IP throttling, DDoS defense, and API key safeguards.',
+              icon: <Zap className="w-5 h-5" />,
+              badge: 'Guarded',
+            },
           ] as const
-        ).map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as SecurityTab)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-[#0B1E36] text-white shadow-md'
-                : 'bg-white text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            {tab.icon}
-            {tab.label}
-            {(tab as any).count > 0 && (
-              <span className="bg-rose-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full">
-                {(tab as any).count}
-              </span>
-            )}
-          </button>
-        ))}
+        ).map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as SecurityTab)}
+              className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-400/40 border-blue-500 scale-[1.01]'
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 shadow-xs'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-blue-600 border border-slate-200'}`}>
+                    {tab.icon}
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                    {tab.badge}
+                  </span>
+                </div>
+                <h3 className={`text-xs font-bold tracking-tight ${isActive ? 'text-white' : 'text-slate-900'}`}>
+                  {tab.label}
+                </h3>
+                <p className={`text-[11px] mt-1 line-clamp-2 leading-relaxed ${isActive ? 'text-blue-100' : 'text-slate-600'}`}>
+                  {tab.desc}
+                </p>
+              </div>
+              <div className="mt-3 pt-2 border-t border-current/10 flex items-center justify-between text-[10px]">
+                <span className={isActive ? 'text-white font-bold' : 'text-slate-500 font-medium'}>
+                  {isActive ? '← Current view' : 'Go to section →'}
+                </span>
+                <span className={isActive ? 'text-blue-200' : 'text-slate-400'}>→</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* TAB: COMPLIANCE OVERVIEW */}

@@ -196,33 +196,33 @@ export const QueueCacheControlPanel: React.FC = () => {
       )}
 
       {/* Header Banner */}
-      <div className="bg-[#0B1E36] border border-[#1E3A5F] rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-2xl text-sky-400">
+          <div className="p-3 bg-sky-50 border border-sky-200 rounded-xl text-sky-700">
             <Layers className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white">
+              <h2 className="text-xl font-bold text-slate-900">
                 BullMQ / Redis Queue &amp; Cache Control Panel
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-300 border border-sky-500/20">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-200">
                 §11.4
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               8 named queues with concurrency limits, exponential backoff, idempotency keys, nightly job scheduling, and in-process Redis-compatible caching.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[10px] font-mono text-slate-400">
+          <span className="text-[10px] font-mono text-slate-500">
             Refreshed: {lastRefreshed.toLocaleTimeString()}
           </span>
           <button
             onClick={refresh}
-            className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 border border-slate-700 transition cursor-pointer"
+            className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center gap-2 border border-slate-200 transition cursor-pointer"
           >
             <RefreshCw className="w-3.5 h-3.5" /> Refresh
           </button>
@@ -255,29 +255,76 @@ export const QueueCacheControlPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto pb-2">
+      {/* Queue & Cache Navigation Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {(
           [
-            { id: 'queues',   label: '8 Named Queues',       icon: <Layers className="w-4 h-4 text-sky-500" /> },
-            { id: 'jobs',     label: 'Job Activity Log',      icon: <Activity className="w-4 h-4 text-amber-500" /> },
-            { id: 'cache',    label: 'Redis Cache Namespaces', icon: <Database className="w-4 h-4 text-emerald-500" /> },
-            { id: 'schedule', label: 'Nightly Job Scheduler',  icon: <Moon className="w-4 h-4 text-indigo-500" /> },
+            {
+              id: 'queues',
+              label: '8 Named Queues',
+              desc: 'High-throughput Redis streams for EDI claims, receipts, audit writes, and SMS push.',
+              icon: <Layers className="w-5 h-5" />,
+              badge: `${queueMetrics.length} Queues`,
+            },
+            {
+              id: 'jobs',
+              label: 'Job Activity Log',
+              desc: 'Live execution telemetry, DLQ dead-letter queue inspection, and backoff retries.',
+              icon: <Activity className="w-5 h-5" />,
+              badge: 'Real-time',
+            },
+            {
+              id: 'cache',
+              label: 'Redis Cache Namespaces',
+              desc: 'Sub-millisecond formulary cache, session tokens, and warm memory query buffers.',
+              icon: <Database className="w-5 h-5" />,
+              badge: 'Sub-ms TTL',
+            },
+            {
+              id: 'schedule',
+              label: 'Nightly Job Scheduler',
+              desc: 'Cron workers for FEFO batch markdown, NDA ledger archives, and stock snapshots.',
+              icon: <Moon className="w-5 h-5" />,
+              badge: 'Cron Workers',
+            },
           ] as const
-        ).map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as CQTab)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-[#0B1E36] text-white shadow-md'
-                : 'bg-white text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
+        ).map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as CQTab)}
+              className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-400/40 border-blue-500 scale-[1.01]'
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 shadow-xs'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-blue-600 border border-slate-200'}`}>
+                    {tab.icon}
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                    {tab.badge}
+                  </span>
+                </div>
+                <h3 className={`text-xs font-bold tracking-tight ${isActive ? 'text-white' : 'text-slate-900'}`}>
+                  {tab.label}
+                </h3>
+                <p className={`text-[11px] mt-1 line-clamp-2 leading-relaxed ${isActive ? 'text-blue-100' : 'text-slate-600'}`}>
+                  {tab.desc}
+                </p>
+              </div>
+              <div className="mt-3 pt-2 border-t border-current/10 flex items-center justify-between text-[10px]">
+                <span className={isActive ? 'text-white font-bold' : 'text-slate-500 font-medium'}>
+                  {isActive ? '← Current view' : 'Go to section →'}
+                </span>
+                <span className={isActive ? 'text-blue-200' : 'text-slate-400'}>→</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* TAB: NAMED QUEUES */}

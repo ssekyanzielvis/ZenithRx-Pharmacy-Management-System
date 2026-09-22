@@ -105,9 +105,9 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
       discountPriceUgx: 40000,
       maxUsers: 5,
       badge: 'Starter Tier',
-      badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-400/40',
-      borderColor: 'border-sky-800/60 hover:border-sky-400',
-      bgGradient: 'bg-gradient-to-b from-[#0B1E36] to-[#0A182B]',
+      badgeColor: 'bg-blue-50 text-blue-800 border-blue-200',
+      borderColor: 'border-slate-200 hover:border-blue-400',
+      bgGradient: 'bg-white',
       features: [
         'Up to 5 active staff user accounts',
         'Retail POS cashier & barcode checkout',
@@ -127,9 +127,9 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
       maxUsers: 15,
       isPopular: true,
       badge: '⭐ MOST POPULAR',
-      badgeColor: 'bg-[#00D8F6]/20 text-[#00D8F6] border-[#00D8F6]/50',
-      borderColor: 'border-[#00D8F6]/80 shadow-lg shadow-[#00D8F6]/10',
-      bgGradient: 'bg-gradient-to-b from-[#0C2B4D] via-[#0B233F] to-[#08172B]',
+      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300 font-extrabold',
+      borderColor: 'border-emerald-400 shadow-sm shadow-emerald-100',
+      bgGradient: 'bg-emerald-50/40',
       features: [
         'Up to 15 active staff user accounts',
         '30/60/90-Day FEFO stock expiry engine',
@@ -149,9 +149,9 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
       discountPriceUgx: 104000,
       maxUsers: 25,
       badge: 'Enterprise Grade',
-      badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-400/40',
-      borderColor: 'border-purple-800/60 hover:border-purple-400',
-      bgGradient: 'bg-gradient-to-b from-[#161B3B] to-[#0A0D21]',
+      badgeColor: 'bg-purple-50 text-purple-800 border-purple-200',
+      borderColor: 'border-slate-200 hover:border-purple-400',
+      bgGradient: 'bg-white',
       features: [
         'Up to 25 active staff user accounts (Expandable)',
         'AI Clinical OCR prescription reader & safety engine',
@@ -171,9 +171,9 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
       discountPriceUgx: 150000,
       maxUsers: 100,
       badge: 'Custom SLA',
-      badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-400/40',
-      borderColor: 'border-amber-800/60 hover:border-amber-400',
-      bgGradient: 'bg-gradient-to-b from-[#1C162E] to-[#0D0B1C]',
+      badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
+      borderColor: 'border-slate-200 hover:border-amber-400',
+      bgGradient: 'bg-white',
       features: [
         'Unlimited staff user seats & branch locations',
         'Custom ERP & local database API connectors',
@@ -351,12 +351,8 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
     <div className="space-y-12 pb-12 flex flex-col items-center">
       
       {/* ── TOP HERO POSTER / BANNER SECTION ── */}
-      <div className="bg-gradient-to-br from-[#0B1E36] via-[#102A4A] to-[#0A1A2E] rounded-3xl p-6 sm:p-10 border border-[#1E3B63] shadow-2xl relative overflow-hidden max-w-6xl w-full">
+      <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xs relative overflow-hidden max-w-6xl w-full">
         
-        {/* Glow Effects */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-600/10 rounded-full blur-3xl pointer-events-none" />
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
           
           {/* Left Column: Branding, Tagline & Action Buttons */}
@@ -364,45 +360,45 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
             
             {/* Top Badge Tag */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="bg-[#00D8F6]/15 text-[#00D8F6] border border-[#00D8F6]/30 text-xs px-3 py-1 rounded-full font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
-                <Sparkles className="w-3.5 h-3.5" />
+              <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs px-3 py-1 rounded-full font-extrabold uppercase tracking-widest flex items-center gap-1.5 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                 QUANTUM NETWORKS LTD • ZENITHRX v3.2
               </span>
-              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
-                <BadgeCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="bg-blue-50 text-blue-800 border border-blue-200 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                <BadgeCheck className="w-3.5 h-3.5 text-blue-600" />
                 Uganda NDA Compliant
               </span>
             </div>
 
             {/* Main Headline */}
             <div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
-                Next-Gen Pharmacy <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-[#00D8F6]">
-                  Management Platform
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                ZenithRx Pharmacy <br />
+                <span className="text-emerald-700">
+                  Management System
                 </span>
               </h1>
-              <p className="text-slate-300 text-sm sm:text-base mt-4 leading-relaxed max-w-xl">
-                Streamline drug stock inventory, AI-assisted prescription label printing, FEFO expiry alerts, retail POS checkout, and NDA regulatory compliance in one unified system.
+              <p className="text-slate-600 text-sm sm:text-base mt-4 leading-relaxed max-w-xl">
+                Drug stock management, prescription processing, FEFO expiry tracking, retail POS, and NDA regulatory compliance — built for Ugandan dispensaries and pharmacy chains.
               </p>
             </div>
 
             {/* Feature Bullets */}
-            <div className="grid grid-cols-2 gap-3 text-xs font-bold text-slate-200">
-              <div className="flex items-center gap-2 bg-[#0E2542] p-2.5 rounded-xl border border-sky-900/50">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>AI Clinical OCR Prescriptions</span>
+            <div className="grid grid-cols-2 gap-3 text-xs font-bold text-slate-800">
+              <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Clinical OCR Prescription Reader</span>
               </div>
-              <div className="flex items-center gap-2 bg-[#0E2542] p-2.5 rounded-xl border border-sky-900/50">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+              <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>Automated FEFO Expiry Engine</span>
               </div>
-              <div className="flex items-center gap-2 bg-[#0E2542] p-2.5 rounded-xl border border-sky-900/50">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+              <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>Mobile Money & POS Ledger</span>
               </div>
-              <div className="flex items-center gap-2 bg-[#0E2542] p-2.5 rounded-xl border border-sky-900/50">
-                <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+              <div className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>Multi-User Staff Permissions</span>
               </div>
             </div>
@@ -411,7 +407,7 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
                 onClick={() => onSelectFeature('pos')}
-                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-slate-950 font-black text-sm shadow-xl shadow-cyan-900/40 hover:shadow-cyan-500/20 transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+                className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-xs transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
               >
                 <span>Launch Live POS Counter</span>
                 <ArrowRight className="w-4 h-4" />
@@ -419,9 +415,9 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
 
               <button
                 onClick={openBarcodeScanner}
-                className="px-5 py-3.5 rounded-2xl bg-[#142F52] hover:bg-[#1E4373] text-sky-200 hover:text-white border border-[#254B7C] font-bold text-sm transition-all flex items-center gap-2 cursor-pointer"
+                className="px-5 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-bold text-sm transition-all flex items-center gap-2 cursor-pointer shadow-xs"
               >
-                <QrCode className="w-4 h-4 text-cyan-400" />
+                <QrCode className="w-4 h-4 text-blue-600" />
                 <span>Scan Barcode</span>
               </button>
             </div>
@@ -430,23 +426,23 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
 
           {/* Right Column: Pharmacist Graphic & Speech Bubble */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
-            <div className="relative w-64 sm:w-72 h-80 sm:h-96 rounded-3xl overflow-hidden border-4 border-sky-500/30 shadow-2xl bg-slate-900">
+            <div className="relative w-64 sm:w-72 h-80 sm:h-96 rounded-3xl overflow-hidden border-2 border-slate-200 shadow-lg bg-slate-100">
               <img
                 src={pharmacistImg}
                 alt="ZenithRx Professional Pharmacist"
-                className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700 opacity-90"
+                className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1E36] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
 
-              <div className="absolute bottom-4 left-4 right-4 bg-[#0E2542]/90 backdrop-blur-md p-3.5 rounded-2xl border border-sky-500/30 text-white shadow-lg">
+              <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-slate-200 text-slate-900 shadow-md">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="text-[11px] font-black text-emerald-400 uppercase tracking-widest">Active Branch: {activeClient.clientName}</span>
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Active Branch: {activeClient.clientName}</span>
                 </div>
-                <p className="text-xs font-bold text-slate-200 mt-1">
-                  Plan Tier: <span className="text-cyan-300 font-extrabold">{activeClient.packageTier} Package</span>
+                <p className="text-xs font-bold text-slate-800 mt-1">
+                  Plan Tier: <span className="text-blue-700 font-extrabold">{activeClient.packageTier} Package</span>
                 </p>
-                <p className="text-[10px] text-sky-300 font-semibold mt-1">
+                <p className="text-[10px] text-slate-600 font-semibold mt-1">
                   Monthly UGX Rate: UGX {activeClient.monthlyUgxRate.toLocaleString()}
                 </p>
               </div>
@@ -456,62 +452,62 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
         </div>
 
         {/* Corporate Support Bar */}
-        <div className="mt-8 pt-6 border-t border-[#1B365D] bg-[#071629]/70 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="mt-8 pt-6 border-t border-slate-200 bg-slate-50/80 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/30">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center border border-blue-200">
               <Phone className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Help Desk & Sales Line</p>
-              <p className="text-xs font-black text-white">Quantum Networks Ltd Support</p>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Help Desk & Sales Line</p>
+              <p className="text-xs font-black text-slate-900">Quantum Networks Ltd Support</p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center">
                 <Smartphone className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase">WhatsApp</p>
+                <p className="text-[11px] font-bold text-slate-500 uppercase">WhatsApp</p>
                 <button
                   onClick={() => handleCopy('+256-755091826', 'WhatsApp')}
-                  className="text-xs font-black text-white hover:text-emerald-400 transition-colors flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-black text-slate-900 hover:text-emerald-700 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   +256-755091826
-                  {copiedContact === 'WhatsApp' && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+                  {copiedContact === 'WhatsApp' && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
                 </button>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center">
                 <Phone className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase">Call Line</p>
+                <p className="text-[11px] font-bold text-slate-500 uppercase">Call Line</p>
                 <button
                   onClick={() => handleCopy('0200913555', 'Call')}
-                  className="text-xs font-black text-white hover:text-sky-400 transition-colors flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-black text-slate-900 hover:text-blue-700 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   0200 913 555
-                  {copiedContact === 'Call' && <CheckCircle2 className="w-3 h-3 text-sky-400" />}
+                  {copiedContact === 'Call' && <CheckCircle2 className="w-3 h-3 text-blue-600" />}
                 </button>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center">
                 <Mail className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase">Email Support</p>
+                <p className="text-[11px] font-bold text-slate-500 uppercase">Email Support</p>
                 <button
                   onClick={() => handleCopy('quantumnetworks@gmail.com', 'Email')}
-                  className="text-xs font-black text-white hover:text-sky-400 transition-colors flex items-center gap-1 cursor-pointer"
+                  className="text-xs font-black text-slate-900 hover:text-blue-700 transition-colors flex items-center gap-1 cursor-pointer"
                 >
                   quantumnetworks@gmail.com
-                  {copiedContact === 'Email' && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
+                  {copiedContact === 'Email' && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
                 </button>
               </div>
             </div>
@@ -523,21 +519,21 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
       <div id="pharmacy-feedback-section" className="max-w-6xl w-full space-y-6 pt-4 scroll-mt-20">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-emerald-900/60 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-black uppercase tracking-widest mb-1.5">
-              <MessageSquarePlus className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-1.5">
+              <MessageSquarePlus className="w-3.5 h-3.5 text-emerald-600" />
               DIRECT PHARMACY-TO-ADMIN CHANNEL
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
               Pharmacy Support &amp; Feedback Desk
             </h2>
-            <p className="text-slate-300 text-xs sm:text-sm mt-1">
+            <p className="text-slate-600 text-xs sm:text-sm mt-1">
               Submit feature inquiries, bug reports, and NDA compliance questions directly to System Administration and track live replies.
             </p>
           </div>
-          <span className="self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
             Live Admin Response Active
           </span>
         </div>
@@ -548,41 +544,41 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
           {/* CARD 1: SUBMIT FEEDBACK */}
           <div
             onClick={() => handleFeedbackCardClick('submit')}
-            className="bg-[#0A2626] rounded-2xl overflow-hidden border border-emerald-900/60 hover:border-emerald-400/80 shadow-xl hover:shadow-2xl hover:shadow-emerald-950/40 transition-all duration-300 flex flex-col group cursor-pointer transform hover:-translate-y-1"
+            className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer transform hover:-translate-y-0.5"
           >
-            <div className="relative h-44 w-full overflow-hidden bg-slate-950">
+            <div className="relative h-44 w-full overflow-hidden bg-slate-100">
               <img
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80"
                 alt="Submit Feedback to Admin"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85 group-hover:opacity-100"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0A2626] via-[#0A2626]/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
               
               <div className="absolute top-3 left-3">
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase border backdrop-blur-md shadow-md bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
+                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase backdrop-blur-md shadow-xs bg-emerald-600 text-white">
                   Submit Feedback
                 </span>
               </div>
 
-              <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-[#061C1C]/90 border border-emerald-700/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <MessageSquarePlus className="w-5 h-5 text-emerald-400" />
+              <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <MessageSquarePlus className="w-5 h-5 text-emerald-600" />
               </div>
             </div>
 
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
               <div>
-                <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">
+                <h3 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
                   Send Message to System Admin
                 </h3>
-                <p className="text-slate-300 text-xs mt-2 leading-relaxed">
+                <p className="text-slate-600 text-xs mt-2 leading-relaxed">
                   Compose bug reports, feature requests, NDA compliance inquiries, or billing questions directly to ZenithRx System Administration.
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-emerald-900/50 flex items-center justify-between text-xs font-bold text-emerald-400 group-hover:text-emerald-200">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-emerald-700 group-hover:text-emerald-800">
                 <span>Compose Ticket</span>
-                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform text-emerald-400" />
+                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform text-emerald-600" />
               </div>
             </div>
           </div>
@@ -590,41 +586,41 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
           {/* CARD 2: TICKET HISTORY & ADMIN REPLIES */}
           <div
             onClick={() => handleFeedbackCardClick('history')}
-            className="bg-[#0F233B] rounded-2xl overflow-hidden border border-sky-900/60 hover:border-sky-400/80 shadow-xl hover:shadow-2xl hover:shadow-sky-950/40 transition-all duration-300 flex flex-col group cursor-pointer transform hover:-translate-y-1"
+            className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-blue-500 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer transform hover:-translate-y-0.5"
           >
-            <div className="relative h-44 w-full overflow-hidden bg-slate-950">
+            <div className="relative h-44 w-full overflow-hidden bg-slate-100">
               <img
                 src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=600&q=80"
                 alt="Track Admin Replies"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85 group-hover:opacity-100"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0F233B] via-[#0F233B]/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
               
               <div className="absolute top-3 left-3">
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase border backdrop-blur-md shadow-md bg-sky-500/20 text-sky-300 border-sky-400/40">
+                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase backdrop-blur-md shadow-xs bg-blue-600 text-white">
                   Track Admin Replies
                 </span>
               </div>
 
-              <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-[#09172B]/90 border border-sky-700/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <MessageCircle className="w-5 h-5 text-sky-400" />
+              <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <MessageCircle className="w-5 h-5 text-blue-600" />
               </div>
             </div>
 
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
               <div>
-                <h3 className="text-lg font-bold text-white group-hover:text-sky-300 transition-colors">
+                <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
                   View Ticket History &amp; Responses
                 </h3>
-                <p className="text-slate-300 text-xs mt-2 leading-relaxed">
+                <p className="text-slate-600 text-xs mt-2 leading-relaxed">
                   Track real-time status of your submitted tickets, read official admin responses, and view resolved inquiry history.
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-sky-900/50 flex items-center justify-between text-xs font-bold text-sky-400 group-hover:text-sky-200">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-700 group-hover:text-blue-800">
                 <span>View My Tickets</span>
-                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform text-sky-400" />
+                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform text-blue-600" />
               </div>
             </div>
           </div>
@@ -632,41 +628,41 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
           {/* CARD 3: DIRECT HELP DESK & WHATSAPP */}
           <div
             onClick={() => handleCopy('+256-755091826', 'WhatsApp')}
-            className="bg-[#20182E] rounded-2xl overflow-hidden border border-purple-900/60 hover:border-purple-400/80 shadow-xl hover:shadow-2xl hover:shadow-purple-950/40 transition-all duration-300 flex flex-col group cursor-pointer transform hover:-translate-y-1"
+            className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-purple-500 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer transform hover:-translate-y-0.5"
           >
-            <div className="relative h-44 w-full overflow-hidden bg-slate-950">
+            <div className="relative h-44 w-full overflow-hidden bg-slate-100">
               <img
                 src="https://images.unsplash.com/photo-1534536281715-e28d76689b4d?auto=format&fit=crop&w=600&q=80"
                 alt="Direct Help Desk Line"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85 group-hover:opacity-100"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#20182E] via-[#20182E]/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
               
               <div className="absolute top-3 left-3">
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase border backdrop-blur-md shadow-md bg-purple-500/20 text-purple-300 border-purple-400/40">
+                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase backdrop-blur-md shadow-xs bg-purple-600 text-white">
                   Instant Help Desk
                 </span>
               </div>
 
-              <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-[#140E1F]/90 border border-purple-700/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Phone className="w-5 h-5 text-purple-400" />
+              <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <Phone className="w-5 h-5 text-purple-600" />
               </div>
             </div>
 
             <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
               <div>
-                <h3 className="text-lg font-bold text-white group-hover:text-purple-300 transition-colors">
+                <h3 className="text-base font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
                   WhatsApp &amp; Phone Line
                 </h3>
-                <p className="text-slate-300 text-xs mt-2 leading-relaxed">
+                <p className="text-slate-600 text-xs mt-2 leading-relaxed">
                   Connect instantly with Quantum Networks support team via WhatsApp (+256-755091826) or official call line (0200 913 555).
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-purple-900/50 flex items-center justify-between text-xs font-bold text-purple-400 group-hover:text-purple-200">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-purple-700 group-hover:text-purple-800">
                 <span>Copy Help Desk Contact</span>
-                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform text-purple-400" />
+                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform text-purple-600" />
               </div>
             </div>
           </div>
@@ -680,14 +676,14 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
         
         {/* Section Header */}
         <div className="text-center space-y-2 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-black uppercase tracking-widest">
-            <Gift className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold uppercase tracking-wider">
+            <Gift className="w-3.5 h-3.5 text-blue-600" />
             CHOOSE YOUR SUBSCRIPTION PLAN
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             Tailored Packages for Every Pharmacy Scale
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
             Activating a plan unlocks all operational modules corresponding to that tier. Select any plan below to activate or view detailed terms.
           </p>
         </div>
@@ -700,16 +696,16 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
             return (
               <div
                 key={plan.id}
-                className={`rounded-3xl p-6 border transition-all duration-300 flex flex-col justify-between relative shadow-xl hover:shadow-2xl ${plan.bgGradient} ${plan.borderColor} ${
-                  isCurrentActivePlan ? 'ring-2 ring-emerald-400' : ''
-                } transform hover:-translate-y-1`}
+                className={`rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between relative shadow-xs hover:shadow-md bg-white ${plan.borderColor} ${
+                  isCurrentActivePlan ? 'ring-2 ring-emerald-500' : ''
+                } transform hover:-translate-y-0.5`}
               >
                 {/* Popular Badge ribbon */}
                 {plan.isPopular && (
-                  <div className="absolute -top-3.5 left-1/2 transform -translate-x-1/2">
-                    <span className="px-3.5 py-1 rounded-full bg-[#00D8F6] text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-lg flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 fill-slate-950" />
-                      MOST POPULAR PLAN
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="px-3 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-xs flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 fill-white" />
+                      MOST POPULAR
                     </span>
                   </div>
                 )}
@@ -717,47 +713,47 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
                 <div className="space-y-4">
                   {/* Plan Header */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase border ${plan.badgeColor}`}>
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase border ${plan.badgeColor}`}>
                       {plan.badge}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                      <UserCog className="w-3 h-3 text-cyan-400" />
+                    <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1">
+                      <UserCog className="w-3 h-3 text-blue-600" />
                       {plan.maxUsers} Users
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-black text-white tracking-tight">{plan.name}</h3>
-                    <p className="text-slate-300 text-xs mt-1 leading-snug">{plan.tagline}</p>
+                    <h3 className="text-lg font-bold text-slate-900 tracking-tight">{plan.name}</h3>
+                    <p className="text-slate-500 text-xs mt-1 leading-snug">{plan.tagline}</p>
                   </div>
 
                   {/* Price Display */}
-                  <div className="pt-2 border-t border-slate-700/40">
+                  <div className="pt-2 border-t border-slate-100">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-black text-white">
+                      <span className="text-xl font-black text-slate-900">
                         UGX {plan.discountPriceUgx.toLocaleString()}
                       </span>
                       <span className="text-xs text-slate-400 line-through">
                         UGX {plan.originalPriceUgx.toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-[10px] font-bold text-cyan-400 mt-0.5">Billed monthly per branch</p>
+                    <p className="text-[10px] font-bold text-emerald-700 mt-0.5">Billed monthly per branch</p>
                   </div>
 
                   {/* Active Plan Indicator */}
                   {isCurrentActivePlan && (
-                    <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>Active Subscription Plan</span>
                     </div>
                   )}
 
                   {/* Feature Bullet Points */}
                   <div className="space-y-2 pt-2">
-                    <p className="text-[11px] font-extrabold text-slate-300 uppercase tracking-wider">Core Features Included:</p>
+                    <p className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Core Features Included:</p>
                     {plan.features.map((feat, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs text-slate-200">
-                        <Check className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                      <div key={idx} className="flex items-start gap-2 text-xs text-slate-600">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                         <span className="leading-snug">{feat}</span>
                       </div>
                     ))}
@@ -765,15 +761,15 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
                 </div>
 
                 {/* Select / Activate Plan Button */}
-                <div className="pt-6 mt-6 border-t border-slate-700/40 space-y-2">
+                <div className="pt-5 mt-5 border-t border-slate-100 space-y-2">
                   <button
                     onClick={() => handleUpgradePlan(plan.id)}
-                    className={`w-full py-3 rounded-xl font-black text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
+                    className={`w-full py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                       isCurrentActivePlan
-                        ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                        ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                         : plan.isPopular
-                        ? 'bg-[#00D8F6] hover:bg-cyan-300 text-slate-950 shadow-cyan-900/40'
-                        : 'bg-[#142F52] hover:bg-[#1E4373] text-sky-200 hover:text-white border border-[#254B7C]'
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
                     }`}
                   >
                     <span>{isCurrentActivePlan ? 'Plan Active (Re-Activate)' : `Activate ${plan.name}`}</span>
@@ -782,7 +778,7 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
 
                   <button
                     onClick={() => setSelectedPlanModal(plan)}
-                    className="w-full text-center text-[11px] font-bold text-slate-400 hover:text-cyan-300 transition-colors py-1 cursor-pointer"
+                    className="w-full text-center text-[11px] font-bold text-slate-500 hover:text-blue-600 transition-colors py-1 cursor-pointer"
                   >
                     View Plan Capabilities Overview
                   </button>
@@ -799,17 +795,17 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
       <div id="platform-features-section" className="max-w-6xl w-full space-y-6 pt-4 scroll-mt-20">
         
         {/* Section Title */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-sky-900/60 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-cyan-400 animate-pulse" />
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-emerald-600" />
               Platform Modules &amp; Operational Features
             </h2>
-            <p className="text-slate-300 text-xs sm:text-sm mt-1">
+            <p className="text-slate-600 text-xs sm:text-sm mt-1">
               Operational modules require an active corresponding subscription plan tier to launch.
             </p>
           </div>
-          <span className="self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-sky-900/40 border border-sky-700/50 text-sky-300 text-xs font-semibold">
+          <span className="self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold">
             12 Operational Modules Ready
           </span>
         </div>
@@ -823,65 +819,65 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
               <div
                 key={card.tab}
                 onClick={() => handleFeatureCardClick(card)}
-                className={`bg-[#0E2542] rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col group cursor-pointer transform hover:-translate-y-1 ${
+                className={`bg-white rounded-2xl overflow-hidden border transition-all duration-300 flex flex-col group cursor-pointer transform hover:-translate-y-0.5 ${
                   isUnlocked
-                    ? 'border-sky-900/50 hover:border-sky-400/60 shadow-xl hover:shadow-2xl hover:shadow-cyan-900/20'
-                    : 'border-amber-900/40 hover:border-amber-500/60 opacity-90'
+                    ? 'border-slate-200 hover:border-blue-500 shadow-xs hover:shadow-md'
+                    : 'border-amber-200 bg-amber-50/20 hover:border-amber-400 opacity-95'
                 }`}
               >
                 {/* Card Image Banner */}
-                <div className="relative h-44 w-full overflow-hidden bg-slate-950">
+                <div className="relative h-44 w-full overflow-hidden bg-slate-100">
                   <img
                     src={card.imageUrl}
                     alt={card.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-85 group-hover:opacity-100"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0E2542] via-[#0E2542]/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
                   
                   {/* Badge Tag */}
                   <div className="absolute top-3 left-3 flex items-center gap-1.5">
-                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-extrabold uppercase border backdrop-blur-md shadow-md ${
+                    <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold uppercase backdrop-blur-md shadow-xs ${
                       isUnlocked
-                        ? card.badgeColor
-                        : 'bg-amber-500/20 text-amber-300 border-amber-400/40'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-amber-600 text-white'
                     }`}>
                       {isUnlocked ? card.badge : `🔒 ${card.requiredTier} Required`}
                     </span>
                   </div>
 
                   {/* Icon Circle */}
-                  <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-[#0B1E38]/90 border border-sky-700/50 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    {isUnlocked ? card.icon : <Lock className="w-5 h-5 text-amber-400" />}
+                  <div className="absolute bottom-3 right-3 w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                    {isUnlocked ? card.icon : <Lock className="w-5 h-5 text-amber-600" />}
                   </div>
                 </div>
 
                 {/* Card Body Content */}
                 <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div>
-                    <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors flex items-center justify-between">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors flex items-center justify-between">
                       <span>{card.title}</span>
-                      {!isUnlocked && <Lock className="w-4 h-4 text-amber-400 shrink-0" />}
+                      {!isUnlocked && <Lock className="w-4 h-4 text-amber-600 shrink-0" />}
                     </h3>
-                    <p className="text-slate-300 text-xs mt-2 leading-relaxed line-clamp-3">
+                    <p className="text-slate-600 text-xs mt-2 leading-relaxed line-clamp-3">
                       {card.description}
                     </p>
                   </div>
 
                   {/* Card CTA Footer Button */}
-                  <div className="pt-3 border-t border-sky-900/50 flex items-center justify-between text-xs font-bold">
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
                     {isUnlocked ? (
                       <>
-                        <span className="text-cyan-400 group-hover:text-cyan-200">Launch Module</span>
-                        <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform text-cyan-400" />
+                        <span className="text-blue-600 group-hover:text-blue-800">Launch Module</span>
+                        <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform text-blue-600" />
                       </>
                     ) : (
                       <>
-                        <span className="text-amber-400 group-hover:text-amber-300 flex items-center gap-1">
+                        <span className="text-amber-700 group-hover:text-amber-800 flex items-center gap-1">
                           <Lock className="w-3.5 h-3.5" />
                           Activate {card.requiredTier} Plan
                         </span>
-                        <ChevronRight className="w-4 h-4 text-amber-400" />
+                        <ChevronRight className="w-4 h-4 text-amber-600" />
                       </>
                     )}
                   </div>
@@ -895,26 +891,26 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
 
       {/* ── 🔍 INTERACTIVE PLAN OVERVIEW MODAL ── */}
       {selectedPlanModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#0B1E36] rounded-3xl border border-[#1E3B63] shadow-2xl max-w-xl w-full overflow-hidden text-white relative flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-xl w-full overflow-hidden text-slate-900 relative flex flex-col">
             
             {/* Modal Header */}
-            <div className="p-6 border-b border-[#1E3B63] bg-[#071629] flex items-center justify-between">
+            <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-sky-600 flex items-center justify-center text-slate-950 font-black shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 font-bold shadow-xs">
                   <Gift className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase border ${selectedPlanModal.badgeColor}`}>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${selectedPlanModal.badgeColor}`}>
                     {selectedPlanModal.badge}
                   </span>
-                  <h3 className="text-xl font-black text-white tracking-tight mt-0.5">{selectedPlanModal.name}</h3>
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight mt-0.5">{selectedPlanModal.name}</h3>
                 </div>
               </div>
               
               <button
                 onClick={() => setSelectedPlanModal(null)}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -925,18 +921,18 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
               
               {/* Notification Banner */}
               {planActivationSuccess && (
-                <div className="bg-emerald-500 text-white p-3 rounded-xl text-xs font-bold flex items-center gap-2 animate-bounce">
+                <div className="bg-emerald-600 text-white p-3 rounded-xl text-xs font-bold flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>{planActivationSuccess}</span>
                 </div>
               )}
 
               {/* Pricing Summary Box */}
-              <div className="bg-[#071629] p-4 rounded-2xl border border-sky-900/50 flex items-center justify-between">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-slate-400">Monthly Subscription Rate</p>
+                  <p className="text-[10px] uppercase font-bold text-slate-500">Monthly Subscription Rate</p>
                   <div className="flex items-baseline gap-2 mt-0.5">
-                    <span className="text-2xl font-black text-cyan-300">
+                    <span className="text-2xl font-black text-slate-900">
                       UGX {selectedPlanModal.discountPriceUgx.toLocaleString()}
                     </span>
                     <span className="text-xs text-slate-400 line-through">
@@ -945,42 +941,42 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold">
+                  <span className="text-xs bg-emerald-100 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-full font-bold">
                     Save UGX {(selectedPlanModal.originalPriceUgx - selectedPlanModal.discountPriceUgx).toLocaleString()}
                   </span>
-                  <p className="text-[10px] text-slate-400 mt-1">{selectedPlanModal.maxUsers} Staff User Quota</p>
+                  <p className="text-[10px] text-slate-500 mt-1">{selectedPlanModal.maxUsers} Staff User Quota</p>
                 </div>
               </div>
 
               {/* Best For Section */}
               <div className="space-y-1.5">
-                <p className="text-xs font-black uppercase text-cyan-400 tracking-wider flex items-center gap-1.5">
-                  <Building2 className="w-4 h-4" />
+                <p className="text-xs font-bold uppercase text-blue-700 tracking-wider flex items-center gap-1.5">
+                  <Building2 className="w-4 h-4 text-blue-600" />
                   Who This Plan Is Designed For:
                 </p>
-                <p className="text-xs text-slate-200 leading-relaxed bg-[#0E2542] p-3 rounded-xl border border-sky-900/40">
+                <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200">
                   {selectedPlanModal.bestFor}
                 </p>
               </div>
 
               {/* Detailed Description */}
               <div className="space-y-1.5">
-                <p className="text-xs font-black uppercase text-cyan-400 tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4" />
+                <p className="text-xs font-bold uppercase text-blue-700 tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
                   Plan Capability Overview:
                 </p>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   {selectedPlanModal.detailedDescription}
                 </p>
               </div>
 
               {/* Feature Checklist */}
-              <div className="space-y-2 pt-2 border-t border-slate-800">
-                <p className="text-xs font-black uppercase text-slate-300 tracking-wider">Full Operational Stack Unlocked:</p>
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <p className="text-xs font-bold uppercase text-slate-700 tracking-wider">Full Operational Stack Unlocked:</p>
                 <div className="grid grid-cols-1 gap-2">
                   {selectedPlanModal.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-slate-200 bg-[#071629] p-2 rounded-lg border border-slate-800">
-                      <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <div key={idx} className="flex items-center gap-2 text-xs text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span>{feat}</span>
                     </div>
                   ))}
@@ -990,26 +986,26 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
             </div>
 
             {/* Modal Footer CTAs */}
-            <div className="p-5 border-t border-[#1E3B63] bg-[#071629] flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3">
               <button
                 onClick={() => handleCopy('+256-755091826', 'WhatsAppModal')}
-                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Phone className="w-3.5 h-3.5 text-cyan-400" />
+                <Phone className="w-3.5 h-3.5 text-blue-600" />
                 <span>Request Custom Demo</span>
               </button>
 
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={() => setSelectedPlanModal(null)}
-                  className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
                 >
                   Close
                 </button>
                 
                 <button
                   onClick={() => handleUpgradePlan(selectedPlanModal.id, 'pos')}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-sky-600 hover:from-cyan-400 hover:to-sky-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-900/40 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <span>Activate {selectedPlanModal.name}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1023,24 +1019,24 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
 
       {/* ── 🔒 FEATURE LOCKED / SUBSCRIPTION UPGRADE MODAL ── */}
       {lockedFeatureModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-fadeIn">
-          <div className="bg-[#0B1E36] rounded-3xl border border-amber-500/40 shadow-2xl max-w-md w-full overflow-hidden text-white relative flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-2xl border border-amber-200 shadow-xl max-w-md w-full overflow-hidden text-slate-900 relative flex flex-col">
             
             {/* Header */}
-            <div className="p-5 border-b border-amber-500/30 bg-[#071629] flex items-center justify-between">
+            <div className="p-5 border-b border-amber-100 bg-amber-50/50 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 border border-amber-200 flex items-center justify-center">
                   <Lock className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">Subscription Required</span>
-                  <h3 className="text-base font-black text-white">{lockedFeatureModal.title}</h3>
+                  <span className="text-[10px] font-bold uppercase text-amber-800 tracking-wider">Subscription Required</span>
+                  <h3 className="text-base font-bold text-slate-900">{lockedFeatureModal.title}</h3>
                 </div>
               </div>
 
               <button
                 onClick={() => setLockedFeatureModal(null)}
-                className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1051,39 +1047,39 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
               
               {/* Notification Banner */}
               {planActivationSuccess && (
-                <div className="bg-emerald-500 text-white p-3 rounded-xl font-bold flex items-center gap-2 animate-bounce">
+                <div className="bg-emerald-600 text-white p-3 rounded-xl font-bold flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>{planActivationSuccess}</span>
                 </div>
               )}
 
-              <p className="text-slate-300 leading-relaxed">
-                The <span className="text-cyan-300 font-bold">{lockedFeatureModal.title}</span> module is locked for your current plan tier. Upgrade to <span className="text-amber-300 font-bold">{lockedFeatureModal.requiredTier} Package</span> to launch this module.
+              <p className="text-slate-600 leading-relaxed">
+                The <span className="text-blue-700 font-bold">{lockedFeatureModal.title}</span> module is locked for your current plan tier. Upgrade to <span className="text-amber-800 font-bold">{lockedFeatureModal.requiredTier} Package</span> to launch this module.
               </p>
 
-              <div className="bg-[#071629] p-3 rounded-xl border border-slate-800 space-y-2">
-                <div className="flex justify-between items-center text-slate-400 text-[11px]">
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div className="flex justify-between items-center text-slate-500 text-[11px]">
                   <span>Active Branch:</span>
-                  <span className="text-white font-bold">{activeClient.clientName}</span>
+                  <span className="text-slate-900 font-bold">{activeClient.clientName}</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-400 text-[11px]">
+                <div className="flex justify-between items-center text-slate-500 text-[11px]">
                   <span>Current Plan:</span>
-                  <span className="text-sky-300 font-bold">{activeClient.packageTier} Package</span>
+                  <span className="text-blue-700 font-bold">{activeClient.packageTier} Package</span>
                 </div>
-                <div className="flex justify-between items-center text-slate-400 text-[11px]">
+                <div className="flex justify-between items-center text-slate-500 text-[11px]">
                   <span>Required Plan:</span>
-                  <span className="text-amber-300 font-bold">{lockedFeatureModal.requiredTier} Package</span>
+                  <span className="text-amber-800 font-bold">{lockedFeatureModal.requiredTier} Package</span>
                 </div>
               </div>
             </div>
 
             {/* Footer CTAs */}
-            <div className="p-4 border-t border-[#1E3B63] bg-[#071629] flex flex-col gap-2">
+            <div className="p-4 border-t border-slate-100 bg-slate-50 flex flex-col gap-2">
               <button
                 onClick={() => handleUpgradePlan(lockedFeatureModal.requiredTier, lockedFeatureModal.tab)}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-slate-950 font-black text-xs shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Zap className="w-4 h-4 fill-slate-950" />
+                <Zap className="w-4 h-4 fill-white" />
                 <span>Upgrade to {lockedFeatureModal.requiredTier} &amp; Launch</span>
               </button>
 
@@ -1093,7 +1089,7 @@ export const PromoBannerView: React.FC<PromoBannerViewProps> = ({
                   const el = document.getElementById('pricing-plans-section');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="w-full py-2 text-center text-xs font-bold text-slate-400 hover:text-cyan-300 transition-colors"
+                className="w-full py-2 text-center text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors cursor-pointer"
               >
                 Compare All Subscription Plans
               </button>

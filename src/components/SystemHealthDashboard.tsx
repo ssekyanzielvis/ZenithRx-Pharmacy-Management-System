@@ -173,21 +173,21 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
       )}
 
       {/* Top Header Banner */}
-      <div className="bg-[#0B1E36] border border-[#1E3A5F] rounded-3xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400">
+          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700">
             <Activity className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white">
+              <h2 className="text-xl font-bold text-slate-900">
                 Reliability, Backup &amp; System Health (§11.9)
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> All Systems Operational
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> All Systems Operational
               </span>
             </div>
-            <p className="text-xs text-slate-300 mt-1">
+            <p className="text-xs text-slate-600 mt-1">
               Automated daily backups, PITR WAL continuous archiving, cross-region R2 replication, incident runbooks &amp; POS graceful degradation.
             </p>
           </div>
@@ -197,7 +197,7 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
           <button
             onClick={fetchHealthAndDR}
             disabled={loading}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border border-slate-700 cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border border-slate-200 cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Run Telemetry Ping
@@ -205,7 +205,7 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -219,38 +219,37 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
         {/* Card 1 — Core Infrastructure Telemetry */}
         <button
           onClick={() => setActiveSubTab('telemetry')}
-          className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
+          className={`group relative text-left rounded-2xl border p-5 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${
             activeSubTab === 'telemetry'
-              ? 'bg-[#0B1E36] shadow-2xl shadow-sky-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-100'
+              ? 'bg-sky-50 text-sky-950 border-2 border-sky-600 shadow-xs'
+              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-xs'
           }`}
-          style={{ borderTopColor: activeSubTab === 'telemetry' ? '#38bdf8' : '#7dd3fc' }}
         >
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${activeSubTab === 'telemetry' ? 'bg-sky-400/20' : 'bg-sky-50'}`}>
-            <Activity className={`w-6 h-6 ${activeSubTab === 'telemetry' ? 'text-sky-300' : 'text-sky-600'}`} />
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${activeSubTab === 'telemetry' ? 'bg-sky-100 text-sky-700' : 'bg-sky-50 text-sky-600 border border-sky-100'}`}>
+            <Activity className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeSubTab === 'telemetry' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-sm font-bold leading-tight ${activeSubTab === 'telemetry' ? 'text-sky-950' : 'text-slate-900'}`}>
               Core Infrastructure Telemetry
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'telemetry' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'telemetry' ? 'text-sky-800' : 'text-slate-600'}`}>
               Live API throughput, error rates, DB pool depth, and per-service health signals.
             </p>
           </div>
           <ul className="space-y-1">
             {['24h API Throughput', 'Avg Response Latency', 'DB Connection Pool', 'Error Rate Tracking'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'telemetry' ? 'text-sky-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-sky-400" />{f}
+              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'telemetry' ? 'text-sky-800' : 'text-slate-600'}`}>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-sky-500" />{f}
               </li>
             ))}
           </ul>
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200/60">
             {activeSubTab === 'telemetry' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-sky-300 bg-sky-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-sky-800 bg-sky-100 border border-sky-200 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-sky-600" /> Viewing Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-sky-700 bg-sky-50 px-3 py-1 rounded-full group-hover:bg-sky-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-700 bg-sky-50 px-3 py-1 rounded-full group-hover:bg-sky-100 transition">
                 ▶ Open
               </span>
             )}
@@ -260,41 +259,40 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
         {/* Card 2 — Daily Backups & Restore Tests */}
         <button
           onClick={() => setActiveSubTab('backups')}
-          className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
+          className={`group relative text-left rounded-2xl border p-5 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${
             activeSubTab === 'backups'
-              ? 'bg-[#0B1E36] shadow-2xl shadow-emerald-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-100'
+              ? 'bg-emerald-50 text-emerald-950 border-2 border-emerald-600 shadow-xs'
+              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-xs'
           }`}
-          style={{ borderTopColor: activeSubTab === 'backups' ? '#34d399' : '#6ee7b7' }}
         >
-          <span className={`absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full ${activeSubTab === 'backups' ? 'bg-emerald-400/20 text-emerald-300' : 'bg-emerald-100 text-emerald-700'}`}>
+          <span className={`absolute top-4 right-4 text-[9px] font-bold px-2 py-0.5 rounded-full border ${activeSubTab === 'backups' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
             {backups.length} BACKUPS
           </span>
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${activeSubTab === 'backups' ? 'bg-emerald-400/20' : 'bg-emerald-50'}`}>
-            <FileCheck2 className={`w-6 h-6 ${activeSubTab === 'backups' ? 'text-emerald-300' : 'text-emerald-600'}`} />
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${activeSubTab === 'backups' ? 'bg-emerald-100 text-emerald-700' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+            <FileCheck2 className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeSubTab === 'backups' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-sm font-bold leading-tight ${activeSubTab === 'backups' ? 'text-emerald-950' : 'text-slate-900'}`}>
               Daily Backups &amp; Restore Tests
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'backups' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'backups' ? 'text-emerald-800' : 'text-slate-600'}`}>
               Automated nightly snapshots with mandatory restore validation and integrity checks.
             </p>
           </div>
           <ul className="space-y-1">
             {['Nightly Snapshot Schedule', 'Restore Test Runs', 'Integrity Checksum', 'Off-site Redundancy'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'backups' ? 'text-emerald-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-400" />{f}
+              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'backups' ? 'text-emerald-800' : 'text-slate-600'}`}>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-500" />{f}
               </li>
             ))}
           </ul>
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200/60">
             {activeSubTab === 'backups' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-300 bg-emerald-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Viewing Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full group-hover:bg-emerald-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full group-hover:bg-emerald-100 transition">
                 ▶ Open
               </span>
             )}
@@ -304,38 +302,37 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
         {/* Card 3 — PostgreSQL PITR & R2 Mirroring */}
         <button
           onClick={() => setActiveSubTab('pitr')}
-          className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
+          className={`group relative text-left rounded-2xl border p-5 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${
             activeSubTab === 'pitr'
-              ? 'bg-[#0B1E36] shadow-2xl shadow-cyan-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-100'
+              ? 'bg-cyan-50 text-cyan-950 border-2 border-cyan-600 shadow-xs'
+              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-xs'
           }`}
-          style={{ borderTopColor: activeSubTab === 'pitr' ? '#22d3ee' : '#67e8f9' }}
         >
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${activeSubTab === 'pitr' ? 'bg-cyan-400/20' : 'bg-cyan-50'}`}>
-            <RotateCcw className={`w-6 h-6 ${activeSubTab === 'pitr' ? 'text-cyan-300' : 'text-cyan-600'}`} />
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${activeSubTab === 'pitr' ? 'bg-cyan-100 text-cyan-700' : 'bg-cyan-50 text-cyan-600 border border-cyan-100'}`}>
+            <RotateCcw className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeSubTab === 'pitr' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-sm font-bold leading-tight ${activeSubTab === 'pitr' ? 'text-cyan-950' : 'text-slate-900'}`}>
               PostgreSQL PITR &amp; R2 Mirroring
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'pitr' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'pitr' ? 'text-cyan-800' : 'text-slate-600'}`}>
               Point-in-time recovery with WAL archiving and Cloudflare R2 geo-redundant mirroring.
             </p>
           </div>
           <ul className="space-y-1">
             {['WAL Archive Streaming', 'Point-in-Time Recovery', 'R2 Geo-Mirror Sync', 'RTO / RPO Targets'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'pitr' ? 'text-cyan-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-cyan-400" />{f}
+              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'pitr' ? 'text-cyan-800' : 'text-slate-600'}`}>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-cyan-500" />{f}
               </li>
             ))}
           </ul>
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200/60">
             {activeSubTab === 'pitr' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-cyan-300 bg-cyan-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-cyan-800 bg-cyan-100 border border-cyan-200 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-cyan-600" /> Viewing Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-cyan-700 bg-cyan-50 px-3 py-1 rounded-full group-hover:bg-cyan-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-cyan-700 bg-cyan-50 px-3 py-1 rounded-full group-hover:bg-cyan-100 transition">
                 ▶ Open
               </span>
             )}
@@ -345,41 +342,40 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
         {/* Card 4 — Incident Runbooks & SOPs */}
         <button
           onClick={() => setActiveSubTab('runbooks')}
-          className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
+          className={`group relative text-left rounded-2xl border p-5 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${
             activeSubTab === 'runbooks'
-              ? 'bg-[#0B1E36] shadow-2xl shadow-amber-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-100'
+              ? 'bg-amber-50 text-amber-950 border-2 border-amber-600 shadow-xs'
+              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-xs'
           }`}
-          style={{ borderTopColor: activeSubTab === 'runbooks' ? '#fbbf24' : '#fcd34d' }}
         >
-          <span className={`absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full ${activeSubTab === 'runbooks' ? 'bg-amber-400/20 text-amber-300' : 'bg-amber-100 text-amber-700'}`}>
+          <span className={`absolute top-4 right-4 text-[9px] font-bold px-2 py-0.5 rounded-full border ${activeSubTab === 'runbooks' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
             {runbooks.length} RUNBOOKS
           </span>
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${activeSubTab === 'runbooks' ? 'bg-amber-400/20' : 'bg-amber-50'}`}>
-            <BookOpen className={`w-6 h-6 ${activeSubTab === 'runbooks' ? 'text-amber-300' : 'text-amber-600'}`} />
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${activeSubTab === 'runbooks' ? 'bg-amber-100 text-amber-700' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>
+            <BookOpen className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeSubTab === 'runbooks' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-sm font-bold leading-tight ${activeSubTab === 'runbooks' ? 'text-amber-950' : 'text-slate-900'}`}>
               Incident Runbooks &amp; SOPs
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'runbooks' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'runbooks' ? 'text-amber-800' : 'text-slate-600'}`}>
               Step-by-step incident response playbooks and standard operating procedures for critical failures.
             </p>
           </div>
           <ul className="space-y-1">
             {['P0 / P1 Escalation Paths', 'DB Failover Runbook', 'POS Offline SOP', 'Post-Mortem Templates'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'runbooks' ? 'text-amber-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-amber-400" />{f}
+              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'runbooks' ? 'text-amber-800' : 'text-slate-600'}`}>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-amber-500" />{f}
               </li>
             ))}
           </ul>
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200/60">
             {activeSubTab === 'runbooks' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-amber-300 bg-amber-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-amber-600" /> Viewing Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-700 bg-amber-50 px-3 py-1 rounded-full group-hover:bg-amber-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full group-hover:bg-amber-100 transition">
                 ▶ Open
               </span>
             )}
@@ -389,38 +385,37 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
         {/* Card 5 — POS Graceful Degradation */}
         <button
           onClick={() => setActiveSubTab('posDegradation')}
-          className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
+          className={`group relative text-left rounded-2xl border p-5 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${
             activeSubTab === 'posDegradation'
-              ? 'bg-[#0B1E36] shadow-2xl shadow-purple-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-purple-100'
+              ? 'bg-purple-50 text-purple-950 border-2 border-purple-600 shadow-xs'
+              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-xs'
           }`}
-          style={{ borderTopColor: activeSubTab === 'posDegradation' ? '#c084fc' : '#d8b4fe' }}
         >
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${activeSubTab === 'posDegradation' ? 'bg-purple-400/20' : 'bg-purple-50'}`}>
-            <HardDrive className={`w-6 h-6 ${activeSubTab === 'posDegradation' ? 'text-purple-300' : 'text-purple-600'}`} />
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${activeSubTab === 'posDegradation' ? 'bg-purple-100 text-purple-700' : 'bg-purple-50 text-purple-600 border border-purple-100'}`}>
+            <HardDrive className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeSubTab === 'posDegradation' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-sm font-bold leading-tight ${activeSubTab === 'posDegradation' ? 'text-purple-950' : 'text-slate-900'}`}>
               POS Graceful Degradation
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'posDegradation' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'posDegradation' ? 'text-purple-800' : 'text-slate-600'}`}>
               Offline-first POS operation with local queue persistence and automatic resync on reconnect.
             </p>
           </div>
           <ul className="space-y-1">
             {['Offline Transaction Queue', 'Local IndexedDB Cache', 'Auto-Resync on Reconnect', 'Degraded Mode Indicators'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'posDegradation' ? 'text-purple-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-purple-400" />{f}
+              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'posDegradation' ? 'text-purple-800' : 'text-slate-600'}`}>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-purple-500" />{f}
               </li>
             ))}
           </ul>
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200/60">
             {activeSubTab === 'posDegradation' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-purple-300 bg-purple-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-purple-800 bg-purple-100 border border-purple-200 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-purple-600" /> Viewing Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-purple-700 bg-purple-50 px-3 py-1 rounded-full group-hover:bg-purple-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 bg-purple-50 px-3 py-1 rounded-full group-hover:bg-purple-100 transition">
                 ▶ Open
               </span>
             )}
@@ -430,41 +425,40 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
         {/* Card 6 — BullMQ Queues & Redis Cache */}
         <button
           onClick={() => setActiveSubTab('queueCache')}
-          className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
+          className={`group relative text-left rounded-2xl border p-5 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${
             activeSubTab === 'queueCache'
-              ? 'bg-[#0B1E36] shadow-2xl shadow-sky-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-sky-100'
+              ? 'bg-sky-50 text-sky-950 border-2 border-sky-600 shadow-xs'
+              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-xs'
           }`}
-          style={{ borderTopColor: activeSubTab === 'queueCache' ? '#38bdf8' : '#7dd3fc' }}
         >
-          <span className={`absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full ${activeSubTab === 'queueCache' ? 'bg-sky-400/20 text-sky-300' : 'bg-sky-100 text-sky-700'}`}>
+          <span className={`absolute top-4 right-4 text-[9px] font-bold px-2 py-0.5 rounded-full border ${activeSubTab === 'queueCache' ? 'bg-sky-100 text-sky-800 border-sky-200' : 'bg-sky-50 text-sky-700 border-sky-200'}`}>
             §11.4
           </span>
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${activeSubTab === 'queueCache' ? 'bg-sky-400/20' : 'bg-sky-50'}`}>
-            <Layers className={`w-6 h-6 ${activeSubTab === 'queueCache' ? 'text-sky-300' : 'text-sky-600'}`} />
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${activeSubTab === 'queueCache' ? 'bg-sky-100 text-sky-700' : 'bg-sky-50 text-sky-600 border border-sky-100'}`}>
+            <Layers className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeSubTab === 'queueCache' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-sm font-bold leading-tight ${activeSubTab === 'queueCache' ? 'text-sky-950' : 'text-slate-900'}`}>
               BullMQ Queues &amp; Redis Cache
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'queueCache' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'queueCache' ? 'text-sky-800' : 'text-slate-600'}`}>
               Durable job queues for async workflows with Redis-backed session and inventory caching.
             </p>
           </div>
           <ul className="space-y-1">
             {['Queue Depth & Throughput', 'Failed Job Retry Policy', 'Redis Cache Hit Rate', 'Worker Concurrency'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'queueCache' ? 'text-sky-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-sky-400" />{f}
+              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'queueCache' ? 'text-sky-800' : 'text-slate-600'}`}>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-sky-500" />{f}
               </li>
             ))}
           </ul>
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200/60">
             {activeSubTab === 'queueCache' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-sky-300 bg-sky-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-sky-800 bg-sky-100 border border-sky-200 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-sky-600" /> Viewing Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-sky-700 bg-sky-50 px-3 py-1 rounded-full group-hover:bg-sky-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-700 bg-sky-50 px-3 py-1 rounded-full group-hover:bg-sky-100 transition">
                 ▶ Open
               </span>
             )}
@@ -474,41 +468,40 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
         {/* Card 7 — Security & Compliance */}
         <button
           onClick={() => setActiveSubTab('security')}
-          className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
+          className={`group relative text-left rounded-2xl border p-5 flex flex-col gap-3 cursor-pointer transition-all duration-200 ${
             activeSubTab === 'security'
-              ? 'bg-[#0B1E36] shadow-2xl shadow-emerald-900/40'
-              : 'bg-white hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-100'
+              ? 'bg-emerald-50 text-emerald-950 border-2 border-emerald-600 shadow-xs'
+              : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 shadow-xs'
           }`}
-          style={{ borderTopColor: activeSubTab === 'security' ? '#34d399' : '#6ee7b7' }}
         >
-          <span className={`absolute top-4 right-4 text-[9px] font-black px-2 py-0.5 rounded-full ${activeSubTab === 'security' ? 'bg-emerald-400/20 text-emerald-300' : 'bg-emerald-100 text-emerald-700'}`}>
+          <span className={`absolute top-4 right-4 text-[9px] font-bold px-2 py-0.5 rounded-full border ${activeSubTab === 'security' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
             §11.7
           </span>
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${activeSubTab === 'security' ? 'bg-emerald-400/20' : 'bg-emerald-50'}`}>
-            <Shield className={`w-6 h-6 ${activeSubTab === 'security' ? 'text-emerald-300' : 'text-emerald-600'}`} />
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${activeSubTab === 'security' ? 'bg-emerald-100 text-emerald-700' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+            <Shield className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h3 className={`text-sm font-black leading-tight ${activeSubTab === 'security' ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-sm font-bold leading-tight ${activeSubTab === 'security' ? 'text-emerald-950' : 'text-slate-900'}`}>
               Security &amp; Compliance
             </h3>
-            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'security' ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`text-[11px] leading-relaxed ${activeSubTab === 'security' ? 'text-emerald-800' : 'text-slate-600'}`}>
               RLS policy enforcement, audit log integrity, session security, and NDA / regulatory compliance.
             </p>
           </div>
           <ul className="space-y-1">
             {['Row-Level Security (RLS)', 'Audit Log Tamper-Check', 'Session & JWT Controls', 'NDA & Regulatory Compliance'].map((f) => (
-              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'security' ? 'text-emerald-300' : 'text-slate-500'}`}>
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-400" />{f}
+              <li key={f} className={`text-[10px] font-semibold flex items-center gap-1.5 ${activeSubTab === 'security' ? 'text-emerald-800' : 'text-slate-600'}`}>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-500" />{f}
               </li>
             ))}
           </ul>
-          <div className="mt-auto pt-2 border-t border-white/10">
+          <div className="mt-auto pt-2 border-t border-slate-200/60">
             {activeSubTab === 'security' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-300 bg-emerald-400/10 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3" /> Viewing
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Viewing Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full group-hover:bg-emerald-100 transition">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full group-hover:bg-emerald-100 transition">
                 ▶ Open
               </span>
             )}
@@ -989,10 +982,10 @@ export const SystemHealthDashboard: React.FC<SystemHealthDashboardProps> = ({ on
               <div className="p-4 flex items-center justify-between">
                 <div>
                   <span className="font-bold text-sm text-slate-900 block">
-                    Bypass AI Counseling Engine (Fallback to Local BNF Rules)
+                    Bypass Clinical Counselling Engine (Fallback to Local BNF Rules)
                   </span>
                   <p className="text-xs text-slate-500">
-                    When enabled, prescription processing skips Google Gemini API calls and uses local deterministic interaction tables to prevent queue blocking.
+                    When enabled, prescription processing skips external clinical API calls and uses local deterministic interaction tables to prevent queue blocking.
                   </p>
                 </div>
                 <button

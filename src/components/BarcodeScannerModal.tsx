@@ -84,27 +84,27 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-900 text-white w-full max-w-md rounded-2xl shadow-2xl border border-sky-800 p-6 space-y-5 relative">
+    <div className="fixed inset-0 bg-[#0B1E36]/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div className="bg-white text-[#263B33] w-full max-w-md rounded-2xl shadow-2xl border border-[#E3ECE8] p-6 space-y-5 relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer"
+          className="absolute top-4 right-4 text-[#5E7A70] hover:text-[#263B33] cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="text-center space-y-1">
-          <div className="w-12 h-12 bg-sky-500/20 text-sky-400 rounded-2xl flex items-center justify-center mx-auto border border-sky-500/40">
-            <QrCode className="w-7 h-7 animate-pulse" />
+          <div className="w-12 h-12 bg-emerald-50 text-[#20A66A] rounded-2xl flex items-center justify-center mx-auto border border-emerald-200">
+            <QrCode className="w-7 h-7" />
           </div>
-          <h3 className="text-lg font-black tracking-tight text-white">Quantum Barcode Scanner</h3>
-          <p className="text-xs text-sky-200">Point scanner or select a test barcode to scan SKU</p>
+          <h3 className="text-lg font-bold tracking-tight text-[#263B33]">Medication Barcode Scanner</h3>
+          <p className="text-xs text-[#5E7A70]">Point hardware scanner or select sample barcode to scan SKU</p>
         </div>
 
         {/* Camera Scanner Simulation Frame */}
-        <div className="relative w-full h-48 bg-slate-950 rounded-xl border-2 border-sky-500/50 flex flex-col items-center justify-center overflow-hidden">
+        <div className="relative w-full h-44 bg-[#F8FBFA] rounded-xl border border-[#E3ECE8] flex flex-col items-center justify-center overflow-hidden">
           {/* Laser scanning beam line */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse shadow-lg shadow-cyan-400 z-10"></div>
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-[#20A66A] animate-pulse z-10"></div>
 
           {!hasCameraError ? (
             <video 
@@ -115,52 +115,52 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
             />
           ) : (
             <div className="text-center z-10">
-              <AlertCircle className="w-8 h-8 text-rose-400/60 mx-auto mb-1" />
-              <p className="text-[10px] text-rose-300/80">Camera access denied or unavailable</p>
+              <AlertCircle className="w-7 h-7 text-amber-500 mx-auto mb-1" />
+              <p className="text-[11px] text-[#5E7A70]">Camera access inactive (Hardware laser active)</p>
             </div>
           )}
 
           {!hasCameraError && (
             <div className="z-10 flex flex-col items-center pointer-events-none mt-8">
-               <Camera className="w-10 h-10 text-sky-400/40" />
-               <p className="text-[11px] text-slate-300 font-mono mt-2 bg-slate-900/60 px-2 py-0.5 rounded">Align medication barcode inside box</p>
+               <Camera className="w-9 h-9 text-[#5E7A70]/40" />
+               <p className="text-[11px] text-[#5E7A70] font-mono mt-2 bg-white/80 px-2 py-0.5 rounded border border-[#E3ECE8]">Align medication barcode inside frame</p>
             </div>
           )}
         </div>
 
         {/* Quick Test Barcode Picks */}
         <div className="space-y-2">
-          <label className="text-[10px] font-bold text-sky-300 uppercase block">Quick Scan Sample Drugs:</label>
+          <label className="text-[10px] font-bold text-[#5E7A70] uppercase tracking-wider block">Quick Scan Sample Drugs:</label>
           <div className="grid grid-cols-2 gap-2">
             {drugs.slice(0, 4).map((d) => (
               <button
                 key={d.id}
                 onClick={() => handleSimulateScan(d)}
-                className="p-2 rounded-lg bg-slate-800 hover:bg-sky-900/60 border border-slate-700 hover:border-sky-500 text-left cursor-pointer transition-all"
+                className="p-2 rounded-xl bg-[#F8FBFA] hover:bg-emerald-50 border border-[#E3ECE8] hover:border-emerald-300 text-left cursor-pointer transition-all"
               >
-                <p className="text-xs font-bold text-white truncate">{d.brandName}</p>
-                <p className="text-[10px] font-mono text-sky-300">{d.barcode}</p>
+                <p className="text-xs font-bold text-[#263B33] truncate">{d.brandName}</p>
+                <p className="text-[10px] font-mono text-[#5E7A70]">{d.barcode}</p>
               </button>
             ))}
           </div>
         </div>
 
         {scannedDrug && (
-          <div className="p-4 bg-emerald-950/80 border border-emerald-500 rounded-xl space-y-2 text-xs">
+          <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-emerald-300 flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Item Identified!
+              <span className="font-bold text-emerald-800 flex items-center gap-1">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Item Identified
               </span>
-              <span className="font-mono text-emerald-200 font-bold">UGX {scannedDrug.sellingPrice}</span>
+              <span className="font-mono text-emerald-900 font-bold">UGX {scannedDrug.sellingPrice}</span>
             </div>
-            <p className="font-extrabold text-white text-sm">{scannedDrug.brandName}</p>
-            <p className="text-slate-300 italic">{scannedDrug.genericName}</p>
+            <p className="font-bold text-[#263B33] text-sm">{scannedDrug.brandName}</p>
+            <p className="text-[#5E7A70] italic">{scannedDrug.genericName}</p>
             <button
               onClick={() => {
                 onScanResult(scannedDrug);
                 onClose();
               }}
-              className="w-full py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider cursor-pointer mt-1"
+              className="w-full py-2.5 rounded-xl bg-[#20A66A] hover:bg-[#1B8E5A] text-white font-bold text-xs uppercase tracking-wider cursor-pointer mt-1 shadow-xs transition"
             >
               Add to POS Cart
             </button>
@@ -170,3 +170,5 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     </div>
   );
 };
+
+export default BarcodeScannerModal;

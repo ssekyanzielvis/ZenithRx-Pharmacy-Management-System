@@ -71,8 +71,8 @@ export const AICounselingModal: React.FC<AICounselingModalProps> = ({
             <Sparkles className="w-5 h-5 text-blue-200" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900">ZenithRx AI Patient Counseling Assistant</h3>
-            <p className="text-xs text-slate-500">Generate personalized patient medication guidance leaflets</p>
+            <h3 className="text-lg font-bold text-slate-900">Patient Counselling Leaflet Generator</h3>
+            <p className="text-xs text-slate-500">BNF-referenced medication guidance for dispensed prescriptions</p>
           </div>
         </div>
 
@@ -117,7 +117,7 @@ export const AICounselingModal: React.FC<AICounselingModalProps> = ({
           className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-colors"
         >
           {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-          <span>Generate Clinical Patient Advice</span>
+          <span>Print Counselling Notes</span>
         </button>
 
         {counselingOutput && (

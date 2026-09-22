@@ -34,9 +34,15 @@ import {
   Lock,
   MessageSquarePlus,
   MessageCircle,
+  MessageSquare,
+  Building2,
+  TrendingUp,
+  Cpu,
   LogOut,
+  DollarSign,
 } from 'lucide-react';
 import { AuthUser } from '../hooks/useAuth';
+import { canUserAccessTab } from '../lib/rolePermissions';
 
 interface SidebarProps {
   activeTab: ModuleTab;
@@ -81,6 +87,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const isAdminContext =
     activeTab === 'adminPackages' ||
     activeTab === 'adminControlPlane' ||
+    activeTab === 'adminQuantumWorkbench' ||
+    activeTab === 'adminRevenueLedger' ||
     activeTab === 'adminExecutive' ||
     activeTab === 'adminPolicies' ||
     activeTab === 'adminDelegated' ||
@@ -90,6 +98,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     activeTab === 'adminUsers' ||
     activeTab === 'adminBilling' ||
     activeTab === 'adminRegister' ||
+    activeTab === 'adminPharmacyRegistry' ||
+    activeTab === 'adminCapacity' ||
+    activeTab === 'adminMessagingHub' ||
     activeTab === 'adminFeedback' ||
     activeTab === 'tenancy';
 
@@ -112,9 +123,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const adminCategories: NavCategory[] = [
     {
       id: 'admin_control',
-      label: 'Admin Governance & Controls',
-      icon: <Shield className="w-4 h-4 text-blue-400" />,
+      label: 'Quantum Networks Systems Engineering',
+      icon: <Cpu className="w-4 h-4 text-cyan-400" />,
       items: [
+        {
+          id: 'adminQuantumWorkbench',
+          label: 'Engineering Workbench',
+          description: 'SQL migrations, RLS scanner & runtime telemetry',
+          icon: <Cpu className="w-4 h-4 text-cyan-400" />,
+          badge: 'Ring 0',
+          badgeColor: 'bg-cyan-600 text-white font-mono',
+        },
+        {
+          id: 'adminPharmacyRegistry',
+          label: 'Subscribed Pharmacies',
+          description: 'Overview of all subscribed pharmacies & NDA compliance',
+          icon: <Building2 className="w-4 h-4 text-emerald-400" />,
+          badge: 'Super Admin',
+          badgeColor: 'bg-emerald-600 text-white',
+        },
+        {
+          id: 'adminCapacity',
+          label: 'System Capacity & Upgrades',
+          description: 'Real-time telemetry, 70/85/95% alerts & upgrade dispatch',
+          icon: <TrendingUp className="w-4 h-4 text-amber-400" />,
+          badge: 'Alerts',
+          badgeColor: 'bg-amber-500 text-slate-950 font-bold',
+        },
+        {
+          id: 'adminMessagingHub',
+          label: 'Admin ↔ Pharmacy Messages',
+          description: '2-way threaded direct messaging & templates',
+          icon: <MessageSquare className="w-4 h-4 text-blue-400" />,
+          badge: '2-Way',
+          badgeColor: 'bg-blue-600 text-white',
+        },
         {
           id: 'adminExecutive',
           label: 'Executive Overview & Health',
@@ -172,6 +215,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           icon: <UserCog className="w-4 h-4 text-blue-400" />,
           badge: '3 Users',
           badgeColor: 'bg-slate-700 text-slate-200',
+        },
+        {
+          id: 'adminRevenueLedger',
+          label: 'Revenue & SaaS Ledger',
+          description: 'Double-entry bookkeeping, 18% URA VAT & system-mediated payments',
+          icon: <DollarSign className="w-4 h-4 text-emerald-400" />,
+          badge: 'Accounting',
+          badgeColor: 'bg-emerald-600 text-white font-bold',
         },
         {
           id: 'adminBilling',
@@ -317,37 +368,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed lg:sticky top-0 left-0 z-40 h-screen bg-[#1E293B] border-r border-slate-700/70 transition-all duration-300 flex flex-col justify-between select-none ${
+      className={`fixed lg:sticky top-0 left-0 z-40 h-screen bg-white dark:bg-[#0D1A2A] border-r border-slate-200/90 dark:border-slate-700/70 transition-all duration-300 flex flex-col justify-between select-none shadow-xs ${
         isOpen ? 'w-64 lg:w-72' : 'w-16'
       }`}
     >
       {/* Sidebar Header Title & Collapse Toggle */}
-      <div className="p-3.5 border-b border-slate-700/70 flex items-center justify-between gap-2">
+      <div className="p-3.5 border-b border-slate-200/90 dark:border-slate-700/70 bg-slate-50/60 dark:bg-[#0A1520]/80 flex items-center justify-between gap-2">
         {isOpen ? (
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center p-1 shadow-md shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center p-1 shadow-xs shrink-0">
               <div className="grid grid-cols-2 gap-0.5 w-full h-full transform rotate-45 items-center justify-center">
-                <div className="bg-white rounded-xs opacity-90"></div>
+                <div className="bg-white rounded-xs opacity-95"></div>
                 <div className="bg-blue-200 rounded-xs"></div>
-                <div className="bg-green-200 rounded-xs"></div>
+                <div className="bg-emerald-200 rounded-xs"></div>
                 <div className="bg-white rounded-xs"></div>
               </div>
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-widest leading-none text-blue-400">
-                {isAdminContext ? 'ADMIN CONTROL PLANE' : 'ZENITHRX OPERATIONAL'}
+              <p className="text-[10px] font-extrabold uppercase tracking-widest leading-none text-emerald-700 dark:text-emerald-400">
+                {isAdminContext ? 'ADMIN CONTROL PLANE' : 'ZENITHRX CLINICAL'}
               </p>
-              <p className="text-xs font-bold text-white tracking-tight truncate mt-0.5">
-                {isAdminContext ? 'System Admin Sidebar' : 'User Navigation Panel'}
+              <p className="text-xs font-bold text-slate-900 dark:text-slate-100 tracking-tight truncate mt-0.5">
+                {isAdminContext ? 'System Administration' : 'Pharmacy Workstation'}
               </p>
             </div>
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center p-1 mx-auto shadow-md">
+          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center p-1 mx-auto shadow-xs">
             <div className="grid grid-cols-2 gap-0.5 w-full h-full transform rotate-45">
-              <div className="bg-white rounded-xs opacity-90"></div>
+              <div className="bg-white rounded-xs opacity-95"></div>
               <div className="bg-blue-200 rounded-xs"></div>
-              <div className="bg-green-200 rounded-xs"></div>
+              <div className="bg-emerald-200 rounded-xs"></div>
               <div className="bg-white rounded-xs"></div>
             </div>
           </div>
@@ -355,7 +406,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer shrink-0 border border-slate-700"
+          className="p-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors cursor-pointer shrink-0 border border-slate-200 dark:border-slate-700 shadow-xs"
           title={isOpen ? 'Collapse Sidebar' : 'Expand Sidebar'}
         >
           {isOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -363,17 +414,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Sidebar Navigation Body */}
-      <div className="flex-1 overflow-y-auto px-2 py-3 space-y-4">
+      <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
         
         {/* Admin / Operational Context Switcher */}
         {isAdminContext ? (
           <div className="space-y-1.5">
             <button
               onClick={() => setActiveTab('overview')}
-              className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer text-blue-300 bg-slate-800/80 hover:bg-slate-700 hover:text-white border border-slate-700 shadow-sm"
+              className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer text-blue-700 dark:text-blue-300 bg-blue-50/80 dark:bg-blue-900/30 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 border border-blue-200 dark:border-blue-800 shadow-xs"
               title="Switch to Pharmacy Counter / Clinical Operations"
             >
-              <LayoutDashboard className="w-4.5 h-4.5 shrink-0 text-blue-400" />
+              <LayoutDashboard className="w-4.5 h-4.5 shrink-0 text-blue-600" />
               {isOpen && <span className="truncate">← Pharmacy Operations</span>}
             </button>
           </div>
@@ -383,12 +434,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => setActiveTab('overview')}
               className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
                 activeTab === 'overview'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-900/40'
-                  : 'text-slate-300 bg-slate-800/80 hover:bg-slate-700 hover:text-white border border-slate-700'
+                  ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 border-l-4 border-blue-600 shadow-xs'
+                  : 'text-slate-700 dark:text-slate-300 bg-white dark:bg-transparent hover:bg-slate-100 dark:hover:bg-slate-700/60 hover:text-slate-900 dark:hover:text-slate-100 border border-slate-200 dark:border-slate-700'
               }`}
               title="Platform Overview Landing Page"
             >
-              <LayoutDashboard className="w-4.5 h-4.5 shrink-0 text-blue-300" />
+              <LayoutDashboard className="w-4.5 h-4.5 shrink-0 text-blue-600" />
               {isOpen && <span className="truncate">Platform Overview</span>}
             </button>
 
@@ -403,12 +454,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               }}
               className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer ${
                 activeTab === 'feedback'
-                  ? 'bg-green-600 text-white shadow-md'
-                  : 'text-green-300 bg-slate-800/80 hover:bg-slate-700 hover:text-white border border-slate-700'
+                  ? 'bg-emerald-50 text-emerald-800 border-l-4 border-emerald-600 shadow-xs'
+                  : 'text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100/70 border border-emerald-200'
               }`}
               title="Send Feedback & Inquiries to System Admin"
             >
-              <MessageSquarePlus className="w-4.5 h-4.5 shrink-0 text-green-400" />
+              <MessageSquarePlus className="w-4.5 h-4.5 shrink-0 text-emerald-600" />
               {isOpen && <span className="truncate">Send Feedback to Admin</span>}
             </button>
 
@@ -416,10 +467,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {user?.isSuperAdmin && (
               <button
                 onClick={() => setActiveTab('adminControlPlane')}
-                className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer text-amber-300 bg-slate-800/80 hover:bg-slate-700 hover:text-white border border-slate-700 shadow-sm"
+                className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold flex items-center gap-3 transition-all cursor-pointer text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 shadow-xs"
                 title="Open System Administrator Control Plane"
               >
-                <Shield className="w-4.5 h-4.5 shrink-0 text-amber-400" />
+                <Shield className="w-4.5 h-4.5 shrink-0 text-amber-600" />
                 {isOpen && <span className="truncate">Admin Control Plane</span>}
               </button>
             )}
@@ -437,18 +488,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {isOpen ? (
                 <button
                   onClick={() => toggleCategory(cat.id)}
-                  className="w-full px-2 py-1.5 flex items-center justify-between text-[11px] font-bold text-slate-400 hover:text-blue-300 uppercase tracking-wider transition-colors cursor-pointer group"
+                  className="w-full px-2 py-1.5 flex items-center justify-between text-[11px] font-extrabold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 uppercase tracking-wider transition-colors cursor-pointer group"
                 >
                   <span className="flex items-center gap-1.5 truncate">
                     {cat.icon}
                     <span className="truncate">{cat.label}</span>
                   </span>
                   <div className="flex items-center gap-1 shrink-0">
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isCatExpanded ? '' : '-rotate-90'}`} />
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isCatExpanded ? '' : '-rotate-90'}`} />
                   </div>
                 </button>
               ) : (
-                <div className="h-0.5 bg-slate-700/60 my-2" title={cat.label} />
+                <div className="h-0.5 bg-slate-200 dark:bg-slate-700 my-2" title={cat.label} />
               )}
 
               {/* Category Sub-items */}
@@ -456,28 +507,55 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="space-y-0.5">
                   {cat.items.map((item) => {
                     const isActive = activeTab === item.id;
+                    const access = canUserAccessTab(user, item.id);
+                    const isLocked = !access.allowed;
+
                     return (
                       <button
                         key={item.id}
                         onClick={() => setActiveTab(item.id)}
                         className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center gap-3 transition-all cursor-pointer relative group ${
                           isActive
-                            ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-900/30'
-                            : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                            ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-200 font-bold border-l-4 border-emerald-600 dark:border-emerald-500 shadow-xs'
+                            : isLocked
+                            ? 'text-slate-400 dark:text-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-800/40 opacity-75'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100/90 dark:hover:bg-slate-700/60 hover:text-slate-950 dark:hover:text-slate-100 font-medium'
                         }`}
-                        title={`${item.label} — ${item.description}`}
+                        title={
+                          isLocked
+                            ? `Restricted (PoLP): ${access.reason}`
+                            : `${item.label} — ${item.description}`
+                        }
                       >
-                        <span className={`shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-300'}`}>
+                        <span
+                          className={`shrink-0 ${
+                            isActive
+                              ? 'text-emerald-700 dark:text-emerald-400 font-bold'
+                              : isLocked
+                              ? 'text-slate-400 dark:text-slate-600'
+                              : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200'
+                          }`}
+                        >
                           {item.icon}
                         </span>
 
                         {isOpen && (
                           <div className="flex-1 min-w-0 flex items-center justify-between gap-1">
                             <span className="truncate">{item.label}</span>
-                            {item.badge !== undefined && (
-                              <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full shrink-0 ${item.badgeColor || 'bg-blue-600 text-white'}`}>
-                                {item.badge}
+                            {isLocked ? (
+                              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 flex items-center gap-0.5">
+                                <Lock className="w-3 h-3" />
                               </span>
+                            ) : (
+                              item.badge !== undefined && (
+                                <span
+                                  className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full shrink-0 ${
+                                    item.badgeColor || 'bg-blue-100 text-blue-800 border border-blue-200'
+                                  }`}
+                                >
+                                  {item.badge}
+                                </span>
+                              )
                             )}
                           </div>
                         )}
@@ -494,27 +572,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Sidebar Footer */}
-      <div className="p-3 border-t border-slate-700/70 bg-slate-900/60 text-[11px] text-slate-400 space-y-2">
+      <div className="p-3 border-t border-slate-200 dark:border-slate-700/70 bg-slate-50/90 dark:bg-[#0A1520]/90 text-[11px] text-slate-600 dark:text-slate-400 space-y-2">
         {user && onSignOut && (
           <button
             onClick={onSignOut}
-            className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-rose-950/30 hover:bg-rose-900/40 text-rose-300 hover:text-rose-100 border border-rose-800/40 text-xs font-bold transition-all cursor-pointer shadow-sm ${
+            className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-900 border border-rose-200 text-xs font-bold transition-all cursor-pointer shadow-xs ${
               !isOpen ? 'justify-center px-2' : ''
             }`}
             title={`Log Out (${user.email})`}
           >
-            <LogOut className="w-4 h-4 text-rose-400 shrink-0" />
+            <LogOut className="w-4 h-4 text-rose-600 shrink-0" />
             {isOpen && <span className="truncate">Log Out ({user.fullName.split(' ')[0]})</span>}
           </button>
         )}
         {isOpen && (
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 font-semibold text-slate-300">
-              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-              <span>{isAdminContext ? 'System Admin Mode' : 'ZenithRx Engine'}</span>
+            <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>{isAdminContext ? 'System Admin Mode' : 'ZenithRx Clinical Engine'}</span>
             </div>
-            <p className="text-[10px] text-slate-500">
-              {isAdminContext ? 'Strict Least Privilege Enforced' : 'Quantum PMS v3.2 • Enterprise'}
+            <p className="text-[10px] text-slate-500 dark:text-slate-500">
+              {isAdminContext ? 'Least Privilege Enforced' : 'Clinical Safe • Fast Dispense'}
             </p>
           </div>
         )}

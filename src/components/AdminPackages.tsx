@@ -3,6 +3,7 @@ import {
   ClientSubscription,
   PackageTier,
   TierName,
+  BillingCycle,
   NdaPharmacyRecord,
   PharmacyUserAccount,
   UserRoleRank,
@@ -30,6 +31,19 @@ import {
   updateUserAccount,
 } from '../lib/adminUserAccounts';
 import { AdminControlPlane } from './AdminControlPlane';
+import { PharmacyRegistryPanel } from './admin/PharmacyRegistryPanel';
+import { CapacityMonitorPanel } from './admin/CapacityMonitorPanel';
+import { AdminMessagingHub } from './admin/AdminMessagingHub';
+import { QuantumAdminGate } from './admin/QuantumAdminGate';
+import { QuantumEngineeringWorkbench } from './admin/QuantumEngineeringWorkbench';
+import { SubscriptionRevenueLedger } from './admin/SubscriptionRevenueLedger';
+import { processSubscriptionPayment } from '../services/subscriptionAccountingService';
+import { SubscriptionPaymentChannel } from '../types';
+import {
+  isQuantumEngineerAuthenticated,
+  terminateQuantumEngineerSession,
+  QUANTUM_NETWORKS_LEAD_ENGINEER,
+} from '../services/quantumAuthService';
 import {
   Shield,
   CheckCircle2,
@@ -43,6 +57,8 @@ import {
   Phone,
   Mail,
   Globe,
+  TrendingUp,
+  MessageSquare,
   Tag,
   Search,
   Save,
@@ -89,16 +105,35 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
   const [clients, setClients] = useState<ClientSubscription[]>(INITIAL_CLIENT_SUBSCRIPTIONS);
   const [selectedClientId, setSelectedClientId] = useState<string>(activeClient.id);
 
-  const getTabFromSubTab = (st?: string): 'controlPlane' | 'matrix' | 'userAccounts' | 'showcase' | 'addClient' => {
+  const [isQuantumAuthorized, setIsQuantumAuthorized] = useState<boolean>(() => isQuantumEngineerAuthenticated());
+
+  type AdminPackagesTab =
+    | 'controlPlane'
+    | 'quantumWorkbench'
+    | 'pharmacyRegistry'
+    | 'capacityMonitor'
+    | 'messagingHub'
+    | 'revenueLedger'
+    | 'matrix'
+    | 'userAccounts'
+    | 'showcase'
+    | 'addClient';
+
+  const getTabFromSubTab = (st?: string): AdminPackagesTab => {
     if (st === 'adminControlPlane') return 'controlPlane';
+    if (st === 'adminQuantumWorkbench') return 'quantumWorkbench';
+    if (st === 'adminPharmacyRegistry') return 'pharmacyRegistry';
+    if (st === 'adminCapacity') return 'capacityMonitor';
+    if (st === 'adminMessagingHub') return 'messagingHub';
+    if (st === 'adminRevenueLedger') return 'revenueLedger';
     if (st === 'adminMatrix') return 'matrix';
     if (st === 'adminUsers') return 'userAccounts';
-    if (st === 'adminBilling') return 'showcase';
+    if (st === 'adminBilling') return 'revenueLedger';
     if (st === 'adminRegister') return 'addClient';
-    return 'controlPlane';
+    return 'pharmacyRegistry';
   };
 
-  const [activeTab, setActiveTab] = useState<'controlPlane' | 'matrix' | 'userAccounts' | 'showcase' | 'addClient'>(() => getTabFromSubTab(subTab));
+  const [activeTab, setActiveTab] = useState<AdminPackagesTab>(() => getTabFromSubTab(subTab));
 
   React.useEffect(() => {
     if (subTab) {
@@ -124,6 +159,13 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
   const [newClientPhone, setNewClientPhone] = useState('');
   const [newClientEmail, setNewClientEmail] = useState('');
   const [newClientTier, setNewClientTier] = useState<TierName>('Professional');
+
+  // Mandatory System-Mediated Registration Payment State
+  const [regPaymentMode, setRegPaymentMode] = useState<'payNow' | 'proFormaInvoice'>('payNow');
+  const [regBillingCycle, setRegBillingCycle] = useState<BillingCycle>('monthly');
+  const [regPaymentChannel, setRegPaymentChannel] = useState<SubscriptionPaymentChannel>('MTN_MOMO');
+  const [regPaymentPhone, setRegPaymentPhone] = useState('');
+  const [regProviderRef, setRegProviderRef] = useState('');
 
   // State for Designated Staff User Accounts Management
   const [isUserFormOpen, setIsUserFormOpen] = useState(false);
@@ -280,6 +322,21 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
         ]
       : [];
 
+    const monthlyRate = tierConfig.monthlyRate;
+    const grossPaymentUgx =
+      regBillingCycle === 'yearly'
+        ? Math.round(monthlyRate * 12 * 0.85)
+        : monthlyRate;
+
+    const now = new Date();
+    const endDateObj = new Date(now);
+    if (regBillingCycle === 'yearly') {
+      endDateObj.setFullYear(endDateObj.getFullYear() + 1);
+    } else {
+      endDateObj.setMonth(endDateObj.getMonth() + 1);
+    }
+    const nextBillingDate = endDateObj.toISOString().split('T')[0];
+
     const newClientObj: ClientSubscription = {
       id: newClientId,
       clientName: newClientName,
@@ -289,8 +346,8 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
       packageTier: newClientTier,
       customMaxUsers: tierConfig.maxUsers,
       monthlyUgxRate: tierConfig.monthlyRate,
-      billingStatus: 'Active',
-      nextBillingDate: '2026-08-30',
+      billingStatus: regPaymentMode === 'payNow' ? 'Active' : 'Pending Renewal',
+      nextBillingDate,
       ndaLicenseNo: assignedNdaLicense,
       ndaVerified: isVerified,
       supervisingPharmacist: assignedPharmacist,
@@ -298,10 +355,32 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
       allowedFeatures: tierConfig.allowedFeatures,
     };
 
+    // If Pay Now is selected, record the payment into the official SaaS general ledger immediately
+    if (regPaymentMode === 'payNow') {
+      void processSubscriptionPayment({
+        tenantId: newClientId,
+        tenantName: newClientName,
+        packageTier: newClientTier,
+        billingCycle: regBillingCycle,
+        grossAmountUgx: grossPaymentUgx,
+        paymentChannel: regPaymentChannel,
+        providerReference: regProviderRef.trim() || `SYS-ONBOARD-${Date.now()}`,
+        paymentPhoneOrAccount: regPaymentPhone.trim() || newClientPhone,
+        onboardingSource: 'ADMIN_PANEL_SYSTEM',
+        processedByUserId: 'QNT-ADMIN-01',
+        processedByUserName: 'Quantum Networks Systems Administrator',
+        notes: `System onboarding payment collected for ${newClientName} (${newClientTier} Plan).`,
+      });
+    }
+
     setClients([newClientObj, ...clients]);
     setSelectedClientId(newClientObj.id);
-    setActiveTab('matrix');
-    setSaveNotification(`New client "${newClientName}" registered successfully on ${newClientTier} Package!`);
+    setActiveTab('revenueLedger');
+    setSaveNotification(
+      regPaymentMode === 'payNow'
+        ? `Registered "${newClientName}" & booked UGX ${grossPaymentUgx.toLocaleString()} to SaaS General Ledger!`
+        : `Registered "${newClientName}" with official Pro-Forma Invoice dispatched!`
+    );
     setTimeout(() => setSaveNotification(null), 4000);
 
     // Reset form
@@ -312,6 +391,8 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
     setSelectedNdaPharmacy(null);
     setManualNdaLicense('');
     setSupervisingPharmacistInput('');
+    setRegPaymentPhone('');
+    setRegProviderRef('');
   };
 
   // User Account Management Handlers
@@ -521,6 +602,20 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
     setTimeout(() => setSaveNotification(null), 2500);
   };
 
+  if (!isQuantumAuthorized) {
+    return (
+      <QuantumAdminGate
+        onSuccessAuth={() => setIsQuantumAuthorized(true)}
+        onReturnToPharmacy={() => {
+          if (window.history && window.history.pushState) {
+            window.history.pushState(null, '', '/pos');
+          }
+          window.location.href = '/pos';
+        }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6 pb-12">
       {/* Top Banner / Notification */}
@@ -536,6 +631,52 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
         </div>
       )}
 
+      {/* Quantum Networks Engineering Personnel Identity Bar */}
+      <div className="bg-gradient-to-r from-[#071322] via-[#0B1E36] to-[#0A1829] border border-cyan-500/40 p-4 rounded-3xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-white">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black tracking-widest text-cyan-400 uppercase">
+                QUANTUM NETWORKS LTD • PRINCIPAL SYSTEMS ARCHITECT
+              </span>
+              <span className="bg-emerald-500/20 text-emerald-300 text-[9px] px-2 py-0.2 rounded-full font-bold font-mono">
+                ROOT VERIFIED
+              </span>
+            </div>
+            <h3 className="text-sm font-bold text-white">
+              {QUANTUM_NETWORKS_LEAD_ENGINEER.fullName} ({QUANTUM_NETWORKS_LEAD_ENGINEER.employeeId})
+            </h3>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('quantumWorkbench')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 ${
+              activeTab === 'quantumWorkbench'
+                ? 'bg-cyan-500 text-slate-950 font-black shadow-md shadow-cyan-500/30'
+                : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" /> Systems Workbench
+          </button>
+
+          <button
+            onClick={() => {
+              terminateQuantumEngineerSession();
+              setIsQuantumAuthorized(false);
+            }}
+            className="px-3 py-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            title="Lock Console & End Engineering Session"
+          >
+            <Lock className="w-3.5 h-3.5" /> Lock Console
+          </button>
+        </div>
+      </div>
+
       {/* Main Admin Dashboard Header */}
       <div className="bg-gradient-to-r from-[#0B1E36] via-[#102C50] to-[#0D223E] rounded-3xl p-6 text-white shadow-xl border border-[#1E3B63] relative overflow-hidden">
         <div className="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
@@ -547,25 +688,25 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
             <div className="flex items-center gap-2.5 mb-2">
               <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-widest flex items-center gap-1">
                 <Shield className="w-3 h-3 text-cyan-400" />
-                SYSTEM ADMINISTRATOR CONSOLE
+                QUANTUM NETWORKS SYSTEM ARCHITECTURE CONSOLE
               </span>
               <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                PharmSync Tiering Active
+                Multi-Tenant Engine v3.2
               </span>
             </div>
             <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-              Client Service Package Customizer
+              Platform Governance &amp; Package Customizer
             </h2>
             <p className="text-xs text-slate-300 max-w-2xl mt-1 leading-relaxed">
-              Tailor pharmacy management features, user limits, and monthly UGX billing rates for each client depending on their preferred package.
+              Global system control suite engineered by Quantum Networks Ltd to govern multi-tenant security, subscription quotas, and NDA Cap 206 compliance.
             </p>
           </div>
 
           {/* Key Admin KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
-              <p className="text-[10px] uppercase font-bold text-sky-200">Active Clients</p>
-              <p className="text-xl font-black text-white mt-0.5">{clients.length} Pharmacies</p>
+              <p className="text-[10px] uppercase font-bold text-sky-200">Subscribed Pharmacies</p>
+              <p className="text-xl font-black text-white mt-0.5">{clients.length} Clients</p>
             </div>
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
               <p className="text-[10px] uppercase font-bold text-emerald-200">Monthly Revenue</p>
@@ -610,75 +751,389 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
           </div>
         </div>
 
-        {/* Navigation Tabs inside Console */}
-        <div className="mt-6 pt-4 border-t border-slate-700/60 flex items-center gap-2 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('controlPlane')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'controlPlane'
-                ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-lg font-black'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            <span>Superuser Control Plane (§11.17)</span>
-          </button>
+        {/* Navigation Cards Grid inside Console */}
+        <div className="mt-6 pt-5 border-t border-slate-700/60">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+            Administrative Modules &amp; Control Areas
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
+            
+            {/* Card 1: Superuser Control Plane */}
+            <button
+              onClick={() => setActiveTab('controlPlane')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'controlPlane'
+                  ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-950/40 ring-2 ring-blue-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'controlPlane' ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-400'}`}>
+                    <Shield className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${
+                    activeTab === 'controlPlane' ? 'bg-white/20 text-white border-white/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                  }`}>
+                    §11.17
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'controlPlane' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    Superuser Control Plane
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'controlPlane' ? 'text-blue-100' : 'text-slate-400'}`}>
+                    Dual-control 4-eyes queue, global compliance policies &amp; security incident response.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'controlPlane' ? 'text-white font-extrabold' : 'text-blue-400'}>
+                  {activeTab === 'controlPlane' ? '● Currently Active' : 'Open Console →'}
+                </span>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('matrix')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'matrix'
-                ? 'bg-sky-500 text-slate-950 shadow-md font-black'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <Sliders className="w-4 h-4" />
-            <span>Tenant Feature Matrix</span>
-          </button>
+            {/* Card 2: Tenant Feature Matrix */}
+            <button
+              onClick={() => setActiveTab('matrix')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'matrix'
+                  ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-950/40 ring-2 ring-blue-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'matrix' ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-400'}`}>
+                    <Sliders className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    activeTab === 'matrix' ? 'bg-white/20 text-white border-white/30' : 'bg-slate-700 text-slate-300 border-slate-600'
+                  }`}>
+                    Feature Gates
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'matrix' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    Tenant Feature Matrix
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'matrix' ? 'text-blue-100' : 'text-slate-400'}`}>
+                    Toggle POS, Clinical AI, Expiry, and multi-shelf modules per client branch.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'matrix' ? 'text-white font-extrabold' : 'text-blue-400'}>
+                  {activeTab === 'matrix' ? '● Currently Active' : 'Open Matrix →'}
+                </span>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('userAccounts')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'userAccounts'
-                ? 'bg-purple-500 text-white shadow-md font-black'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <UserCog className="w-4 h-4" />
-            <span>Branch Staff Accounts</span>
-            <span className="bg-purple-900/60 text-purple-200 border border-purple-400/30 text-[10px] px-2 py-0.2 rounded-full font-extrabold">
-              {currentSelectedClient.users?.length || 0} Users
-            </span>
-          </button>
+            {/* Card 3: Branch Staff Accounts */}
+            <button
+              onClick={() => setActiveTab('userAccounts')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'userAccounts'
+                  ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-950/40 ring-2 ring-blue-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'userAccounts' ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-400'}`}>
+                    <UserCog className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    activeTab === 'userAccounts' ? 'bg-white/20 text-white border-white/30' : 'bg-blue-600/30 text-blue-200 border-blue-400/30'
+                  }`}>
+                    {currentSelectedClient.users?.length || 0} Users
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'userAccounts' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    Branch Staff Accounts
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'userAccounts' ? 'text-blue-100' : 'text-slate-400'}`}>
+                    Manage user seats, role ranks, credentials, and granular permission rights.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'userAccounts' ? 'text-white font-extrabold' : 'text-blue-400'}>
+                  {activeTab === 'userAccounts' ? '● Currently Active' : 'Manage Staff →'}
+                </span>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('showcase')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'showcase'
-                ? 'bg-cyan-400 text-slate-950 shadow-md font-black'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <Gift className="w-4 h-4" />
-            <span>Package &amp; Billing Control</span>
-            <span className="bg-rose-500 text-white text-[9px] px-1.5 py-0.2 rounded-full font-black">
-              -20% OFF
-            </span>
-          </button>
+            {/* Card 4: Package & Billing Control */}
+            <button
+              onClick={() => setActiveTab('showcase')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'showcase'
+                  ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-950/40 ring-2 ring-blue-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'showcase' ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-400'}`}>
+                    <Gift className="w-4 h-4" />
+                  </div>
+                  <span className="bg-amber-500 text-slate-950 text-[9px] px-1.5 py-0.5 rounded-full font-black">
+                    -20% OFF
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'showcase' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    Package &amp; Billing Control
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'showcase' ? 'text-blue-100' : 'text-slate-400'}`}>
+                    Configure UGX subscription rates, package tier offerings, and discount coupons.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'showcase' ? 'text-white font-extrabold' : 'text-blue-400'}>
+                  {activeTab === 'showcase' ? '● Currently Active' : 'View Billing →'}
+                </span>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('addClient')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'addClient'
-                ? 'bg-emerald-500 text-slate-950 shadow-md font-black'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-            }`}
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Register Pharmacy Tenant</span>
-          </button>
+            {/* Card 5: Register Pharmacy Tenant */}
+            <button
+              onClick={() => setActiveTab('addClient')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'addClient'
+                  ? 'bg-green-600 text-white border-green-400 shadow-lg shadow-green-950/40 ring-2 ring-green-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'addClient' ? 'bg-white/20 text-white' : 'bg-green-500/10 text-green-400'}`}>
+                    <PlusCircle className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    activeTab === 'addClient' ? 'bg-white/20 text-white border-white/30' : 'bg-green-500/20 text-green-300 border-green-500/30'
+                  }`}>
+                    NDA Registry
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'addClient' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    Register Pharmacy Tenant
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'addClient' ? 'text-green-100' : 'text-slate-400'}`}>
+                    Onboard new pharmacy client branches linked to official Uganda NDA license records.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'addClient' ? 'text-white font-extrabold' : 'text-green-400'}>
+                  {activeTab === 'addClient' ? '● Currently Active' : 'Register Branch →'}
+                </span>
+              </div>
+            </button>
+
+            {/* Card: Pharmacy Registry Panel */}
+            <button
+              onClick={() => setActiveTab('pharmacyRegistry')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'pharmacyRegistry'
+                  ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-950/40 ring-2 ring-emerald-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'pharmacyRegistry' ? 'bg-white/20 text-white' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    activeTab === 'pharmacyRegistry' ? 'bg-white/20 text-white border-white/30' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  }`}>
+                    {clients.length} Subscribed
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'pharmacyRegistry' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    Subscribed Pharmacies
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'pharmacyRegistry' ? 'text-emerald-100' : 'text-slate-400'}`}>
+                    Exclusive super admin registry, NDA compliance status, and quick direct phone dispatch.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'pharmacyRegistry' ? 'text-white font-extrabold' : 'text-emerald-400'}>
+                  {activeTab === 'pharmacyRegistry' ? '● Currently Active' : 'View Registry →'}
+                </span>
+              </div>
+            </button>
+
+            {/* Card: Capacity Monitor & Upgrades */}
+            <button
+              onClick={() => setActiveTab('capacityMonitor')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'capacityMonitor'
+                  ? 'bg-amber-600 text-white border-amber-400 shadow-lg shadow-amber-950/40 ring-2 ring-amber-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'capacityMonitor' ? 'bg-white/20 text-white' : 'bg-amber-500/10 text-amber-400'}`}>
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    activeTab === 'capacityMonitor' ? 'bg-white/20 text-white border-white/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                  }`}>
+                    Telemetry
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'capacityMonitor' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    System Capacity &amp; Upgrades
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'capacityMonitor' ? 'text-amber-100' : 'text-slate-400'}`}>
+                    Real-time usage rankings, advance warning thresholds &amp; 4-channel upgrade dispatch.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'capacityMonitor' ? 'text-white font-extrabold' : 'text-amber-400'}>
+                  {activeTab === 'capacityMonitor' ? '● Currently Active' : 'Monitor Capacity →'}
+                </span>
+              </div>
+            </button>
+
+            {/* Card: Admin ↔ Pharmacy Messaging */}
+            <button
+              onClick={() => setActiveTab('messagingHub')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'messagingHub'
+                  ? 'bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-950/40 ring-2 ring-indigo-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'messagingHub' ? 'bg-white/20 text-white' : 'bg-indigo-500/10 text-indigo-400'}`}>
+                    <MessageSquare className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    activeTab === 'messagingHub' ? 'bg-white/20 text-white border-white/30' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                  }`}>
+                    2-Way Chat
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'messagingHub' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    Messaging Hub
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'messagingHub' ? 'text-indigo-100' : 'text-slate-400'}`}>
+                    Direct threaded communication with pharmacies, template responses &amp; audit trails.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'messagingHub' ? 'text-white font-extrabold' : 'text-indigo-400'}>
+                  {activeTab === 'messagingHub' ? '● Currently Active' : 'Open Messages →'}
+                </span>
+              </div>
+            </button>
+
+            {/* Card: SaaS Subscription Revenue & Ledger */}
+            <button
+              onClick={() => setActiveTab('revenueLedger')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'revenueLedger'
+                  ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-950/40 ring-2 ring-emerald-400/40'
+                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'revenueLedger' ? 'bg-white/20 text-white' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                    <DollarSign className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    activeTab === 'revenueLedger' ? 'bg-white/20 text-white border-white/30' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  }`}>
+                    Accounting
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'revenueLedger' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                    Revenue &amp; SaaS Ledger
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'revenueLedger' ? 'text-emerald-100' : 'text-slate-400'}`}>
+                    Double-entry bookkeeping, 18% URA VAT allocation &amp; 100% system-mediated payment enforcement.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'revenueLedger' ? 'text-white font-extrabold' : 'text-emerald-400'}>
+                  {activeTab === 'revenueLedger' ? '● Currently Active' : 'Open SaaS Ledger →'}
+                </span>
+              </div>
+            </button>
+
+          </div>
         </div>
       </div>
+
+      {/* TAB: QUANTUM NETWORKS ENGINEERING WORKBENCH */}
+      {activeTab === 'quantumWorkbench' && (
+        <QuantumEngineeringWorkbench />
+      )}
+
+      {/* TAB: PHARMACY REGISTRY */}
+      {activeTab === 'pharmacyRegistry' && (
+        <PharmacyRegistryPanel
+          clients={clients}
+          onSelectClient={(c) => {
+            setSelectedClientId(c.id);
+            setActiveClient(c);
+            setActiveTab('matrix');
+          }}
+          onNavigateTab={(tab) => {
+            if (tab === 'adminMessagingHub') setActiveTab('messagingHub');
+            else if (tab === 'adminCapacity') setActiveTab('capacityMonitor');
+            else if (tab === 'adminPackages') setActiveTab('showcase');
+          }}
+        />
+      )}
+
+      {/* TAB: CAPACITY MONITOR */}
+      {activeTab === 'capacityMonitor' && (
+        <CapacityMonitorPanel
+          clients={clients}
+          onNavigateTab={(tab) => {
+            if (tab === 'adminPackages') setActiveTab('showcase');
+            else if (tab === 'adminMessagingHub') setActiveTab('messagingHub');
+          }}
+        />
+      )}
+
+      {/* TAB: MESSAGING HUB */}
+      {activeTab === 'messagingHub' && (
+        <AdminMessagingHub
+          clients={clients}
+          currentUserRole="super_admin"
+          currentTenantId={activeClient.id}
+          currentUserName="Platform Super Administrator"
+        />
+      )}
+
+      {/* TAB: SAAS REVENUE & FINANCIAL ACCOUNTING LEDGER */}
+      {activeTab === 'revenueLedger' && (
+        <SubscriptionRevenueLedger
+          clients={clients}
+          onUpdateClients={(updated) => setClients(updated)}
+        />
+      )}
 
       {/* TAB 0: SUPERUSER CONTROL PLANE (§11.17) */}
       {activeTab === 'controlPlane' && (
@@ -2175,9 +2630,9 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { id: 'Starter', label: 'Starter', price: 'UGX 40,000/mo' },
-                  { id: 'Professional', label: 'Professional', price: 'UGX 72,000/mo' },
-                  { id: 'Enterprise', label: 'Enterprise', price: 'UGX 104,000/mo' },
+                  { id: 'Starter', label: 'Starter', price: 'UGX 150,000/mo' },
+                  { id: 'Professional', label: 'Professional', price: 'UGX 350,000/mo' },
+                  { id: 'Enterprise', label: 'Enterprise', price: 'UGX 550,000/mo' },
                 ].map((tier) => (
                   <button
                     type="button"
@@ -2196,6 +2651,134 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               </div>
             </div>
 
+            {/* MANDATORY SYSTEM PAYMENT & BOOKKEEPING SECTION */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50/80 via-slate-50 to-cyan-50/60 border-2 border-emerald-300 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                    <DollarSign className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-slate-900">
+                      Mandatory System Payment Clearance &amp; Bookkeeping
+                    </h4>
+                    <p className="text-[10px] text-slate-500">
+                      All subscription payments are strictly mediated and receipted through the system.
+                    </p>
+                  </div>
+                </div>
+
+                <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  100% Accountable
+                </span>
+              </div>
+
+              {/* Payment Mode Selection */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRegPaymentMode('payNow')}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    regPaymentMode === 'payNow'
+                      ? 'bg-white border-emerald-500 ring-2 ring-emerald-400/30 shadow-xs'
+                      : 'bg-slate-100/70 border-slate-200 text-slate-600'
+                  }`}
+                >
+                  <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    Process System Payment Now
+                  </p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    Trigger online checkout (MoMo/Card/EFT) and issue URA fiscal tax receipt.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRegPaymentMode('proFormaInvoice')}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                    regPaymentMode === 'proFormaInvoice'
+                      ? 'bg-white border-cyan-500 ring-2 ring-cyan-400/30 shadow-xs'
+                      : 'bg-slate-100/70 border-slate-200 text-slate-600'
+                  }`}
+                >
+                  <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-cyan-600" />
+                    Issue Pro-Forma Invoice Link
+                  </p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    Generate an official system payment token &amp; dispatch SMS/Email link.
+                  </p>
+                </button>
+              </div>
+
+              {/* Billing Cycle & Payment Channel Options */}
+              {regPaymentMode === 'payNow' && (
+                <div className="space-y-3 pt-2 border-t border-slate-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                        Billing Frequency
+                      </label>
+                      <select
+                        value={regBillingCycle}
+                        onChange={(e) => setRegBillingCycle(e.target.value as BillingCycle)}
+                        className="w-full px-3 py-2 text-xs border border-slate-300 bg-white rounded-xl font-bold text-slate-900"
+                      >
+                        <option value="monthly">Monthly Subscription</option>
+                        <option value="yearly">Annual (12 Months - 15% Off)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                        Payment Gateway Channel
+                      </label>
+                      <select
+                        value={regPaymentChannel}
+                        onChange={(e) => setRegPaymentChannel(e.target.value as SubscriptionPaymentChannel)}
+                        className="w-full px-3 py-2 text-xs border border-slate-300 bg-white rounded-xl font-bold text-slate-900"
+                      >
+                        <option value="MTN_MOMO">MTN Mobile Money (Uganda)</option>
+                        <option value="AIRTEL_MONEY">Airtel Money (Uganda)</option>
+                        <option value="PESAPAL_VISA_MC">PesaPal Visa / Mastercard</option>
+                        <option value="BANK_EFT_STANBIC">Stanbic Bank Direct EFT</option>
+                        <option value="BANK_EFT_CENTENARY">Centenary Bank Direct Wire</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                        Payer Phone / Mobile Money Number *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={newClientPhone || '+256 772 000000'}
+                        value={regPaymentPhone}
+                        onChange={(e) => setRegPaymentPhone(e.target.value)}
+                        className="w-full px-3 py-2 text-xs border border-slate-300 bg-white rounded-xl font-medium text-slate-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                        Provider Reference / Bank Teller Code
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Auto-generated if empty"
+                        value={regProviderRef}
+                        onChange={(e) => setRegProviderRef(e.target.value)}
+                        className="w-full px-3 py-2 text-xs border border-slate-300 bg-white rounded-xl font-mono text-slate-900"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-100">
               <button
                 type="button"
@@ -2209,7 +2792,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
                 className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Register & Activate Package</span>
+                <span>Register &amp; Process System Payment</span>
               </button>
             </div>
           </form>

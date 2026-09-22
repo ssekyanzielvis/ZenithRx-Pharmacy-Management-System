@@ -137,29 +137,76 @@ export const NdaRegistryViewer: React.FC = () => {
         </div>
       </div>
 
-      {/* Sub-Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto pb-2">
+      {/* Sub-Tabs Navigation Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {(
           [
-            { id: 'registry', label: `NDA Register (${stats.total})`,     icon: <FileText className="w-4 h-4 text-sky-500" /> },
-            { id: 'verify',   label: 'Live License Verifier',              icon: <ShieldCheck className="w-4 h-4 text-emerald-500" /> },
-            { id: 'clients',  label: `Client Compliance Reports`,          icon: <Building2 className="w-4 h-4 text-purple-500" /> },
-            { id: 'checker',  label: 'Safety Protocol Reference',          icon: <Stethoscope className="w-4 h-4 text-rose-500" /> },
+            {
+              id: 'registry',
+              label: `NDA Register (${stats.total})`,
+              desc: 'Official Ugandan National Drug Authority licensed premise database and PSU registry.',
+              icon: <FileText className="w-5 h-5" />,
+              badge: 'NDA Registry',
+            },
+            {
+              id: 'verify',
+              label: 'Live License Verifier',
+              desc: 'Instant real-time verification of premise certificates and supervising pharmacists.',
+              icon: <ShieldCheck className="w-5 h-5" />,
+              badge: 'Live Lookup',
+            },
+            {
+              id: 'clients',
+              label: 'Client Compliance Reports',
+              desc: 'Premise compliance grading, inspection checklists, and mandatory record audits.',
+              icon: <Building2 className="w-5 h-5" />,
+              badge: 'Audits',
+            },
+            {
+              id: 'checker',
+              label: 'Safety Protocol Reference',
+              desc: 'Clinical dispensing regulations, controlled drug SOPs, and temperature compliance.',
+              icon: <Stethoscope className="w-5 h-5" />,
+              badge: 'SOPs & Regs',
+            },
           ] as const
-        ).map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as NdaTab)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-[#0B1E36] text-white shadow-md'
-                : 'bg-white text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
+        ).map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as NdaTab)}
+              className={`p-4 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-lg ring-2 ring-blue-400/40 border-blue-500 scale-[1.01]'
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 shadow-sm'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className={`p-2 rounded-xl ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-blue-600'}`}>
+                    {tab.icon}
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${isActive ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                    {tab.badge}
+                  </span>
+                </div>
+                <h3 className={`text-xs font-black tracking-tight ${isActive ? 'text-white' : 'text-slate-900'}`}>
+                  {tab.label}
+                </h3>
+                <p className={`text-[11px] mt-1 line-clamp-2 leading-relaxed ${isActive ? 'text-blue-100' : 'text-slate-500'}`}>
+                  {tab.desc}
+                </p>
+              </div>
+              <div className="mt-3 pt-2 border-t border-current/10 flex items-center justify-between text-[10px]">
+                <span className={isActive ? 'text-white font-bold' : 'text-slate-400'}>
+                  {isActive ? '← Current view' : 'Go to section →'}
+                </span>
+                <span className={isActive ? 'text-blue-200' : 'text-slate-400'}>→</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* ── TAB 1: NDA REGISTER ─────────────────────────────────────────── */}

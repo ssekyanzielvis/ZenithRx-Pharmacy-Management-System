@@ -311,38 +311,34 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/40 backdrop-blur-xs overflow-y-auto animate-fadeIn">
       {/* Container */}
       <div
-        className="relative w-full max-w-4xl bg-[#081325] border border-white/10 rounded-3xl shadow-2xl shadow-black/90 overflow-hidden my-auto"
+        className="relative w-full max-w-4xl bg-white border border-[#E3ECE8] rounded-3xl shadow-xl overflow-hidden my-auto text-[#263B33]"
         style={{ fontFamily: "'Inter', sans-serif" }}
       >
-        {/* Glow ambient effects */}
-        <div className="pointer-events-none absolute -top-32 -left-32 w-80 h-80 bg-sky-500/10 rounded-full blur-[100px]" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px]" />
-
         {/* Modal Header */}
-        <div className="relative z-10 flex items-center justify-between px-6 sm:px-8 py-5 border-b border-white/10 bg-[#0A182F]/70 backdrop-blur-lg">
+        <div className="relative z-10 flex items-center justify-between px-6 sm:px-8 py-5 border-b border-[#E3ECE8] bg-[#F8FBFA]">
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
               disabled={isProcessing || paymentSuccess}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer disabled:opacity-40"
+              className="p-2 rounded-xl text-[#5E7A70] hover:text-[#263B33] hover:bg-[#F0F5F3] transition-all cursor-pointer disabled:opacity-40"
               title="Return to plans"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black uppercase tracking-wider text-sky-400">
+                <span className="text-xs font-black uppercase tracking-wider text-[#20A66A]">
                   ZenithRx Secure Checkout
                 </span>
-                <span className="text-slate-500">·</span>
-                <span className="text-xs text-slate-400">
+                <span className="text-slate-300">·</span>
+                <span className="text-xs text-[#5E7A70]">
                   National Payment Gateway Integration
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              <h2 className="text-xl sm:text-2xl font-black text-[#263B33] tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 {paymentSuccess ? 'Payment Confirmed & Active' : 'Choose Payment Method'}
               </h2>
             </div>
@@ -355,8 +351,8 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                 onClick={() => setActiveTab(activeTab === 'apiDocs' ? 'momo' : 'apiDocs')}
                 className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   activeTab === 'apiDocs'
-                    ? 'bg-sky-500/20 border-sky-400 text-sky-300'
-                    : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
+                    ? 'bg-[#E8F7F0] border-[#20A66A] text-[#1E744F]'
+                    : 'bg-white border-[#E3ECE8] text-[#5E7A70] hover:text-[#263B33] hover:bg-[#F0F5F3]'
                 }`}
                 title="View telecom APIs and technical architecture"
               >
@@ -369,7 +365,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
               <button
                 onClick={onClose}
                 disabled={isProcessing}
-                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-all cursor-pointer"
+                className="p-2 text-[#5E7A70] hover:text-[#263B33] rounded-xl hover:bg-[#F0F5F3] transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -379,19 +375,19 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
 
         {/* ─── SUCCESS VIEW / TAX INVOICE RECEIPT ────────────────────────── */}
         {paymentSuccess && receiptData ? (
-          <div className="p-6 sm:p-10 relative z-10 animate-fadeIn">
+          <div className="p-6 sm:p-10 relative z-10 animate-fadeIn bg-white">
             {/* Celebration Banner */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-400 mx-auto flex items-center justify-center shadow-xl shadow-emerald-500/30 mb-4 animate-bounce">
-                <CheckCircle2 className="w-9 h-9 text-white" />
+              <div className="w-16 h-16 rounded-3xl bg-[#E8F7F0] border border-[#20A66A]/20 mx-auto flex items-center justify-center shadow-md mb-4 animate-bounce">
+                <CheckCircle2 className="w-9 h-9 text-[#20A66A]" />
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-2">
-                <Sparkles className="w-3.5 h-3.5" /> Subscription Successfully Activated
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8F7F0] border border-[#20A66A]/30 text-[#1E744F] text-xs font-bold mb-2">
+                <Sparkles className="w-3.5 h-3.5 text-[#20A66A]" /> Subscription Successfully Activated
               </div>
-              <h3 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              <h3 className="text-2xl sm:text-3xl font-black text-[#263B33]" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 Welcome to ZenithRx {tier.name}
               </h3>
-              <p className="text-slate-400 text-sm max-w-md mx-auto mt-1">
+              <p className="text-[#5E7A70] text-sm max-w-md mx-auto mt-1">
                 Your payment was received and verified. Your pharmacy instance is fully provisioned and ready for operations.
               </p>
             </div>
@@ -399,59 +395,59 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
             {/* Official Printable Tax Receipt Card */}
             <div
               ref={receiptRef}
-              className="bg-[#0B1E36] border border-white/15 rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto shadow-2xl relative overflow-hidden"
+              className="bg-[#F8FBFA] border border-[#E3ECE8] rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto shadow-md relative overflow-hidden"
             >
               {/* Receipt Header */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-white/10 gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-[#E3ECE8] gap-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-white font-black text-lg" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                    <span className="text-[#263B33] font-black text-lg" style={{ fontFamily: "'Outfit', sans-serif" }}>
                       ZENITHRX ENTERPRISE
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded-full bg-blue-50 text-[#2F80C9] border border-blue-200 text-[10px] font-bold">
                       URA E-INVOICE
                     </span>
                   </div>
-                  <p className="text-slate-400 text-xs mt-0.5">
+                  <p className="text-[#5E7A70] text-xs mt-0.5">
                     Quantum Networks Ltd · TIN: 1009842183 · Kampala, Uganda
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <span className="text-slate-400 text-[11px] block">Invoice No</span>
-                  <span className="text-white font-mono font-bold text-sm tracking-wider">
+                  <span className="text-[#5E7A70] text-[11px] block">Invoice No</span>
+                  <span className="text-[#263B33] font-mono font-bold text-sm tracking-wider">
                     {receiptData.invoiceNo}
                   </span>
                 </div>
               </div>
 
               {/* Receipt Body Details */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-6 text-xs border-b border-white/10">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-6 text-xs border-b border-[#E3ECE8]">
                 <div>
-                  <span className="text-slate-500 block text-[10px] uppercase font-bold">Subscriber</span>
-                  <span className="text-white font-bold block truncate">{auth.user?.fullName || 'Supervising Pharmacist'}</span>
-                  <span className="text-slate-400 text-[11px] truncate block">{auth.user?.email}</span>
+                  <span className="text-[#5E7A70] block text-[10px] uppercase font-bold">Subscriber</span>
+                  <span className="text-[#263B33] font-bold block truncate">{auth.user?.fullName || 'Supervising Pharmacist'}</span>
+                  <span className="text-[#5E7A70] text-[11px] truncate block">{auth.user?.email}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block text-[10px] uppercase font-bold">Selected Plan</span>
-                  <span className="text-sky-400 font-bold block">{tier.name} ({billingCycle.toUpperCase()})</span>
-                  <span className="text-slate-400 text-[11px]">Valid until: {receiptData.nextBillingDate}</span>
+                  <span className="text-[#5E7A70] block text-[10px] uppercase font-bold">Selected Plan</span>
+                  <span className="text-[#2F80C9] font-bold block">{tier.name} ({billingCycle.toUpperCase()})</span>
+                  <span className="text-[#5E7A70] text-[11px]">Valid until: {receiptData.nextBillingDate}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block text-[10px] uppercase font-bold">Payment Method</span>
-                  <span className="text-white font-bold block truncate">{receiptData.channel}</span>
-                  <span className="text-slate-400 font-mono text-[10px] truncate block">Ref: {receiptData.providerRef}</span>
+                  <span className="text-[#5E7A70] block text-[10px] uppercase font-bold">Payment Method</span>
+                  <span className="text-[#263B33] font-bold block truncate">{receiptData.channel}</span>
+                  <span className="text-[#5E7A70] font-mono text-[10px] truncate block">Ref: {receiptData.providerRef}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block text-[10px] uppercase font-bold">Date & Time</span>
-                  <span className="text-slate-300 font-medium block">{receiptData.paidAt}</span>
+                  <span className="text-[#5E7A70] block text-[10px] uppercase font-bold">Date & Time</span>
+                  <span className="text-[#263B33] font-medium block">{receiptData.paidAt}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block text-[10px] uppercase font-bold">VAT (18% Incl.)</span>
-                  <span className="text-slate-300 font-medium block">{formatUgx(receiptData.taxAmount)}</span>
+                  <span className="text-[#5E7A70] block text-[10px] uppercase font-bold">VAT (18% Incl.)</span>
+                  <span className="text-[#263B33] font-medium block">{formatUgx(receiptData.taxAmount)}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block text-[10px] uppercase font-bold">Payment Status</span>
-                  <span className="inline-flex items-center gap-1 text-emerald-400 font-bold">
+                  <span className="text-[#5E7A70] block text-[10px] uppercase font-bold">Payment Status</span>
+                  <span className="inline-flex items-center gap-1 text-[#20A66A] font-bold">
                     <CheckCircle2 className="w-3.5 h-3.5" /> SETTLED
                   </span>
                 </div>
@@ -460,23 +456,23 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
               {/* Total Row */}
               <div className="flex items-center justify-between pt-5">
                 <div>
-                  <span className="text-slate-400 text-xs block">Total Amount Deducted</span>
-                  <span className="text-slate-500 text-[11px]">Authorized through National Payment Gateway</span>
+                  <span className="text-[#5E7A70] text-xs block">Total Amount Deducted</span>
+                  <span className="text-[#87A196] text-[11px]">Authorized through National Payment Gateway</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-2xl sm:text-3xl font-black text-emerald-400" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                  <span className="text-2xl sm:text-3xl font-black text-[#20A66A]" style={{ fontFamily: "'Outfit', sans-serif" }}>
                     {formatUgx(receiptData.amount)}
                   </span>
                 </div>
               </div>
 
               {/* QR Verification Barcode */}
-              <div className="mt-6 pt-4 border-t border-dashed border-white/10 flex items-center justify-between text-[11px] text-slate-400">
+              <div className="mt-6 pt-4 border-t border-dashed border-[#E3ECE8] flex items-center justify-between text-[11px] text-[#5E7A70]">
                 <div className="flex items-center gap-2">
-                  <QrCode className="w-6 h-6 text-sky-400" />
-                  <span>URA Verification Hash: <strong className="font-mono text-slate-300">{receiptData.refNo}</strong></span>
+                  <QrCode className="w-6 h-6 text-[#2F80C9]" />
+                  <span>URA Verification Hash: <strong className="font-mono text-[#263B33]">{receiptData.refNo}</strong></span>
                 </div>
-                <span className="text-emerald-400 font-bold">● Fiscalized</span>
+                <span className="text-[#20A66A] font-bold">● Fiscalized</span>
               </div>
             </div>
 
@@ -484,14 +480,14 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
               <button
                 onClick={handlePrintReceipt}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white/5 border border-white/15 text-slate-200 text-xs font-bold hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-white border border-[#E3ECE8] text-[#263B33] text-xs font-bold hover:bg-[#F0F5F3] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
-                <Printer className="w-4 h-4" /> Print / Save Tax Invoice
+                <Printer className="w-4 h-4 text-[#5E7A70]" /> Print / Save Tax Invoice
               </button>
 
               <button
                 onClick={handleFinalizeAndEnter}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-400 hover:from-sky-400 hover:to-cyan-300 text-white text-sm font-black shadow-lg shadow-sky-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#20A66A] hover:bg-[#1E9760] text-white text-sm font-bold shadow-md shadow-[#20A66A]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 Launch Pharmacy Dashboard <ArrowRight className="w-4 h-4" />
               </button>
@@ -499,94 +495,94 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
           </div>
         ) : activeTab === 'apiDocs' ? (
           /* ─── TAB: TELECOM & PAYMENT APIS ARCHITECTURE ──────────────────── */
-          <div className="p-6 sm:p-8 space-y-6 relative z-10 max-h-[75vh] overflow-y-auto">
-            <div className="border-b border-white/10 pb-4">
-              <span className="text-xs font-black uppercase tracking-wider text-sky-400">
+          <div className="p-6 sm:p-8 space-y-6 relative z-10 max-h-[75vh] overflow-y-auto bg-white">
+            <div className="border-b border-[#E3ECE8] pb-4">
+              <span className="text-xs font-black uppercase tracking-wider text-[#2F80C9]">
                 Integration Architecture & Specifications
               </span>
-              <h3 className="text-xl sm:text-2xl font-black text-white mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              <h3 className="text-xl sm:text-2xl font-black text-[#263B33] mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 Payment APIs & Telecom SIM Protocols
               </h3>
-              <p className="text-slate-400 text-xs mt-1 leading-relaxed">
+              <p className="text-[#5E7A70] text-xs mt-1 leading-relaxed">
                 ZenithRx connects to the Bank of Uganda National Payment Systems (NPS) regulated infrastructure to trigger SIM STK pushes and settle card payments.
               </p>
             </div>
 
             {/* API 1: MTN MoMo Open API */}
-            <div className="p-5 rounded-2xl bg-[#0B1E36] border border-amber-400/30 space-y-3">
+            <div className="p-5 rounded-2xl bg-[#F8FBFA] border border-[#E3ECE8] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#FFCC00] text-black font-black flex items-center justify-center text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-[#FFCC00] text-black font-black flex items-center justify-center text-xs shadow-xs">
                     MTN
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">MTN MoMo Open API (Collection v1.0 / v2.0)</h4>
-                    <span className="text-[10px] text-amber-300/80 font-mono">POST /collection/v1_0/requesttopay</span>
+                    <h4 className="text-sm font-bold text-[#263B33]">MTN MoMo Open API (Collection v1.0 / v2.0)</h4>
+                    <span className="text-[10px] text-[#5E7A70] font-mono">POST /collection/v1_0/requesttopay</span>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 text-[10px] font-bold border border-amber-400/20">
+                <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold border border-amber-200">
                   Direct USSD / STK Push
                 </span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-[#5E7A70] leading-relaxed">
                 Dispatches an asynchronous SIM Toolkit (STK) prompt directly to the subscriber's phone screen. The telecom network pauses other operations on the phone to display the Class 0 PIN request. Once the PIN is verified at the telecom HLR/VLR, funds are debited from the subscriber's MoMo wallet and credited to Quantum Networks Ltd.
               </p>
-              <div className="bg-black/50 p-3 rounded-xl font-mono text-[11px] text-slate-300 border border-white/5 space-y-1">
-                <p><span className="text-sky-400">Endpoint:</span> https://proxy.momoapi.mtn.com/collection/v1_0/requesttopay</p>
-                <p><span className="text-sky-400">Headers:</span> X-Reference-Id (UUID v4), Ocp-Apim-Subscription-Key, X-Target-Environment</p>
-                <p><span className="text-sky-400">Callback:</span> /api/payments/webhook/mtn_momo (Instant Payment Notification)</p>
+              <div className="bg-white p-3 rounded-xl font-mono text-[11px] text-[#263B33] border border-[#E3ECE8] space-y-1">
+                <p><span className="text-[#2F80C9] font-bold">Endpoint:</span> https://proxy.momoapi.mtn.com/collection/v1_0/requesttopay</p>
+                <p><span className="text-[#2F80C9] font-bold">Headers:</span> X-Reference-Id (UUID v4), Ocp-Apim-Subscription-Key, X-Target-Environment</p>
+                <p><span className="text-[#2F80C9] font-bold">Callback:</span> /api/payments/webhook/mtn_momo (Instant Payment Notification)</p>
               </div>
             </div>
 
             {/* API 2: Airtel Money Africa API */}
-            <div className="p-5 rounded-2xl bg-[#0B1E36] border border-red-500/30 space-y-3">
+            <div className="p-5 rounded-2xl bg-[#F8FBFA] border border-[#E3ECE8] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-[#E60000] text-white font-black flex items-center justify-center text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-[#E60000] text-white font-black flex items-center justify-center text-xs shadow-xs">
                     airtel
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">Airtel Money Africa Developer API (Collections)</h4>
-                    <span className="text-[10px] text-red-300/80 font-mono">POST /merchant/v1/payments/</span>
+                    <h4 className="text-sm font-bold text-[#263B33]">Airtel Money Africa Developer API (Collections)</h4>
+                    <span className="text-[10px] text-[#5E7A70] font-mono">POST /merchant/v1/payments/</span>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-red-400/10 text-red-400 text-[10px] font-bold border border-red-400/20">
+                <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-[10px] font-bold border border-red-200">
                   Direct USSD Push
                 </span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-[#5E7A70] leading-relaxed">
                 Connects through Airtel Uganda's payment gateway via OAuth2 Bearer Tokens. Pushes a native prompt to the subscriber's Airtel SIM for authorization of the exact subscription fee.
               </p>
-              <div className="bg-black/50 p-3 rounded-xl font-mono text-[11px] text-slate-300 border border-white/5 space-y-1">
-                <p><span className="text-red-400">Endpoint:</span> https://openapi.airtel.africa/merchant/v1/payments/</p>
-                <p><span className="text-red-400">Headers:</span> X-Country: UG, X-Currency: UGX, Authorization: Bearer &lt;token&gt;</p>
-                <p><span className="text-red-400">Callback:</span> /api/payments/webhook/airtel_money</p>
+              <div className="bg-white p-3 rounded-xl font-mono text-[11px] text-[#263B33] border border-[#E3ECE8] space-y-1">
+                <p><span className="text-[#D64545] font-bold">Endpoint:</span> https://openapi.airtel.africa/merchant/v1/payments/</p>
+                <p><span className="text-[#D64545] font-bold">Headers:</span> X-Country: UG, X-Currency: UGX, Authorization: Bearer &lt;token&gt;</p>
+                <p><span className="text-[#D64545] font-bold">Callback:</span> /api/payments/webhook/airtel_money</p>
               </div>
             </div>
 
             {/* API 3: Pesapal 3.0 & Card Gateway */}
-            <div className="p-5 rounded-2xl bg-[#0B1E36] border border-sky-500/30 space-y-3">
+            <div className="p-5 rounded-2xl bg-[#F8FBFA] border border-[#E3ECE8] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-sky-600 text-white font-black flex items-center justify-center text-xs">
+                  <div className="w-8 h-8 rounded-lg bg-[#2F80C9] text-white font-black flex items-center justify-center text-xs shadow-xs">
                     VISA
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">Pesapal 3.0 API / Bank of Uganda National Gateway</h4>
-                    <span className="text-[10px] text-sky-300/80 font-mono">POST /api/Transactions/SubmitOrderRequest</span>
+                    <h4 className="text-sm font-bold text-[#263B33]">Pesapal 3.0 API / Bank of Uganda National Gateway</h4>
+                    <span className="text-[10px] text-[#5E7A70] font-mono">POST /api/Transactions/SubmitOrderRequest</span>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-full bg-sky-400/10 text-sky-400 text-[10px] font-bold border border-sky-400/20">
+                <span className="px-2 py-0.5 rounded-full bg-blue-50 text-[#2F80C9] text-[10px] font-bold border border-blue-200">
                   PCI-DSS Level 1 & 3DS 2.0
                 </span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
+              <p className="text-xs text-[#5E7A70] leading-relaxed">
                 Unified East African aggregator licensed by the Bank of Uganda. Handles Visa, Mastercard, American Express, and telecom routing with 3D-Secure 2.0 fraud prevention and instantaneous URA EFRIS fiscalized reconciliation.
               </p>
-              <div className="bg-black/50 p-3 rounded-xl font-mono text-[11px] text-slate-300 border border-white/5 space-y-1">
-                <p><span className="text-sky-400">Auth Token:</span> POST /api/Auth/RequestToken</p>
-                <p><span className="text-sky-400">Order Submit:</span> POST /api/Transactions/SubmitOrderRequest</p>
-                <p><span className="text-sky-400">Status Check:</span> GET /api/Transactions/GetTransactionStatus?orderTrackingId=...</p>
+              <div className="bg-white p-3 rounded-xl font-mono text-[11px] text-[#263B33] border border-[#E3ECE8] space-y-1">
+                <p><span className="text-[#2F80C9] font-bold">Auth Token:</span> POST /api/Auth/RequestToken</p>
+                <p><span className="text-[#2F80C9] font-bold">Order Submit:</span> POST /api/Transactions/SubmitOrderRequest</p>
+                <p><span className="text-[#2F80C9] font-bold">Status Check:</span> GET /api/Transactions/GetTransactionStatus?orderTrackingId=...</p>
               </div>
             </div>
 
@@ -594,7 +590,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
               <button
                 type="button"
                 onClick={() => setActiveTab('momo')}
-                className="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-[#20A66A] hover:bg-[#1E9760] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
               >
                 Return to Payment Checkout
               </button>
@@ -604,40 +600,40 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
           /* ─── CHECKOUT FORM VIEW ────────────────────────────────────────── */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 relative z-10">
             {/* Left Column: Order Summary & Plan Information (5 cols) */}
-            <div className="lg:col-span-5 p-6 sm:p-8 bg-[#071120] border-b lg:border-b-0 lg:border-r border-white/10 flex flex-col justify-between">
+            <div className="lg:col-span-5 p-6 sm:p-8 bg-[#F8FBFA] border-b lg:border-b-0 lg:border-r border-[#E3ECE8] flex flex-col justify-between">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#5E7A70]">
                   Order Summary
                 </span>
 
                 {/* Plan Card */}
-                <div className="mt-4 p-5 rounded-2xl bg-[#0B1E36] border border-sky-500/30 relative overflow-hidden">
+                <div className="mt-4 p-5 rounded-2xl bg-white border border-[#E3ECE8] shadow-xs relative overflow-hidden">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-400 text-[10px] font-black uppercase tracking-wider">
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#E8F7F0] text-[#1E744F] border border-[#20A66A]/20 text-[10px] font-black uppercase tracking-wider">
                         {tier.name} Tier
                       </span>
-                      <h3 className="text-xl font-black text-white mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                      <h3 className="text-xl font-black text-[#263B33] mt-1" style={{ fontFamily: "'Outfit', sans-serif" }}>
                         {tier.name}
                       </h3>
                     </div>
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-xl bg-white/5 text-slate-300 border border-white/10 capitalize">
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-xl bg-[#F0F5F3] text-[#263B33] border border-[#E3ECE8] capitalize">
                       {billingCycle}
                     </span>
                   </div>
 
-                  <p className="text-slate-400 text-xs mt-2 leading-relaxed">
+                  <p className="text-[#5E7A70] text-xs mt-2 leading-relaxed">
                     {tier.tagline}
                   </p>
 
-                  <div className="mt-4 pt-4 border-t border-white/10 flex items-baseline justify-between">
-                    <span className="text-slate-400 text-xs">Total Payable:</span>
+                  <div className="mt-4 pt-4 border-t border-[#E3ECE8] flex items-baseline justify-between">
+                    <span className="text-[#5E7A70] text-xs">Total Payable:</span>
                     <div className="text-right">
-                      <div className="text-2xl font-black text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                      <div className="text-2xl font-black text-[#20A66A]" style={{ fontFamily: "'Outfit', sans-serif" }}>
                         {formatUgx(basePrice)}
                       </div>
                       {originalPrice > basePrice && (
-                        <div className="text-xs text-slate-500 line-through">
+                        <div className="text-xs text-[#87A196] line-through">
                           {formatUgx(originalPrice)}
                         </div>
                       )}
@@ -646,8 +642,8 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
 
                   {billingCycle === 'yearly' && (
                     <div className="mt-2 text-right">
-                      <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
-                        ✨ 2 Months Free (Save 17%)
+                      <span className="text-[11px] font-bold text-[#1E744F] bg-[#E8F7F0] px-2 py-0.5 rounded-md border border-[#20A66A]/20">
+                        2 Months Free (Save 17%)
                       </span>
                     </div>
                   )}
@@ -655,12 +651,12 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
 
                 {/* What you get */}
                 <div className="mt-6 space-y-2.5">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-[11px] font-bold text-[#5E7A70] uppercase tracking-wider block">
                     Key Features Included:
                   </span>
                   {tier.features.slice(0, 5).map((f, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs text-slate-300">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                    <div key={i} className="flex items-center gap-2 text-xs text-[#263B33]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#20A66A] flex-shrink-0" />
                       <span className="truncate">{f}</span>
                     </div>
                   ))}
@@ -668,53 +664,75 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
               </div>
 
               {/* Guarantees */}
-              <div className="mt-8 pt-6 border-t border-white/10 space-y-3">
-                <div className="flex items-center gap-2.5 text-xs text-slate-400">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>30-Day Money Back Guarantee & 99.9% Uptime</span>
+              <div className="mt-8 pt-6 border-t border-[#E3ECE8] space-y-3">
+                <div className="flex items-center gap-2.5 text-xs text-[#5E7A70]">
+                  <ShieldCheck className="w-4 h-4 text-[#20A66A] flex-shrink-0" />
+                  <span>30-Day Money Back Guarantee &amp; 99.9% Uptime</span>
                 </div>
-                <div className="flex items-center gap-2.5 text-xs text-slate-400">
-                  <Lock className="w-4 h-4 text-sky-400 flex-shrink-0" />
-                  <span>256-Bit Bank Grade SSL & NDA Compliant</span>
+                <div className="flex items-center gap-2.5 text-xs text-[#5E7A70]">
+                  <Lock className="w-4 h-4 text-[#2F80C9] flex-shrink-0" />
+                  <span>256-Bit Bank Grade SSL &amp; NDA Compliant</span>
                 </div>
               </div>
             </div>
 
             {/* Right Column: Payment Method Selection & Action (7 cols) */}
-            <div className="lg:col-span-7 p-6 sm:p-8">
-              {/* Tabs Switcher */}
-              <div className="grid grid-cols-2 gap-3 mb-6 p-1 bg-black/40 border border-white/10 rounded-2xl">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('momo')}
-                  className={`flex items-center justify-center gap-2.5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
-                    activeTab === 'momo'
-                      ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-lg shadow-amber-500/20'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <Smartphone className="w-4 h-4" />
-                  <span>Mobile Money</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-black ${activeTab === 'momo' ? 'bg-black/20 text-black' : 'bg-white/10 text-slate-300'}`}>
-                    SIM STK Push
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('card')}
-                  className={`flex items-center justify-center gap-2.5 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
-                    activeTab === 'card'
-                      ? 'bg-gradient-to-r from-sky-600 to-cyan-500 text-white shadow-lg shadow-sky-500/20'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <CreditCard className="w-4 h-4" />
-                  <span>Debit / Credit Card</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-black ${activeTab === 'card' ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-300'}`}>
-                    Universal
-                  </span>
-                </button>
+            <div className="lg:col-span-7 p-6 sm:p-8 bg-white">
+              {/* Payment Method Selection Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                {[
+                  {
+                    id: 'momo',
+                    title: 'Mobile Money (Uganda)',
+                    desc: 'Instant prompt on your phone (MTN MoMo / Airtel Money). Instant activation.',
+                    icon: <Smartphone className="w-5 h-5" />,
+                    badge: 'SIM STK Push',
+                  },
+                  {
+                    id: 'card',
+                    title: 'Debit / Credit Card',
+                    desc: 'Visa, Mastercard, AMEX with 3D-Secure 256-bit PCI-DSS encrypted gateway.',
+                    icon: <CreditCard className="w-5 h-5" />,
+                    badge: 'Universal Card',
+                  },
+                ].map((method) => {
+                  const isActive = activeTab === method.id;
+                  return (
+                    <button
+                      key={method.id}
+                      type="button"
+                      onClick={() => setActiveTab(method.id as any)}
+                      className={`p-3.5 rounded-2xl text-left transition-all duration-200 cursor-pointer flex flex-col justify-between border ${
+                        isActive
+                          ? 'bg-[#E8F7F0] text-[#1E744F] border-2 border-[#20A66A] shadow-xs'
+                          : 'bg-white text-[#263B33] hover:bg-[#F8FBFA] border-[#E3ECE8] shadow-xs'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className={`p-1.5 rounded-lg ${isActive ? 'bg-white text-[#20A66A] border border-[#20A66A]/20' : 'bg-[#F0F5F3] text-[#5E7A70] border border-[#E3ECE8]'}`}>
+                            {method.icon}
+                          </div>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${isActive ? 'bg-white text-[#1E744F] border-[#20A66A]/30' : 'bg-[#F0F5F3] text-[#5E7A70] border-[#E3ECE8]'}`}>
+                            {method.badge}
+                          </span>
+                        </div>
+                        <h4 className={`text-xs font-bold tracking-tight ${isActive ? 'text-[#1E744F]' : 'text-[#263B33]'}`}>
+                          {method.title}
+                        </h4>
+                        <p className={`text-[11px] mt-1 line-clamp-2 leading-relaxed ${isActive ? 'text-[#1E744F]/80' : 'text-[#5E7A70]'}`}>
+                          {method.desc}
+                        </p>
+                      </div>
+                      <div className="mt-2.5 pt-1.5 border-t border-[#E3ECE8] flex items-center justify-between text-[10px]">
+                        <span className={isActive ? 'text-[#1E744F] font-bold' : 'text-[#5E7A70] font-medium'}>
+                          {isActive ? 'Selected Gateway' : 'Select Method'}
+                        </span>
+                        <span className={isActive ? 'text-[#1E744F] font-bold' : 'text-[#87A196]'}>→</span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* ─── TAB 1: MOBILE MONEY (MTN & AIRTEL) ───────────────────── */}
@@ -722,7 +740,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                 <form onSubmit={handleInitiateMomo} className="space-y-5 animate-fadeIn">
                   {/* Carrier Selector */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-2">
+                    <label className="block text-xs font-bold text-[#263B33] mb-2">
                       Choose Telecom Network (SIM Card Provider)
                     </label>
                     <div className="grid grid-cols-2 gap-3">
@@ -732,22 +750,22 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                         onClick={() => setMomoNetwork('MTN')}
                         className={`p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                           momoNetwork === 'MTN'
-                            ? 'bg-[#FFCC00]/10 border-[#FFCC00] shadow-lg shadow-[#FFCC00]/10'
-                            : 'bg-[#0B1E36] border-white/10 hover:border-white/20'
+                            ? 'bg-[#FFCC00]/15 border-[#D4A000] shadow-xs'
+                            : 'bg-white border-[#E3ECE8] hover:border-[#CBDCD5]'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#FFCC00] text-black font-black flex items-center justify-center text-xs shadow-md">
+                          <div className="w-9 h-9 rounded-xl bg-[#FFCC00] text-black font-black flex items-center justify-center text-xs shadow-xs">
                             MTN
                           </div>
                           <div>
-                            <span className="text-white font-bold text-xs block">MTN MoMo</span>
-                            <span className="text-slate-400 text-[10px]">077, 078, 076</span>
+                            <span className="text-[#263B33] font-bold text-xs block">MTN MoMo</span>
+                            <span className="text-[#5E7A70] text-[10px]">077, 078, 076</span>
                           </div>
                         </div>
                         {momoNetwork === 'MTN' && (
-                          <div className="w-5 h-5 rounded-full bg-[#FFCC00] flex items-center justify-center">
-                            <CheckCircle2 className="w-4 h-4 text-black" />
+                          <div className="w-5 h-5 rounded-full bg-[#D4A000] flex items-center justify-center">
+                            <CheckCircle2 className="w-4 h-4 text-white" />
                           </div>
                         )}
                       </button>
@@ -758,17 +776,17 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                         onClick={() => setMomoNetwork('AIRTEL')}
                         className={`p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
                           momoNetwork === 'AIRTEL'
-                            ? 'bg-[#E60000]/10 border-[#E60000] shadow-lg shadow-[#E60000]/10'
-                            : 'bg-[#0B1E36] border-white/10 hover:border-white/20'
+                            ? 'bg-red-50 border-[#E60000] shadow-xs'
+                            : 'bg-white border-[#E3ECE8] hover:border-[#CBDCD5]'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#E60000] text-white font-black flex items-center justify-center text-xs shadow-md">
+                          <div className="w-9 h-9 rounded-xl bg-[#E60000] text-white font-black flex items-center justify-center text-xs shadow-xs">
                             airtel
                           </div>
                           <div>
-                            <span className="text-white font-bold text-xs block">Airtel Money</span>
-                            <span className="text-slate-400 text-[10px]">070, 075, 074</span>
+                            <span className="text-[#263B33] font-bold text-xs block">Airtel Money</span>
+                            <span className="text-[#5E7A70] text-[10px]">070, 075, 074</span>
                           </div>
                         </div>
                         {momoNetwork === 'AIRTEL' && (
@@ -782,12 +800,12 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
 
                   {/* Phone Input */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    <label className="block text-xs font-bold text-[#263B33] mb-1.5">
                       {momoNetwork === 'MTN' ? 'MTN' : 'Airtel'} Mobile Money Phone Number (Where SIM Card is placed)
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <span className="text-slate-400 text-xs font-bold">🇺🇬 +256</span>
+                        <span className="text-[#5E7A70] text-xs font-bold">🇺🇬 +256</span>
                       </div>
                       <input
                         type="tel"
@@ -795,18 +813,18 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
                         placeholder="772 123 456"
-                        className="w-full pl-20 pr-4 py-3 bg-[#0B1E36] border border-white/10 rounded-xl text-white text-sm font-mono placeholder:text-slate-600 focus:outline-none focus:border-amber-400 transition-colors"
+                        className="w-full pl-20 pr-4 py-3 bg-white border border-[#E3ECE8] rounded-xl text-[#263B33] text-sm font-mono placeholder:text-[#87A196] focus:outline-none focus:border-[#20A66A] transition-colors"
                       />
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-1.5 flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                    <p className="text-[11px] text-[#5E7A70] mt-1.5 flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-[#20A66A] flex-shrink-0" />
                       <span>An instant SIM Toolkit prompt will pop up on your mobile handset to enter your PIN.</span>
                     </p>
                   </div>
 
                   {/* Registered Name */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    <label className="block text-xs font-bold text-[#263B33] mb-1.5">
                       Subscriber / Pharmacy Account Name
                     </label>
                     <input
@@ -815,7 +833,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                       value={accountName}
                       onChange={(e) => setAccountName(e.target.value)}
                       placeholder="e.g. Dr. Elvis Sekyanzi / Mulago Care"
-                      className="w-full px-4 py-3 bg-[#0B1E36] border border-white/10 rounded-xl text-white text-sm placeholder:text-slate-600 focus:outline-none focus:border-amber-400 transition-colors"
+                      className="w-full px-4 py-3 bg-white border border-[#E3ECE8] rounded-xl text-[#263B33] text-sm placeholder:text-[#87A196] focus:outline-none focus:border-[#20A66A] transition-colors"
                     />
                   </div>
 
@@ -824,18 +842,18 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                     <button
                       type="submit"
                       disabled={isProcessing}
-                      className={`w-full py-4 rounded-xl font-black text-sm tracking-wide shadow-xl flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 ${
+                      className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 ${
                         momoNetwork === 'MTN'
-                          ? 'bg-gradient-to-r from-[#FFCC00] to-amber-400 text-black hover:brightness-110 shadow-[#FFCC00]/20'
-                          : 'bg-gradient-to-r from-[#E60000] to-red-500 text-white hover:brightness-110 shadow-[#E60000]/20'
+                          ? 'bg-[#FFCC00] text-black hover:bg-[#E5B800]'
+                          : 'bg-[#E60000] text-white hover:bg-[#CC0000]'
                       }`}
                     >
                       <Zap className="w-4 h-4" />
-                      <span>Send SIM Prompt & Deduct {formatUgx(basePrice)}</span>
+                      <span>Send SIM Prompt &amp; Deduct {formatUgx(basePrice)}</span>
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </button>
-                    <p className="text-center text-slate-500 text-[10px] mt-2">
-                      Powered by MTN MoMo OpenAPI & Airtel Money Africa Direct Collection Gateway
+                    <p className="text-center text-[#5E7A70] text-[10px] mt-2">
+                      Powered by MTN MoMo OpenAPI &amp; Airtel Money Africa Direct Collection Gateway
                     </p>
                   </div>
                 </form>
@@ -844,56 +862,52 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
               {/* ─── TAB 2: CREDIT / DEBIT CARD (ANY KIND) ────────────────── */}
               {activeTab === 'card' && (
                 <form onSubmit={handleInitiateCard} className="space-y-4 animate-fadeIn">
-                  {/* Interactive Live 3D Holographic Card Preview */}
+                  {/* Interactive Live Card Preview */}
                   <div
                     onClick={() => setIsCardFlipped(!isCardFlipped)}
-                    className="relative w-full h-44 sm:h-48 rounded-2xl p-5 bg-gradient-to-br from-[#122B4D] via-[#0D2038] to-[#0A172A] border border-white/20 shadow-2xl text-white flex flex-col justify-between overflow-hidden cursor-pointer select-none transition-transform hover:scale-[1.01]"
+                    className="relative w-full h-44 sm:h-48 rounded-2xl p-5 bg-[#F5FAF8] border border-[#E3ECE8] shadow-sm text-[#263B33] flex flex-col justify-between overflow-hidden cursor-pointer select-none transition-transform hover:scale-[1.01]"
                   >
-                    {/* Glass gloss effect */}
-                    <div className="pointer-events-none absolute -top-12 -right-12 w-40 h-40 bg-white/10 rounded-full blur-xl" />
-                    <div className="pointer-events-none absolute -bottom-10 -left-10 w-36 h-36 bg-sky-400/10 rounded-full blur-xl" />
-
                     {!isCardFlipped ? (
                       <>
                         <div className="flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3">
                             {/* Chip */}
-                            <div className="w-10 h-7 rounded-md bg-gradient-to-tr from-amber-300 to-amber-500 flex items-center justify-center shadow-inner">
-                              <div className="w-6 h-4 border border-amber-800/40 rounded-sm" />
+                            <div className="w-10 h-7 rounded-md bg-amber-200 border border-amber-400/40 flex items-center justify-center shadow-xs">
+                              <div className="w-6 h-4 border border-amber-600/40 rounded-xs" />
                             </div>
                             {/* Contactless symbol */}
-                            <svg className="w-5 h-5 text-slate-300 opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg className="w-5 h-5 text-[#5E7A70] opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M8.5 10a4 4 0 0 1 0 4" />
                               <path d="M12 7a8 8 0 0 1 0 10" />
                               <path d="M15.5 4a12 12 0 0 1 0 16" />
                             </svg>
                           </div>
-                          <span className="text-xs font-black tracking-wider uppercase px-2.5 py-1 rounded-md bg-white/10 border border-white/20">
+                          <span className="text-xs font-black tracking-wider uppercase px-2.5 py-1 rounded-md bg-white border border-[#E3ECE8] text-[#2F80C9]">
                             {getCardBrand(cardNumber)}
                           </span>
                         </div>
 
                         {/* Card Number display */}
                         <div className="relative z-10 my-auto">
-                          <div className="text-lg sm:text-xl font-mono tracking-widest text-white/90 drop-shadow">
+                          <div className="text-lg sm:text-xl font-mono tracking-widest text-[#263B33] font-bold">
                             {cardNumber ? formatCardNumber(cardNumber) : '•••• •••• •••• ••••'}
                           </div>
                         </div>
 
                         <div className="flex items-end justify-between relative z-10 text-xs">
                           <div>
-                            <span className="text-[9px] uppercase tracking-wider text-slate-400 block">
+                            <span className="text-[9px] uppercase tracking-wider text-[#5E7A70] block font-bold">
                               Cardholder Name
                             </span>
-                            <span className="font-bold uppercase tracking-wider text-slate-100 truncate block max-w-[180px]">
+                            <span className="font-bold uppercase tracking-wider text-[#263B33] truncate block max-w-[180px]">
                               {cardHolder || 'Dr. Pharmacist'}
                             </span>
                           </div>
                           <div className="text-right">
-                            <span className="text-[9px] uppercase tracking-wider text-slate-400 block">
+                            <span className="text-[9px] uppercase tracking-wider text-[#5E7A70] block font-bold">
                               Expires
                             </span>
-                            <span className="font-mono font-bold text-slate-100">
+                            <span className="font-mono font-bold text-[#263B33]">
                               {cardExpiry || 'MM/YY'}
                             </span>
                           </div>
@@ -902,14 +916,14 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                     ) : (
                       /* Card Back (CVV strip) */
                       <div className="h-full flex flex-col justify-between py-2">
-                        <div className="w-full h-8 bg-black/80 -mx-5 px-5 my-1" />
+                        <div className="w-full h-8 bg-slate-800 -mx-5 px-5 my-1" />
                         <div className="flex items-center justify-end gap-3 px-4">
-                          <span className="text-[10px] text-slate-400">CVV/CVC:</span>
-                          <div className="w-14 py-1.5 bg-white text-black font-mono font-black text-center rounded text-xs shadow-inner">
+                          <span className="text-[10px] text-[#5E7A70] font-bold">CVV/CVC:</span>
+                          <div className="w-14 py-1.5 bg-white text-[#263B33] border border-[#E3ECE8] font-mono font-black text-center rounded text-xs shadow-inner">
                             {cardCvv || '•••'}
                           </div>
                         </div>
-                        <div className="text-[9px] text-slate-500 text-center">
+                        <div className="text-[9px] text-[#5E7A70] text-center">
                           Secured by 256-bit encryption. Tap to flip back.
                         </div>
                       </div>
@@ -918,7 +932,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
 
                   {/* Card Form Inputs */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1">
+                    <label className="block text-xs font-bold text-[#263B33] mb-1">
                       Card Number (Any Visa, MasterCard, Amex, UnionPay)
                     </label>
                     <div className="relative">
@@ -930,17 +944,17 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                         onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                         onFocus={() => setIsCardFlipped(false)}
                         placeholder="4242 •••• •••• 4242"
-                        className="w-full px-4 py-2.5 bg-[#0B1E36] border border-white/10 rounded-xl text-white text-sm font-mono placeholder:text-slate-600 focus:outline-none focus:border-sky-400 transition-colors"
+                        className="w-full px-4 py-2.5 bg-white border border-[#E3ECE8] rounded-xl text-[#263B33] text-sm font-mono placeholder:text-[#87A196] focus:outline-none focus:border-[#20A66A] transition-colors"
                       />
                       <div className="absolute right-3 top-2.5">
-                        <CreditCard className="w-5 h-5 text-slate-400" />
+                        <CreditCard className="w-5 h-5 text-[#5E7A70]" />
                       </div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-slate-300 mb-1">
+                      <label className="block text-xs font-bold text-[#263B33] mb-1">
                         Cardholder Full Name
                       </label>
                       <input
@@ -950,13 +964,13 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                         onChange={(e) => setCardHolder(e.target.value)}
                         onFocus={() => setIsCardFlipped(false)}
                         placeholder="Name as on card"
-                        className="w-full px-3.5 py-2.5 bg-[#0B1E36] border border-white/10 rounded-xl text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-sky-400 transition-colors"
+                        className="w-full px-3.5 py-2.5 bg-white border border-[#E3ECE8] rounded-xl text-[#263B33] text-xs placeholder:text-[#87A196] focus:outline-none focus:border-[#20A66A] transition-colors"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                        <label className="block text-xs font-bold text-[#263B33] mb-1">
                           Expires
                         </label>
                         <input
@@ -967,11 +981,11 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                           onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
                           onFocus={() => setIsCardFlipped(false)}
                           placeholder="MM/YY"
-                          className="w-full px-3 py-2.5 bg-[#0B1E36] border border-white/10 rounded-xl text-white text-xs font-mono text-center placeholder:text-slate-600 focus:outline-none focus:border-sky-400 transition-colors"
+                          className="w-full px-3 py-2.5 bg-white border border-[#E3ECE8] rounded-xl text-[#263B33] text-xs font-mono text-center placeholder:text-[#87A196] focus:outline-none focus:border-[#20A66A] transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                        <label className="block text-xs font-bold text-[#263B33] mb-1">
                           CVV
                         </label>
                         <input
@@ -983,7 +997,7 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                           onFocus={() => setIsCardFlipped(true)}
                           onBlur={() => setIsCardFlipped(false)}
                           placeholder="•••"
-                          className="w-full px-3 py-2.5 bg-[#0B1E36] border border-white/10 rounded-xl text-white text-xs font-mono text-center placeholder:text-slate-600 focus:outline-none focus:border-sky-400 transition-colors"
+                          className="w-full px-3 py-2.5 bg-white border border-[#E3ECE8] rounded-xl text-[#263B33] text-xs font-mono text-center placeholder:text-[#87A196] focus:outline-none focus:border-[#20A66A] transition-colors"
                         />
                       </div>
                     </div>
@@ -994,13 +1008,13 @@ export const SubscriptionCheckoutModal: React.FC<SubscriptionCheckoutModalProps>
                     <button
                       type="submit"
                       disabled={isProcessing}
-                      className="w-full py-4 rounded-xl font-black text-sm tracking-wide bg-gradient-to-r from-sky-500 to-cyan-400 hover:from-sky-400 hover:to-cyan-300 text-white shadow-xl shadow-sky-500/25 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                      className="w-full py-4 rounded-xl font-bold text-sm tracking-wide bg-[#20A66A] hover:bg-[#1E9760] text-white shadow-md shadow-[#20A66A]/20 flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50"
                     >
                       <Lock className="w-4 h-4" />
                       <span>Pay {formatUgx(basePrice)} with Card</span>
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </button>
-                    <div className="flex items-center justify-center gap-4 text-slate-500 text-[10px] mt-2">
+                    <div className="flex items-center justify-center gap-4 text-[#5E7A70] text-[10px] mt-2">
                       <span>✓ Visa</span>
                       <span>✓ MasterCard</span>
                       <span>✓ American Express</span>

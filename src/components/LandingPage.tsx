@@ -32,19 +32,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth, onOpenAdmin }) =
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0F172A] text-white font-sans">
+    <div className="relative min-h-screen bg-[#F8FAFC] text-slate-900 font-sans">
       {/* ── Top Header Bar for Visitors ── */}
-      <header className="sticky top-0 z-40 bg-[#1E293B]/95 backdrop-blur-xl border-b border-slate-700 px-4 sm:px-8 py-3 flex items-center justify-between shadow-xl">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200 px-4 sm:px-8 py-3 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center shadow-md">
+          <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-xs">
             <Pill className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-white font-black text-lg tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <span className="text-slate-900 font-black text-lg tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
               ZenithRx
             </span>
-            <span className="hidden sm:inline-block ml-2 text-blue-400 text-xs font-bold uppercase tracking-wider">
-              · Next-Gen Pharmacy Management Platform
+            <span className="hidden sm:inline-block ml-2 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+              · Clinical Pharmacy Management System
             </span>
           </div>
         </div>
@@ -53,7 +53,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth, onOpenAdmin }) =
           {onOpenAdmin && (
             <button
               onClick={onOpenAdmin}
-              className="px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 text-amber-300 font-bold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-900 font-bold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
               title="Enter System Administrator Control Plane (/admin)"
             >
               <span>🔒 Admin Portal</span>
@@ -61,14 +61,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth, onOpenAdmin }) =
           )}
           <button
             onClick={handleOpenSignUp}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-slate-100 border border-slate-200 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm transition-all cursor-pointer flex items-center gap-2 shadow-xs"
           >
-            <UserPlus className="w-4 h-4" />
+            <UserPlus className="w-4 h-4 text-emerald-700" />
             <span className="hidden sm:inline">Sign Up</span>
           </button>
           <button
             onClick={handleOpenLogin}
-            className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center gap-2"
+            className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer flex items-center gap-2"
           >
             <LogIn className="w-4 h-4" />
             <span>Staff Sign In</span>
@@ -87,21 +87,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth, onOpenAdmin }) =
       </main>
 
       {/* ── Footer ── */}
-      <footer className="bg-[#1E293B] text-slate-400 py-6 px-4 border-t border-slate-700 text-center text-xs space-y-2">
-        <p className="text-white font-black tracking-wide">
-          ZENITHRX – NEXT-GEN PHARMACY MANAGEMENT PLATFORM
+      <footer className="bg-white text-slate-600 py-6 px-4 border-t border-slate-200 text-center text-xs space-y-2 shadow-xs">
+        <p className="text-slate-900 font-extrabold tracking-wide">
+          ZENITHRX — CLINICAL PHARMACY MANAGEMENT SYSTEM
         </p>
-        <p className="text-slate-400">
-          WhatsApp: <span className="text-green-400 font-bold">+256-755091826</span> | Call:{' '}
-          <span className="text-blue-400 font-bold">0200 913 555</span> | Email:{' '}
-          <span className="text-slate-200">quantumnetworks@gmail.com</span>
+        <p className="text-slate-600">
+          WhatsApp: <span className="text-emerald-700 font-bold">+256-755091826</span> | Call:{' '}
+          <span className="text-blue-700 font-bold">0200 913 555</span> | Email:{' '}
+          <span className="text-slate-800 font-medium">quantumnetworks@gmail.com</span>
         </p>
         <div className="flex items-center justify-center gap-4 text-slate-500 text-[11px] pt-1">
-          <span>Official Web: www.quantumnetworks.com • Powered by Gemini AI Clinical Engine</span>
+          <span>Official Web: www.quantumnetworks.com • NDA-Licensed • Uganda</span>
           {onOpenAdmin && (
             <button
               onClick={onOpenAdmin}
-              className="text-amber-400 hover:text-amber-300 font-bold underline cursor-pointer"
+              className="text-amber-700 hover:text-amber-900 font-bold underline cursor-pointer"
             >
               System Administrator Login (/admin)
             </button>

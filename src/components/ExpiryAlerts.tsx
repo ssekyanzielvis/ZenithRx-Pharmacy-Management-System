@@ -78,30 +78,30 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
   return (
     <div className="space-y-6">
       {/* ─── Top Banner & Clearance Engine Header ───────────────────────────── */}
-      <div className="bg-[#1E293B] rounded-2xl p-6 text-white border border-slate-700 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-6 text-slate-900 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="bg-amber-500/20 text-amber-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-amber-400/30 flex items-center gap-1">
-              <Flame className="w-3.5 h-3.5 text-amber-400" /> Automated FEFO Markdown Engine
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="bg-amber-50 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+              <Flame className="w-3.5 h-3.5 text-amber-600" /> Automated FEFO Markdown Engine
             </span>
-            <span className="bg-red-500/20 text-red-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-red-400/30 flex items-center gap-1">
-              <ShieldAlert className="w-3.5 h-3.5 text-red-400" /> NDA Quarantine &amp; Disposal Protocol
+            <span className="bg-rose-50 text-rose-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-rose-200 flex items-center gap-1">
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-600" /> NDA Quarantine &amp; Disposal Protocol
             </span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Expiry Alerts &amp; Markdown Engine</h1>
-          <p className="text-slate-300 text-sm mt-0.5">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">Expiry Alerts &amp; Markdown Engine</h1>
+          <p className="text-slate-600 text-sm mt-0.5">
             Prevent pharmaceutical capital write-offs through automated dynamic clearance discounting and strict NDA stock quarantine.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
           <button
             onClick={handleBulkMarkdownCritical}
             disabled={metrics.criticalCount === 0}
-            className={`px-4 py-2.5 font-bold text-xs rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer ${
+            className={`px-4 py-2.5 font-bold text-xs rounded-xl shadow-xs flex items-center gap-2 transition-all cursor-pointer ${
               metrics.criticalCount > 0
-                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-amber-900/20'
-                : 'bg-slate-700/50 text-slate-400 cursor-not-allowed'
+                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs'
+                : 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
             }`}
           >
             <Tag className="w-4 h-4" />
@@ -110,9 +110,9 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
 
           <button
             onClick={handlePrintDestructionCertificate}
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 flex items-center gap-1.5 transition-all shadow-xs cursor-pointer"
           >
-            <Printer className="w-4 h-4 text-blue-400" />
+            <Printer className="w-4 h-4 text-emerald-700" />
             <span>NDA Disposal Certificate</span>
           </button>
         </div>
@@ -209,37 +209,55 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
       </div>
 
       {/* ─── Search & Tab Filter Controls ──────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="relative flex-1 max-w-md">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search by brand, generic, batch#..."
+            placeholder="Search by brand name, generic, batch#..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
+            className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
           />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
-        <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+        <div className="flex items-center flex-wrap gap-2">
           {[
-            { id: 'All', label: `All At-Risk (${atRiskExpiryItems.length})` },
-            { id: 'Expired', label: `🚨 Expired (${metrics.expiredCount})` },
-            { id: 'Critical', label: `⚠️ Critical (${metrics.criticalCount})` },
-            { id: 'Warning', label: `⏳ Warning (${metrics.warningCount})` },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveFilter(tab.id as any)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                activeFilter === tab.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+            { id: 'All', label: 'All At-Risk', count: atRiskExpiryItems.length, color: 'text-blue-500' },
+            { id: 'Expired', label: 'Expired', count: metrics.expiredCount, color: 'text-red-500' },
+            { id: 'Critical', label: 'Critical (<30d)', count: metrics.criticalCount, color: 'text-red-500' },
+            { id: 'Warning', label: 'Warning (<90d)', count: metrics.warningCount, color: 'text-amber-500' },
+          ].map((tab) => {
+            const isActive = activeFilter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveFilter(tab.id as any)}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isActive
+                    ? 'bg-blue-600 text-white shadow-sm ring-2 ring-blue-400/30'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/60 dark:border-slate-700/60'
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

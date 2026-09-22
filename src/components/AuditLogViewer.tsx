@@ -65,24 +65,24 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-[#263B33]">
       {/* Top Header Card */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-md">
+      <div className="bg-white border border-[#E3ECE8] rounded-2xl p-6 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl text-sky-400">
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-[#2F80C9]">
               <ShieldCheck className="w-7 h-7" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-white tracking-wide">
-                  Regulatory & Clinical Audit Trail
+                <h2 className="text-xl font-bold text-[#263B33] tracking-wide">
+                  Regulatory &amp; Clinical Audit Trail
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" /> NDA §42 Tamper-Proof
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E8F7F0] text-[#1E744F] border border-[#20A66A]/20 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-[#20A66A]" /> NDA §42 Tamper-Proof
                 </span>
               </div>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-[#5E7A70]">
                 Immutable record of clinical dispensing overrides, batch quarantine, stock adjustments, and SaaS permissions.
               </p>
             </div>
@@ -91,15 +91,15 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
           <div className="flex items-center gap-2 self-start md:self-auto">
             <button
               onClick={refresh}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-sm font-medium transition flex items-center gap-2 border border-slate-700"
+              className="px-3.5 py-2 rounded-xl bg-white hover:bg-[#F8FBFA] text-[#263B33] text-sm font-medium transition flex items-center gap-2 border border-[#E3ECE8] shadow-xs cursor-pointer"
               title="Refresh Logs"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-[#5E7A70] ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
             <button
               onClick={exportAuditCsv}
-              className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-sky-600/20"
+              className="px-4 py-2 rounded-xl bg-[#20A66A] hover:bg-[#1E9760] text-white text-sm font-semibold transition flex items-center gap-2 shadow-xs cursor-pointer"
             >
               <Download className="w-4 h-4" />
               Export Audit CSV
@@ -107,7 +107,7 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
             {onClose && (
               <button
                 onClick={onClose}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+                className="p-2 rounded-xl bg-white hover:bg-[#F8FBFA] text-[#5E7A70] hover:text-[#263B33] border border-[#E3ECE8] transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -117,49 +117,49 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
 
         {/* Metrics Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5">
-            <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Events</span>
-            <div className="text-2xl font-bold text-white mt-1">{metrics.total}</div>
+          <div className="bg-[#F8FBFA] border border-[#E3ECE8] rounded-xl p-3.5">
+            <span className="text-xs font-medium text-[#5E7A70] uppercase tracking-wider">Total Events</span>
+            <div className="text-2xl font-bold text-[#263B33] mt-1">{metrics.total}</div>
           </div>
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5">
-            <span className="text-xs font-medium text-rose-400 uppercase tracking-wider">Critical Overrides</span>
-            <div className="text-2xl font-bold text-rose-400 mt-1">{metrics.criticalCount}</div>
+          <div className="bg-red-50 border border-red-200 rounded-xl p-3.5">
+            <span className="text-xs font-medium text-[#D64545] uppercase tracking-wider">Critical Overrides</span>
+            <div className="text-2xl font-bold text-[#D64545] mt-1">{metrics.criticalCount}</div>
           </div>
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5">
-            <span className="text-xs font-medium text-amber-400 uppercase tracking-wider">Warnings & Triage</span>
-            <div className="text-2xl font-bold text-amber-400 mt-1">{metrics.warningCount}</div>
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5">
+            <span className="text-xs font-medium text-amber-800 uppercase tracking-wider">Warnings &amp; Triage</span>
+            <div className="text-2xl font-bold text-amber-800 mt-1">{metrics.warningCount}</div>
           </div>
-          <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5">
-            <span className="text-xs font-medium text-sky-400 uppercase tracking-wider">Info & Standard Logs</span>
-            <div className="text-2xl font-bold text-sky-400 mt-1">{metrics.infoCount}</div>
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3.5">
+            <span className="text-xs font-medium text-[#2F80C9] uppercase tracking-wider">Info &amp; Standard Logs</span>
+            <div className="text-2xl font-bold text-[#2F80C9] mt-1">{metrics.infoCount}</div>
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-white border border-[#E3ECE8] rounded-xl p-4 flex flex-col md:flex-row gap-3 items-center justify-between shadow-xs">
         <div className="relative w-full md:w-96">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#5E7A70] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search by actor, action, drug ID, or note..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition"
+            className="w-full pl-10 pr-4 py-2 bg-[#F8FBFA] border border-[#E3ECE8] rounded-lg text-sm text-[#263B33] placeholder-[#87A196] focus:outline-none focus:border-[#20A66A] transition"
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           {/* Severity filter buttons */}
-          <div className="flex bg-slate-950 border border-slate-800 rounded-lg p-1">
+          <div className="flex bg-[#F8FBFA] border border-[#E3ECE8] rounded-lg p-1">
             {(['ALL', 'CRITICAL', 'WARNING', 'INFO'] as const).map((s) => (
               <button
                 key={s}
                 onClick={() => setSeverityFilter(s)}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition ${
+                className={`px-3 py-1 text-xs font-medium rounded-md transition cursor-pointer ${
                   severityFilter === s
-                    ? 'bg-sky-600 text-white font-bold'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-[#20A66A] text-white font-bold'
+                    : 'text-[#5E7A70] hover:text-[#263B33]'
                 }`}
               >
                 {s === 'ALL' ? 'All Severities' : s}
@@ -171,7 +171,7 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
           <select
             value={entityFilter}
             onChange={(e) => setEntityFilter(e.target.value)}
-            className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500"
+            className="bg-[#F8FBFA] border border-[#E3ECE8] rounded-lg px-3 py-1.5 text-xs text-[#263B33] focus:outline-none focus:border-[#20A66A] cursor-pointer"
           >
             <option value="ALL">All Entity Types</option>
             {entityTypes.map((et) => (
@@ -184,11 +184,11 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
       </div>
 
       {/* Audit Log Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-white border border-[#E3ECE8] rounded-2xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="bg-slate-950/80 border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <tr className="bg-[#F8FBFA] border-b border-[#E3ECE8] text-xs font-semibold text-[#5E7A70] uppercase tracking-wider">
                 <th className="py-3 px-4">Timestamp</th>
                 <th className="py-3 px-4">Severity</th>
                 <th className="py-3 px-4">Action</th>
@@ -198,52 +198,52 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
                 <th className="py-3 px-4 text-right">Inspect</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800 text-slate-300">
+            <tbody className="divide-y divide-[#E3ECE8] text-[#263B33]">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-sky-400" />
+                  <td colSpan={7} className="py-12 text-center text-[#5E7A70]">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#20A66A]" />
                     Loading immutable audit trail...
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={7} className="py-12 text-center text-[#5E7A70]">
                     No matching audit records found for the specified filters.
                   </td>
                 </tr>
               ) : (
                 logs.map((record) => (
-                  <tr key={record.id} className="hover:bg-slate-800/40 transition">
-                    <td className="py-3.5 px-4 whitespace-nowrap text-xs text-slate-400 font-mono">
+                  <tr key={record.id} className="hover:bg-[#F8FBFA] transition">
+                    <td className="py-3.5 px-4 whitespace-nowrap text-xs text-[#5E7A70] font-mono">
                       {new Date(record.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}{' '}
-                      <span className="text-slate-500 block text-[10px]">
+                      <span className="text-[#87A196] block text-[10px]">
                         {new Date(record.createdAt).toLocaleDateString()}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       {getSeverityBadge(record.severity)}
                     </td>
-                    <td className="py-3.5 px-4 whitespace-nowrap font-mono text-xs text-sky-300 font-medium">
+                    <td className="py-3.5 px-4 whitespace-nowrap font-mono text-xs text-[#2F80C9] font-medium">
                       {record.action}
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className="text-xs font-semibold text-slate-200">{record.entityType}</span>
+                      <span className="text-xs font-semibold text-[#263B33]">{record.entityType}</span>
                       {record.entityId && (
-                        <span className="block text-[11px] font-mono text-slate-400">{record.entityId}</span>
+                        <span className="block text-[11px] font-mono text-[#5E7A70]">{record.entityId}</span>
                       )}
                     </td>
                     <td className="py-3.5 px-4 whitespace-nowrap">
-                      <span className="text-xs font-semibold text-slate-200">{record.performedByName || record.performedBy}</span>
-                      <span className="block text-[11px] text-slate-400">{record.userRole}</span>
+                      <span className="text-xs font-semibold text-[#263B33]">{record.performedByName || record.performedBy}</span>
+                      <span className="block text-[11px] text-[#5E7A70]">{record.userRole}</span>
                     </td>
-                    <td className="py-3.5 px-4 max-w-xs truncate text-xs text-slate-300" title={record.notes}>
+                    <td className="py-3.5 px-4 max-w-xs truncate text-xs text-[#5E7A70]" title={record.notes}>
                       {record.notes || '—'}
                     </td>
                     <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <button
                         onClick={() => setSelectedRecord(record)}
-                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-sky-600 hover:text-white text-slate-300 transition"
+                        className="p-1.5 rounded-lg bg-[#F0F5F3] hover:bg-[#E8F7F0] hover:text-[#20A66A] text-[#5E7A70] transition border border-[#E3ECE8] cursor-pointer"
                         title="View Detailed Record"
                       >
                         <Eye className="w-4 h-4" />
@@ -259,26 +259,26 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
 
       {/* Detailed Modal Drawer */}
       {selectedRecord && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E3ECE8] rounded-2xl w-full max-w-2xl overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200 text-[#263B33]">
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+            <div className="p-5 border-b border-[#E3ECE8] flex items-center justify-between bg-[#F8FBFA]">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-sky-500/10 border border-sky-500/20 rounded-lg text-sky-400">
+                <div className="p-2 bg-blue-50 border border-blue-200 rounded-lg text-[#2F80C9]">
                   <FileText className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-[#263B33]">
                     Audit Record: {selectedRecord.id}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[#5E7A70]">
                     Timestamp: {new Date(selectedRecord.createdAt).toUTCString()}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedRecord(null)}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                className="p-1.5 rounded-lg bg-white hover:bg-[#F0F5F3] text-[#5E7A70] hover:text-[#263B33] border border-[#E3ECE8] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -287,38 +287,38 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
             {/* Modal Body */}
             <div className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                  <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider block mb-1">
+                <div className="bg-[#F8FBFA] p-3.5 rounded-xl border border-[#E3ECE8]">
+                  <span className="text-[11px] text-[#5E7A70] font-medium uppercase tracking-wider block mb-1">
                     Action Executed
                   </span>
-                  <span className="text-sm font-bold text-sky-400 font-mono">
+                  <span className="text-sm font-bold text-[#2F80C9] font-mono">
                     {selectedRecord.action}
                   </span>
                 </div>
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
-                  <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider block mb-1">
+                <div className="bg-[#F8FBFA] p-3.5 rounded-xl border border-[#E3ECE8]">
+                  <span className="text-[11px] text-[#5E7A70] font-medium uppercase tracking-wider block mb-1">
                     Severity Classification
                   </span>
                   <div>{getSeverityBadge(selectedRecord.severity)}</div>
                 </div>
               </div>
 
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="bg-[#F8FBFA] p-4 rounded-xl border border-[#E3ECE8] space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Target Entity:</span>
-                  <span className="font-semibold text-white">
+                  <span className="text-[#5E7A70]">Target Entity:</span>
+                  <span className="font-semibold text-[#263B33]">
                     {selectedRecord.entityType} ({selectedRecord.entityId || 'N/A'})
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Operating Branch:</span>
-                  <span className="font-semibold text-white">
+                  <span className="text-[#5E7A70]">Operating Branch:</span>
+                  <span className="font-semibold text-[#263B33]">
                     {selectedRecord.tenantName || selectedRecord.tenantId}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Authorized Actor:</span>
-                  <span className="font-semibold text-sky-300">
+                  <span className="text-[#5E7A70]">Authorized Actor:</span>
+                  <span className="font-semibold text-[#2F80C9]">
                     {selectedRecord.performedByName} ({selectedRecord.userRole})
                   </span>
                 </div>
@@ -326,32 +326,32 @@ export const AuditLogViewer: React.FC<AuditLogViewerProps> = ({ tenantId = 'all'
 
               {/* Compliance Notes */}
               <div>
-                <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider block mb-1.5">
+                <span className="text-xs font-semibold text-[#263B33] uppercase tracking-wider block mb-1.5">
                   Clinical / Regulatory Note
                 </span>
-                <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-sm text-slate-300 leading-relaxed">
+                <div className="bg-[#F8FBFA] p-3.5 rounded-xl border border-[#E3ECE8] text-sm text-[#263B33] leading-relaxed">
                   {selectedRecord.notes || 'No supplementary notes attached.'}
                 </div>
               </div>
 
               {/* Technical Security Fingerprint */}
-              <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800 space-y-1.5 text-xs text-slate-400 font-mono">
+              <div className="bg-[#F5FAF8] p-3.5 rounded-xl border border-[#E3ECE8] space-y-1.5 text-xs text-[#5E7A70] font-mono">
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-sky-400" />
+                  <MapPin className="w-3.5 h-3.5 text-[#2F80C9]" />
                   <span>Origin IP: {selectedRecord.ipAddress || '196.43.12.88 (Kampala, UG)'}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Laptop className="w-3.5 h-3.5 text-emerald-400" />
+                  <Laptop className="w-3.5 h-3.5 text-[#20A66A]" />
                   <span>Device Client: {selectedRecord.deviceInfo || 'Secure Dispensing Station'}</span>
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-800 bg-slate-950 flex justify-end">
+            <div className="p-4 border-t border-[#E3ECE8] bg-[#F8FBFA] flex justify-end">
               <button
                 onClick={() => setSelectedRecord(null)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-xl transition"
+                className="px-4 py-2 bg-white hover:bg-[#F0F5F3] text-[#263B33] text-sm font-semibold rounded-xl border border-[#E3ECE8] transition cursor-pointer"
               >
                 Close Audit Record
               </button>

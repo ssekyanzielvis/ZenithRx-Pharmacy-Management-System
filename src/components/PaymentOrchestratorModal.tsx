@@ -194,48 +194,48 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white border border-[#E3ECE8] rounded-3xl w-full max-w-2xl overflow-hidden shadow-xl animate-in fade-in zoom-in duration-200 text-[#263B33]">
         
         {/* Header */}
-        <div className="p-5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div className="p-5 border-b border-[#E3ECE8] bg-[#F8FBFA] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-400">
+            <div className="p-2.5 bg-[#E8F7F0] border border-[#20A66A]/20 rounded-2xl text-[#20A66A]">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-[#263B33]">
                   Payment Subsystem &amp; Split Orchestrator
                 </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#2F80C9] border border-blue-200">
                   §11.18 Compliant
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#5E7A70]">
                 Multi-channel settlement, idempotency protection &amp; webhook reconciliation for {tenantName}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+            className="p-1.5 rounded-lg bg-white hover:bg-[#F0F5F3] text-[#5E7A70] hover:text-[#263B33] border border-[#E3ECE8] transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Bill Summary Banner */}
-        <div className="bg-gradient-to-r from-slate-950 to-slate-900 p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="bg-[#F5FAF8] p-5 border-b border-[#E3ECE8] flex items-center justify-between">
           <div>
-            <span className="text-xs text-slate-400 block font-mono">RECEIPT: {receiptNumber}</span>
-            <span className="text-sm font-semibold text-slate-200 mt-0.5 block">
-              Customer: <strong className="text-white">{customerName}</strong> ({customerPhone})
+            <span className="text-xs text-[#5E7A70] block font-mono">RECEIPT: {receiptNumber}</span>
+            <span className="text-sm font-semibold text-[#263B33] mt-0.5 block">
+              Customer: <strong className="text-[#263B33]">{customerName}</strong> ({customerPhone})
             </span>
           </div>
           <div className="text-right">
-            <span className="text-xs text-slate-400 block uppercase tracking-wider font-semibold">Total Payable</span>
-            <span className="text-2xl font-black text-emerald-400">{formatUGX(totalAmountUgx)}</span>
+            <span className="text-xs text-[#5E7A70] block uppercase tracking-wider font-semibold">Total Payable</span>
+            <span className="text-2xl font-black text-[#20A66A]">{formatUGX(totalAmountUgx)}</span>
           </div>
         </div>
 
@@ -243,22 +243,22 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
         <div className="p-6 space-y-5 max-h-[65vh] overflow-y-auto">
           
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs flex items-center gap-2">
+            <div className="p-3 bg-red-50 border border-red-200 text-[#D64545] rounded-xl text-xs flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {ussdPromptActive && (
-            <div className="p-4 bg-sky-500/10 border border-sky-500/30 text-sky-300 rounded-2xl text-xs space-y-2 animate-pulse">
+            <div className="p-4 bg-blue-50 border border-blue-200 text-[#2F80C9] rounded-2xl text-xs space-y-2 animate-pulse">
               <div className="flex items-center gap-2 font-bold text-sm">
-                <Smartphone className="w-5 h-5 text-sky-400" />
+                <Smartphone className="w-5 h-5 text-[#2F80C9]" />
                 <span>Simulating Live USSD Prompt: {ussdPromptActive}</span>
               </div>
-              <p className="text-slate-300">
+              <p className="text-[#263B33]">
                 {statusMessage}
               </p>
-              <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
+              <div className="flex items-center gap-2 text-[11px] text-[#5E7A70] font-mono">
                 <Clock className="w-3.5 h-3.5" /> Awaiting customer PIN entry on mobile phone...
               </div>
             </div>
@@ -267,13 +267,13 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
           {/* Split Payment Channels List */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-emerald-400" /> Payment Split Channels
+              <span className="text-xs font-bold text-[#263B33] uppercase tracking-wider flex items-center gap-1.5">
+                <Layers className="w-4 h-4 text-[#20A66A]" /> Payment Split Channels
               </span>
               <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
                 isAllocationBalanced
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  ? 'bg-[#E8F7F0] text-[#1E744F] border border-[#20A66A]/30'
+                  : 'bg-amber-50 text-amber-800 border border-amber-200'
               }`}>
                 {isAllocationBalanced ? 'Allocated 100%' : `Balance to Allocate: UGX ${remainingDue.toLocaleString()}`}
               </span>
@@ -282,33 +282,33 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
             {splits.map((split, idx) => (
               <div
                 key={idx}
-                className="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-3"
+                className="p-3.5 bg-[#F8FBFA] rounded-2xl border border-[#E3ECE8] space-y-3"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    {split.method === 'CASH' && <Banknote className="w-4 h-4 text-emerald-400" />}
-                    {split.method === 'MTN_MOMO' && <Smartphone className="w-4 h-4 text-amber-400" />}
-                    {split.method === 'AIRTEL_MONEY' && <Smartphone className="w-4 h-4 text-red-400" />}
-                    {split.method === 'CARD_VISA_MC' && <CreditCard className="w-4 h-4 text-purple-400" />}
-                    {split.method === 'INSURANCE_COPAY' && <ShieldCheck className="w-4 h-4 text-sky-400" />}
-                    {split.method === 'LOYALTY_VOUCHER' && <FileCheck className="w-4 h-4 text-teal-400" />}
-                    <span className="text-xs font-bold text-white">{split.method.replace(/_/g, ' ')}</span>
+                    {split.method === 'CASH' && <Banknote className="w-4 h-4 text-[#20A66A]" />}
+                    {split.method === 'MTN_MOMO' && <Smartphone className="w-4 h-4 text-amber-600" />}
+                    {split.method === 'AIRTEL_MONEY' && <Smartphone className="w-4 h-4 text-red-600" />}
+                    {split.method === 'CARD_VISA_MC' && <CreditCard className="w-4 h-4 text-blue-600" />}
+                    {split.method === 'INSURANCE_COPAY' && <ShieldCheck className="w-4 h-4 text-[#2F80C9]" />}
+                    {split.method === 'LOYALTY_VOUCHER' && <FileCheck className="w-4 h-4 text-teal-600" />}
+                    <span className="text-xs font-bold text-[#263B33]">{split.method.replace(/_/g, ' ')}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <div className="relative">
-                      <span className="absolute left-2.5 top-1.5 text-[10px] text-slate-400 font-bold">UGX</span>
+                      <span className="absolute left-2.5 top-1.5 text-[10px] text-[#5E7A70] font-bold">UGX</span>
                       <input
                         type="number"
                         value={split.amountUgx}
                         onChange={(e) => handleUpdateSplitAmount(idx, Number(e.target.value))}
-                        className="pl-10 pr-2 py-1 w-36 bg-slate-900 border border-slate-700 rounded-xl text-xs font-bold text-emerald-400 text-right focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="pl-10 pr-2 py-1 w-36 bg-white border border-[#E3ECE8] rounded-xl text-xs font-bold text-[#20A66A] text-right focus:outline-none focus:ring-1 focus:ring-[#20A66A]"
                       />
                     </div>
                     {splits.length > 1 && (
                       <button
                         onClick={() => handleRemoveSplit(idx)}
-                        className="p-1 text-slate-500 hover:text-red-400 transition"
+                        className="p-1 text-[#87A196] hover:text-[#D64545] transition cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -317,13 +317,13 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
                 </div>
 
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="text-slate-400 text-[11px] whitespace-nowrap">Identifier / Account:</span>
+                  <span className="text-[#5E7A70] text-[11px] whitespace-nowrap">Identifier / Account:</span>
                   <input
                     type="text"
                     value={split.customerIdentifier}
                     onChange={(e) => handleUpdateSplitIdentifier(idx, e.target.value)}
                     placeholder="Phone number, card token, or member ID"
-                    className="w-full px-2.5 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-200 font-mono"
+                    className="w-full px-2.5 py-1 bg-white border border-[#E3ECE8] rounded-lg text-xs text-[#263B33] font-mono focus:outline-none focus:border-[#20A66A]"
                   />
                 </div>
               </div>
@@ -332,55 +332,55 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
 
           {/* Add Channel Buttons */}
           <div className="space-y-1.5">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+            <span className="text-[11px] font-semibold text-[#5E7A70] uppercase tracking-wider block">
               Add Split Payment Method
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <button
                 onClick={() => handleAddSplitChannel('MTN_MOMO')}
-                className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition"
+                className="p-2 rounded-xl bg-white hover:bg-[#F8FBFA] border border-[#E3ECE8] text-[#263B33] text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
               >
-                <Smartphone className="w-3.5 h-3.5 text-amber-400" />
+                <Smartphone className="w-3.5 h-3.5 text-amber-600" />
                 <span>+ MTN MoMo</span>
               </button>
 
               <button
                 onClick={() => handleAddSplitChannel('AIRTEL_MONEY')}
-                className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition"
+                className="p-2 rounded-xl bg-white hover:bg-[#F8FBFA] border border-[#E3ECE8] text-[#263B33] text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
               >
-                <Smartphone className="w-3.5 h-3.5 text-red-400" />
+                <Smartphone className="w-3.5 h-3.5 text-red-600" />
                 <span>+ Airtel Money</span>
               </button>
 
               <button
                 onClick={() => handleAddSplitChannel('CARD_VISA_MC')}
-                className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition"
+                className="p-2 rounded-xl bg-white hover:bg-[#F8FBFA] border border-[#E3ECE8] text-[#263B33] text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
               >
-                <CreditCard className="w-3.5 h-3.5 text-purple-400" />
+                <CreditCard className="w-3.5 h-3.5 text-blue-600" />
                 <span>+ Visa / MC</span>
               </button>
 
               <button
                 onClick={() => handleAddSplitChannel('INSURANCE_COPAY')}
-                className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition"
+                className="p-2 rounded-xl bg-white hover:bg-[#F8FBFA] border border-[#E3ECE8] text-[#263B33] text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+                <ShieldCheck className="w-3.5 h-3.5 text-[#2F80C9]" />
                 <span>+ Insurance Co-pay</span>
               </button>
 
               <button
                 onClick={() => handleAddSplitChannel('LOYALTY_VOUCHER')}
-                className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition"
+                className="p-2 rounded-xl bg-white hover:bg-[#F8FBFA] border border-[#E3ECE8] text-[#263B33] text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
               >
-                <FileCheck className="w-3.5 h-3.5 text-teal-400" />
+                <FileCheck className="w-3.5 h-3.5 text-teal-600" />
                 <span>+ Loyalty Voucher</span>
               </button>
 
               <button
                 onClick={() => handleAddSplitChannel('CASH')}
-                className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold flex items-center gap-2 transition"
+                className="p-2 rounded-xl bg-white hover:bg-[#F8FBFA] border border-[#E3ECE8] text-[#263B33] text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
               >
-                <Banknote className="w-3.5 h-3.5 text-emerald-400" />
+                <Banknote className="w-3.5 h-3.5 text-[#20A66A]" />
                 <span>+ Cash Drawer</span>
               </button>
             </div>
@@ -388,9 +388,9 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <Lock className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="p-4 border-t border-[#E3ECE8] bg-[#F8FBFA] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs text-[#5E7A70]">
+            <Lock className="w-3.5 h-3.5 text-[#20A66A]" />
             <span>256-Bit Idempotent Settlement</span>
           </div>
 
@@ -398,7 +398,7 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
             <button
               onClick={onClose}
               disabled={processing}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition"
+              className="px-4 py-2 bg-white hover:bg-[#F0F5F3] text-[#263B33] border border-[#E3ECE8] text-xs font-bold rounded-xl transition cursor-pointer"
             >
               Cancel
             </button>
@@ -406,7 +406,7 @@ export const PaymentOrchestratorModal: React.FC<PaymentOrchestratorModalProps> =
             <button
               onClick={handleExecutePayment}
               disabled={processing || !isAllocationBalanced}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-lg shadow-emerald-900/30"
+              className="px-5 py-2 bg-[#20A66A] hover:bg-[#1E9760] disabled:opacity-50 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer"
             >
               {processing ? (
                 <>

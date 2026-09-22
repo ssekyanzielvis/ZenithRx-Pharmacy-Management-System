@@ -58,12 +58,19 @@ import { ExportArchiveModal }    from './components/ExportArchiveModal';
 import { BarcodeScannerModal }   from './components/BarcodeScannerModal';
 import { AICounselingModal }     from './components/AICounselingModal';
 import { PharmacyFeedbackModal } from './components/PharmacyFeedbackModal';
+import { PlanEnforcementGuard }   from './components/PlanEnforcementGuard';
+import { RoleAccessGuard }        from './components/RoleAccessGuard';
 
 export default function App() {
   const auth = useAuth();
 
   const getInitialTab = (): ModuleTab => {
     const path = (window.location.pathname + window.location.hash).toLowerCase();
+    if (path.includes('adminquantumworkbench') || path.includes('quantum')) return 'adminQuantumWorkbench';
+    if (path.includes('adminpharmacyregistry')) return 'adminPharmacyRegistry';
+    if (path.includes('admincapacity')) return 'adminCapacity';
+    if (path.includes('adminmessaginghub')) return 'adminMessagingHub';
+    if (path.includes('adminrevenueledger') || path.includes('revenue')) return 'adminRevenueLedger';
     if (path.includes('admincontrolplane')) return 'adminControlPlane';
     if (path.includes('adminexecutive')) return 'adminExecutive';
     if (path.includes('adminpolicies')) return 'adminPolicies';
@@ -328,7 +335,7 @@ export default function App() {
 
   // ─── Authenticated app shell ─────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#F4F7FB] text-slate-900 font-sans flex flex-col">
+    <div className="min-h-screen bg-[#F4F7FB] dark:bg-[#0B131F] text-slate-900 dark:text-slate-100 font-sans flex flex-col transition-colors duration-200">
 
       {/* Loading overlay during data fetch */}
       {dataLoading && (
@@ -356,6 +363,7 @@ export default function App() {
         setSidebarOpen={setSidebarOpen}
         user={auth.user}
         onSignOut={auth.signOut}
+        onSwitchRoleDemo={auth.switchRoleDemo}
       />
 
       {/* Main Layout Container with Left Sidebar (Only visible when operating active system modules) */}
@@ -398,100 +406,144 @@ export default function App() {
             )}
 
             {activeTab === 'prescriptions' && (
-              <PrescriptionProcessing
-                prescriptions={prescriptions}
-                drugs={drugs}
-                tenantId={auth.user?.tenantId || activeClient.id}
-                onDispensePrescription={handleDispenseRx}
-                onAddPrescription={handleAddPrescription}
-              />
+              <RoleAccessGuard user={auth.user} tab="prescriptions" onNavigateTab={handleTabChange}>
+                <PrescriptionProcessing
+                  prescriptions={prescriptions}
+                  drugs={drugs}
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  onDispensePrescription={handleDispenseRx}
+                  onAddPrescription={handleAddPrescription}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'inventory' && (
-              <StockInventory
-                drugs={drugs}
-                onAddDrug={handleAddDrug}
-                onUpdateDrug={handleUpdateDrug}
-                openBarcodeScanner={() => setIsBarcodeOpen(true)}
-              />
+              <RoleAccessGuard user={auth.user} tab="inventory" onNavigateTab={handleTabChange}>
+                <StockInventory
+                  drugs={drugs}
+                  onAddDrug={handleAddDrug}
+                  onUpdateDrug={handleUpdateDrug}
+                  openBarcodeScanner={() => setIsBarcodeOpen(true)}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'expiry' && (
-              <ExpiryAlerts
-                drugs={drugs}
-                onApplyClearanceDiscount={handleApplyClearanceDiscount}
-                onQuarantineStock={handleQuarantineStock}
-                pharmacyName={activeClient.clientName}
-                ndaLicenseNo={activeClient.ndaLicenseNo}
-                supervisingPharmacist={activeClient.supervisingPharmacist}
-              />
+              <RoleAccessGuard user={auth.user} tab="expiry" onNavigateTab={handleTabChange}>
+                <ExpiryAlerts
+                  drugs={drugs}
+                  onApplyClearanceDiscount={handleApplyClearanceDiscount}
+                  onQuarantineStock={handleQuarantineStock}
+                  pharmacyName={activeClient.clientName}
+                  ndaLicenseNo={activeClient.ndaLicenseNo}
+                  supervisingPharmacist={activeClient.supervisingPharmacist}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'customers' && (
-              <CustomerProfiles
-                customers={customers}
-                onAddCustomer={handleAddCustomer}
-                pharmacyName={activeClient.clientName}
-                pharmacyPhone={activeClient.contactPhone}
-              />
+              <RoleAccessGuard user={auth.user} tab="customers" onNavigateTab={handleTabChange}>
+                <CustomerProfiles
+                  customers={customers}
+                  onAddCustomer={handleAddCustomer}
+                  pharmacyName={activeClient.clientName}
+                  pharmacyPhone={activeClient.contactPhone}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'reordering' && (
-              <AutomatedReordering
-                drugs={drugs}
-                purchaseOrders={purchaseOrders}
-                onCreatePO={handleCreatePO}
-              />
+              <RoleAccessGuard user={auth.user} tab="reordering" onNavigateTab={handleTabChange}>
+                <AutomatedReordering
+                  drugs={drugs}
+                  purchaseOrders={purchaseOrders}
+                  onCreatePO={handleCreatePO}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'pos' && (
-              <PointOfSale
-                drugs={drugs}
-                prescriptions={prescriptions}
-                transactions={posTransactions}
-                onCompleteSale={handleCompleteSale}
-                openBarcodeScanner={() => setIsBarcodeOpen(true)}
-              />
+              <RoleAccessGuard user={auth.user} tab="pos" onNavigateTab={handleTabChange}>
+                <PointOfSale
+                  drugs={drugs}
+                  prescriptions={prescriptions}
+                  transactions={posTransactions}
+                  onCompleteSale={handleCompleteSale}
+                  openBarcodeScanner={() => setIsBarcodeOpen(true)}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'payments' && (
-              <FinancialReconciliationView
-                tenantId={auth.user?.tenantId || activeClient.id}
-                tenantName={activeClient.clientName}
-              />
+              <RoleAccessGuard user={auth.user} tab="payments" onNavigateTab={handleTabChange}>
+                <FinancialReconciliationView
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  tenantName={activeClient.clientName}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'reports' && (
-              <SalesReports
-                transactions={posTransactions}
-                drugs={drugs}
-                prescriptions={prescriptions}
-                customers={customers}
-              />
+              <RoleAccessGuard user={auth.user} tab="reports" onNavigateTab={handleTabChange}>
+                <PlanEnforcementGuard
+                  feature="salesAnalytics"
+                  currentTier={activeClient.packageTier}
+                  billingStatus={activeClient.billingStatus}
+                  tenantId={activeClient.id}
+                  tenantName={activeClient.clientName}
+                  userName={auth.user?.fullName}
+                  onNavigateTab={handleTabChange}
+                >
+                  <SalesReports
+                    transactions={posTransactions}
+                    drugs={drugs}
+                    prescriptions={prescriptions}
+                    customers={customers}
+                  />
+                </PlanEnforcementGuard>
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'insurance' && (
-              <InsuranceSchemes
-                providers={insuranceProviders}
-                tenantId={auth.user?.tenantId || activeClient.id}
-              />
+              <RoleAccessGuard user={auth.user} tab="insurance" onNavigateTab={handleTabChange}>
+                <PlanEnforcementGuard
+                  feature="insuranceClaims"
+                  currentTier={activeClient.packageTier}
+                  billingStatus={activeClient.billingStatus}
+                  tenantId={activeClient.id}
+                  tenantName={activeClient.clientName}
+                  userName={auth.user?.fullName}
+                  onNavigateTab={handleTabChange}
+                >
+                  <InsuranceSchemes
+                    providers={insuranceProviders}
+                    tenantId={auth.user?.tenantId || activeClient.id}
+                  />
+                </PlanEnforcementGuard>
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'audit' && (
-              <AuditLogViewer
-                tenantId={auth.user?.tenantId || activeClient.id}
-              />
+              <RoleAccessGuard user={auth.user} tab="audit" onNavigateTab={handleTabChange}>
+                <AuditLogViewer
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'collaborators' && (
-              <CollaboratorManagement
-                tenantId={auth.user?.tenantId || activeClient.id}
-                tenantName={activeClient.clientName}
-              />
+              <RoleAccessGuard user={auth.user} tab="collaborators" onNavigateTab={handleTabChange}>
+                <CollaboratorManagement
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  tenantName={activeClient.clientName}
+                />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'health' && (
-              <SystemHealthDashboard />
+              <RoleAccessGuard user={auth.user} tab="health" onNavigateTab={handleTabChange}>
+                <SystemHealthDashboard />
+              </RoleAccessGuard>
             )}
 
             {activeTab === 'nda' && (
@@ -499,11 +551,18 @@ export default function App() {
             )}
 
             {activeTab === 'tenancy' && (
-              <MultiTenantDashboard />
+              <RoleAccessGuard user={auth.user} tab="tenancy" onNavigateTab={handleTabChange}>
+                <MultiTenantDashboard />
+              </RoleAccessGuard>
             )}
 
             {(activeTab === 'adminPackages' ||
               activeTab === 'adminControlPlane' ||
+              activeTab === 'adminQuantumWorkbench' ||
+              activeTab === 'adminPharmacyRegistry' ||
+              activeTab === 'adminCapacity' ||
+              activeTab === 'adminMessagingHub' ||
+              activeTab === 'adminRevenueLedger' ||
               activeTab === 'adminExecutive' ||
               activeTab === 'adminPolicies' ||
               activeTab === 'adminDelegated' ||
@@ -514,33 +573,35 @@ export default function App() {
               activeTab === 'adminBilling' ||
               activeTab === 'adminRegister' ||
               activeTab === 'adminFeedback') && (
-              <AdminPackages
-                activeClient={activeClient}
-                setActiveClient={setActiveClient}
-                subTab={activeTab}
-              />
+              <RoleAccessGuard user={auth.user} tab={activeTab} onNavigateTab={handleTabChange}>
+                <AdminPackages
+                  activeClient={activeClient}
+                  setActiveClient={setActiveClient}
+                  subTab={activeTab}
+                />
+              </RoleAccessGuard>
             )}
           </div>
         )}
       </main>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-[#1E293B] text-slate-400 py-6 px-4 border-t border-slate-700 text-center text-xs space-y-1">
-        <p className="text-white font-black tracking-wide">
-          ZENITHRX – PHARMACY MANAGEMENT SYSTEM
+      {/* Clinical Footer */}
+      <footer className="bg-white dark:bg-[#0D1A2A] text-slate-600 dark:text-slate-400 py-6 px-4 border-t border-slate-200 dark:border-slate-700 text-center text-xs space-y-1.5 shadow-xs">
+        <p className="text-slate-900 dark:text-slate-100 font-extrabold tracking-wide">
+          ZENITHRX – CLINICAL PHARMACY MANAGEMENT SYSTEM
         </p>
-        <p className="text-slate-400">
-          WhatsApp: <span className="text-green-400 font-bold">+256-755091826</span> | Call:{' '}
-          <span className="text-blue-400 font-bold">0200 913 555</span> | Email:{' '}
-          <span className="text-slate-200">quantumnetworks@gmail.com</span>
+        <p className="text-slate-600 dark:text-slate-400">
+          WhatsApp: <span className="text-emerald-700 dark:text-emerald-400 font-bold">+256-755091826</span> | Call:{' '}
+          <span className="text-blue-700 dark:text-blue-400 font-bold">0200 913 555</span> | Email:{' '}
+          <span className="text-slate-800 dark:text-slate-300 font-medium">quantumnetworks@gmail.com</span>
         </p>
-        <p className="text-slate-500 text-[11px] pt-1">
+        <p className="text-slate-500 dark:text-slate-500 text-[11px] pt-0.5">
           Official Web: www.quantumnetworks.com • Powered by Gemini AI Clinical Engine
           {auth.user && (
-            <span className="ml-2 text-slate-600">
+            <span className="ml-2 text-slate-500 dark:text-slate-400 font-medium">
               | {auth.user.fullName} ({auth.user.rankRole})
-              {!auth.isConfigured && <span className="text-amber-500/70 ml-1">[Demo Mode]</span>}
+              {!auth.isConfigured && <span className="text-amber-600 dark:text-amber-400 ml-1 font-semibold">[Demo Mode]</span>}
             </span>
           )}
         </p>
