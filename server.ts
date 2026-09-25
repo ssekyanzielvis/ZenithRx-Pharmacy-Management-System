@@ -12,7 +12,7 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
-const HOST = process.env.HOST ?? '127.0.0.1';
+const HOST = process.env.HOST ?? '0.0.0.0';
 
 // ─── Enterprise Security & Hardening Middleware ────────────────────────────
 // In-Memory Rate Limiter & IP Quarantine Engine
@@ -39,22 +39,29 @@ app.use((_req, res, next) => {
   next();
 });
 
-// CORS Whitelist Handler
+// CORS Whitelist Handler — Supports local network mobile devices, LAN IP, and Vercel
 app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'http://localhost:3001',
+    'http://127.0.0.1:3001',
     process.env.APP_URL || '',
   ].filter(Boolean);
 
   const origin = req.headers.origin;
-  if (origin && (allowedOrigins.includes(origin) || origin.endsWith('.zenithrx.com'))) {
+  const isLocalNetwork = origin && /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin);
+  const isAllowedHost = origin && (allowedOrigins.includes(origin) || origin.endsWith('.zenithrx.com') || origin.endsWith('.vercel.app') || isLocalNetwork);
+
+  if (origin && isAllowedHost) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Tenant-Id, X-MFA-Code');
+  } else if (!origin) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
 
   if (req.method === 'OPTIONS') {

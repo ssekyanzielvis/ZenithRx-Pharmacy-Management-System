@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
+      host: true,
       port: 3001,
       open: '/patient.html',
     },
