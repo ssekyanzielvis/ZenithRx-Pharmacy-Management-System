@@ -448,8 +448,8 @@ export const advancedStockService = {
   },
 
   // ─── 2. CROSS-PHARMACY STOCK DISCOVERY ──────────────────────────────────────
-  getCrossPharmacyStock(medicineSearch: string): CrossPharmacyStockEntry[] {
-    const q = medicineSearch.toLowerCase().trim();
+  getCrossPharmacyStock(medicineSearch?: string): CrossPharmacyStockEntry[] {
+    const q = (typeof medicineSearch === 'string' ? medicineSearch : '').toLowerCase().trim();
 
     const branches: CrossPharmacyStockEntry[] = [
       {

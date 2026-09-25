@@ -5,12 +5,14 @@
  */
 
 /** Format a number as Ugandan Shillings */
-export function formatUGX(amount: number): string {
+export function formatUGX(amount?: number | null): string {
+  if (typeof amount !== 'number' || isNaN(amount)) return 'UGX 0';
   return `UGX ${Math.round(amount).toLocaleString('en-UG')}`;
 }
 
 /** Format a number as compact UGX (e.g. UGX 1.2M, UGX 450K) */
-export function formatUGXCompact(amount: number): string {
+export function formatUGXCompact(amount?: number | null): string {
+  if (typeof amount !== 'number' || isNaN(amount)) return 'UGX 0';
   if (amount >= 1_000_000) {
     return `UGX ${(amount / 1_000_000).toFixed(1)}M`;
   }
