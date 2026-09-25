@@ -75,8 +75,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ auth, onClose, onSwitchToS
 
       {/* Header Logo */}
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-[#E8F7F0] border border-[#C3E8D8] flex items-center justify-center text-[#20A66A] shadow-xs">
-          <Pill className="w-5 h-5" />
+        <div className="w-10 h-10 rounded-xl bg-white border border-[#C3E8D8] flex items-center justify-center p-0.5 shadow-xs overflow-hidden">
+          <img src="/icon.png" alt="ZenithRx Logo" className="w-full h-full object-contain" />
         </div>
         <div>
           <p className="text-[#263B33] dark:text-slate-100 font-black text-xl tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>ZenithRx</p>

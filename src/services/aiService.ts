@@ -127,3 +127,61 @@ export async function checkDrugInteractions(
     return { success: false, error: 'Network error.' };
   }
 }
+
+export interface PatientCopilotContext {
+  patientId?: string;
+  name?: string;
+  age?: number;
+  allergies?: string[];
+  activeMedications?: string[];
+  chronicConditions?: string[];
+}
+
+export interface PatientCopilotResponse {
+  triageLevel: 'ROUTINE' | 'PHARMACIST_CONSULT_RECOMMENDED' | 'URGENT_EMERGENCY';
+  reply: string;
+  immediateAction: string;
+  emergencyAlert: boolean;
+  suggestedQuickReplies: string[];
+}
+
+/** Quantum RxAI Patient Copilot — interactive patient Q&A, dosage guidance, missed dose protocol, and symptom triage */
+export async function askPatientCopilot(
+  message: string,
+  history: Array<{ sender: 'patient' | 'assistant'; content: string }> = [],
+  patientContext: PatientCopilotContext = {},
+  conversationId?: string
+): Promise<{ success: boolean; data?: PatientCopilotResponse; error?: string; fallback?: boolean }> {
+  try {
+    const res = await fetch('/api/ai/patient-copilot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, history, patientContext, conversationId }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      if (res.status === 503 && json.fallback) {
+        return { success: true, fallback: true, data: json };
+      }
+      return { success: false, error: json.error || 'Failed to get response from AI Copilot' };
+    }
+
+    return { success: true, data: json.data as PatientCopilotResponse };
+  } catch (err: any) {
+    console.error('[aiService] askPatientCopilot error:', err);
+    return {
+      success: true,
+      fallback: true,
+      data: {
+        triageLevel: 'ROUTINE',
+        reply: "I am having trouble connecting to the cloud clinical engine right now. If this is an urgent health concern, please use the Teleconsult tab to speak with an on-duty licensed pharmacist.",
+        immediateAction: "Contact the pharmacy on-duty pharmacist via phone or teleconsult.",
+        emergencyAlert: false,
+        suggestedQuickReplies: ["Book Teleconsultation", "Call Pharmacy Support", "View Emergency Numbers"]
+      }
+    };
+  }
+}
+

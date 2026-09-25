@@ -86,13 +86,8 @@ export const Header: React.FC<HeaderProps> = ({
             }}
             title="ZenithRx Platform Overview Landing Page"
           >
-            <div className="relative w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center p-1.5 shadow-xs group-hover:scale-105 transition-transform">
-              <div className="grid grid-cols-2 gap-0.5 w-full h-full transform rotate-45 items-center justify-center">
-                <div className="bg-white rounded-xs opacity-95"></div>
-                <div className="bg-blue-200 rounded-xs"></div>
-                <div className="bg-emerald-200 rounded-xs"></div>
-                <div className="bg-white rounded-xs"></div>
-              </div>
+            <div className="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-xs overflow-hidden group-hover:scale-105 transition-transform bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <img src="/icon.png" alt="ZenithRx Logo" className="w-full h-full object-contain" />
             </div>
 
             <div>
@@ -198,13 +193,8 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               title="Return to Platform Overview Landing Page"
             >
-              <div className="relative w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center p-1.5 shadow-xs group-hover:scale-105 transition-transform">
-                <div className="grid grid-cols-2 gap-0.5 w-full h-full transform rotate-45 items-center justify-center">
-                  <div className="bg-white rounded-xs opacity-95"></div>
-                  <div className="bg-blue-200 rounded-xs"></div>
-                  <div className="bg-emerald-200 rounded-xs"></div>
-                  <div className="bg-white rounded-xs"></div>
-                </div>
+              <div className="relative w-10 h-10 rounded-xl flex items-center justify-center shadow-xs overflow-hidden group-hover:scale-105 transition-transform bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <img src="/icon.png" alt="ZenithRx Logo" className="w-full h-full object-contain" />
               </div>
 
               <div>

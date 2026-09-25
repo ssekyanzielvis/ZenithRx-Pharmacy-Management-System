@@ -2,9 +2,14 @@ export type ModuleTab =
   | 'overview'
   | 'prescriptions'
   | 'inventory'
+  | 'batchManagement'
+  | 'medicineRecall'
+  | 'stockReconciliation'
+  | 'returnsManagement'
   | 'expiry'
   | 'customers'
   | 'reordering'
+  | 'stockForecasting'
   | 'pos'
   | 'payments'
   | 'reports'
@@ -14,6 +19,18 @@ export type ModuleTab =
   | 'health'
   | 'nda'
   | 'tenancy'
+  | 'dispensingRegister'
+  | 'prescriptionSubstitutions'
+  | 'pharmacistInterventions'
+  | 'adrReporting'
+  | 'supplierManagement'
+  | 'procureToPay'
+  | 'storageAndTransfers'
+  | 'invoiceReconciliation'
+  | 'financialAccounting'
+  | 'backupDisasterRecovery'
+  | 'securityHardening'
+  | 'dataPrivacy'
   | 'adminPackages'
   | 'adminControlPlane'
   | 'adminExecutive'
@@ -30,6 +47,38 @@ export type ModuleTab =
   | 'adminMessagingHub'
   | 'adminQuantumWorkbench'
   | 'adminRevenueLedger'
+  | 'adminPharmacistVerification'
+  | 'adminMedicineCatalogue'
+  | 'adminMedicineSafety'
+  | 'adminHealthEducation'
+  | 'adminOCR'
+  | 'adminRxVerification'
+  | 'adminSuppliers'
+  | 'adminOrdersDelivery'
+  | 'onlineOrders'
+  | 'adminAdherenceRefill'
+  | 'adminConsultation'
+  | 'adminADR'
+  | 'adminDispensingRegister'
+  | 'adminNotifications'
+  | 'adminSystemConfig'
+  | 'adminAlertThresholds'
+  | 'adminAnalytics'
+  | 'ownerDashboard'
+  | 'ownerSales'
+  | 'ownerStock'
+  | 'ownerReports'
+  | 'pharmacyServices'
+  | 'customerSupport'
+  | 'patientPortal'
+  | 'patientMedicineSearch'
+  | 'patientPrescriptions'
+  | 'patientOrders'
+  | 'patientAdherence'
+  | 'patientConsultation'
+  | 'patientHealthEducation'
+  | 'patientADR'
+  | 'patientProfile'
   | 'feedback'
   | 'adminFeedback';
 
@@ -68,7 +117,9 @@ export type UserRoleRank =
   | 'POS Cashier / Dispenser'
   | 'Store & Inventory Manager'
   | 'Finance & Claims Officer'
-  | 'Intern Pharmacist';
+  | 'Intern Pharmacist'
+  | 'Pharmacy Owner'
+  | 'Patient';
 
 export interface PharmacyUserAccount {
   id: string;
@@ -146,32 +197,147 @@ export interface DrugItem {
   unit: string; // 'tablets', 'capsules', 'bottle (100ml)', 'inhaler', 'vial'
 }
 
+export type PrescriptionStatus = 
+  | 'Draft' 
+  | 'Pending Verification' 
+  | 'Verified / Approved' 
+  | 'Partially Dispensed' 
+  | 'Fully Dispensed' 
+  | 'Cancelled' 
+  | 'Expired' 
+  | 'Rejected'
+  | 'Pending'
+  | 'Dispensed';
+
+export type MedicationRoute =
+  | 'Oral'
+  | 'Intravenous (IV)'
+  | 'Intramuscular (IM)'
+  | 'Subcutaneous'
+  | 'Topical'
+  | 'Inhalation'
+  | 'Sublingual'
+  | 'Ophthalmic'
+  | 'Otic'
+  | 'Rectal'
+  | 'Transdermal';
+
+export interface PartialDispensingRecord {
+  id: string;
+  sessionNumber: number;
+  prescriptionItemId?: string;
+  drugName: string;
+  batchNumber: string;
+  batchExpiry: string;
+  quantityDispensed: number;
+  remainingAfter: number;
+  unitPriceUgx: number;
+  totalChargedUgx: number;
+  dispensingPharmacist: string;
+  dispensingPharmacistPsu: string;
+  dispensingBranch: string;
+  reasonForPartial: string;
+  nextExpectedDate?: string;
+  notes?: string;
+  timestamp: string;
+}
+
+export interface PrescriptionAmendmentRecord {
+  id: string;
+  timestamp: string;
+  amendedBy: string;
+  psuNo: string;
+  fieldChanged: string;
+  oldValue: string;
+  newValue: string;
+  clinicalJustification: string;
+  prescriberContacted: boolean;
+  prescriberNotes?: string;
+}
+
+export interface PrescriptionItem {
+  id?: string;
+  drugId: string;
+  drugName: string;
+  brandName?: string;
+  genericName?: string;
+  strength?: string;
+  dosageForm?: string;
+  route?: MedicationRoute;
+  dosage?: string;
+  dose?: string;
+  frequency: string;
+  duration: string;
+  quantity: number;
+  dispensedQty: number;
+  remainingQty?: number;
+  unitPrice: number;
+  isPOM?: boolean;
+  isControlled?: boolean;
+  status: 'Pending' | 'Partially Dispensed' | 'Dispensed';
+  specialInstructions?: string;
+}
+
 export interface Prescription {
   id: string;
   rxNumber: string;
+  issueDate?: string;
+  expiryDate?: string;
+  date: string;
+  
+  // Patient details
   patientName: string;
   patientAge: number;
   patientGender: 'Male' | 'Female' | 'Other';
   patientPhone: string;
+  patientAllergies?: string[];
+  patientChronicConditions?: string[];
+
+  // Prescriber details
+  prescriberName?: string;
+  prescriberCadre?: string;
+  prescriberRegNo?: string;
+  prescriberPhone?: string;
   doctorName: string;
   doctorLicence: string;
   hospitalName: string;
-  date: string;
-  status: 'Pending' | 'Dispensed' | 'Partially Dispensed' | 'Cancelled';
-  medications: Array<{
-    drugId: string;
-    drugName: string;
-    dosage: string;
-    frequency: string;
-    duration: string;
-    quantity: number;
-    unitPrice: number;
-    dispensedQty: number;
-    status: 'Pending' | 'Dispensed';
-  }>;
-  insuranceClaimId?: string;
-  notes?: string;
+  diagnosis?: string;
+
+  // Lifecycle Status
+  status: PrescriptionStatus;
+  verifiedBy?: string;
+  verifiedByPsu?: string;
+  verifiedAt?: string;
+
+  rejectionReason?: string;
+  rejectedBy?: string;
+  rejectedAt?: string;
+
+  cancellationReason?: string;
+  cancelledBy?: string;
+  cancelledAt?: string;
+
+  // Refills
+  refillsAllowed?: number;
+  refillsRemaining?: number;
+  lastRefillDate?: string;
+
+  // Items
+  medications: PrescriptionItem[];
+
+  // Partial Dispensing & Amendments
+  partialDispensingHistory?: PartialDispensingRecord[];
+  amendmentHistory?: PrescriptionAmendmentRecord[];
+
+  // Financials
   totalCost: number;
+  amountPaid?: number;
+  outstandingBalance?: number;
+  insuranceClaimId?: string;
+  insuranceSchemeName?: string;
+
+  originalRxImageUrl?: string;
+  notes?: string;
 }
 
 export interface CustomerProfile {
@@ -493,6 +659,8 @@ export interface PlatformRevenueSummary {
   pesapalGatewayBalanceUgx: number;
   systemComplianceRatePercent: number; // 100% when all subscriptions are mediated through system
 }
+
+export * from './types/v2Types';
 
 
 

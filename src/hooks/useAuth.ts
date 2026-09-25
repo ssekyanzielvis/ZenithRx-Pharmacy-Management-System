@@ -58,20 +58,20 @@ export interface UseAuthReturn {
 export const DEMO_ADMIN_USER: AuthUser = {
   id:         'admin-super-001',
   email:      'admin@zenithrx.ug',
-  fullName:   'Dr. Arthur Ssenabulya',
+  fullName:   'Arthur Ssenabulya (Platform SysAdmin)',
   phone:      '+256 701 992811',
   rankRole:   'Super Admin',
   tenantId:   '00000000-0000-0000-0000-000000000001',
   tenantName: 'ZenithRx Global Platform',
   accessRights: {
-    canAccessPOS:            true,
-    canManageInventory:      true,
-    canProcessPrescriptions: true,
-    canApproveReorders:      true,
-    canViewReports:          true,
-    canSubmitInsurance:      true,
-    canUseAiAssistant:       true,
-    canManageStaffAccounts:  true,
+    canAccessPOS:            false, // Strictly segregated from retail pharmacy POS
+    canManageInventory:      false, // Strictly segregated from pharmacy drug inventory
+    canProcessPrescriptions: false, // Strictly segregated from clinical prescriptions
+    canApproveReorders:      false, // Strictly segregated from pharmacy POs
+    canViewReports:          false, // Strictly segregated from confidential commercial reports
+    canSubmitInsurance:      false, // Strictly segregated from pharmacy insurance claims
+    canUseAiAssistant:       true,  // Can utilize platform engineering AI assistant
+    canManageStaffAccounts:  false, // Client branch staff managed by supervising pharmacist / owner
   },
   isSuperAdmin: true,
   subscriptionStatus: 'active',

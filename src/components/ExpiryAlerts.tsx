@@ -5,9 +5,10 @@
  * stock quarantine isolation, and official NDA destruction certificate generation.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { DrugItem } from '../types';
 import { useExpiryAlerts } from '../hooks/useExpiryAlerts';
+import { fefoDispensingService, formatExpiryMonthYear } from '../services/fefoDispensingService';
 import { formatUGX } from '../services/formatters';
 import {
   AlertTriangle,
@@ -204,6 +205,163 @@ export const ExpiryAlerts: React.FC<ExpiryAlertsProps> = ({
           </div>
           <div className="p-3 bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 rounded-xl">
             <Sparkles className="w-6 h-6" />
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Active FEFO Batch Dispensing Assistant (Batch A vs Batch B) ───── */}
+      <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white p-6 rounded-3xl border border-teal-800/60 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-teal-800/50 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-teal-500/20 rounded-2xl border border-teal-400/30">
+              <Sparkles className="w-6 h-6 text-teal-300" />
+            </div>
+            <div>
+              <h3 className="text-base font-black tracking-tight flex items-center gap-2">
+                <span>Active FEFO Dispensing Recommendation Engine</span>
+                <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-teal-500/30 text-teal-200 border border-teal-400/30">
+                  Live Assister
+                </span>
+              </h3>
+              <p className="text-xs text-teal-200/80 mt-0.5">
+                Automatically instructs dispensers on which batch to draw first (e.g. Batch A Exp Jan 2027 before Batch B Exp Jun 2027)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Live Multi-Batch Comparison Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          {/* Item 1: Augmentin 625mg */}
+          <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-black text-slate-100">Augmentin 625mg</span>
+              <span className="text-[10px] text-teal-400 font-bold">2 Active Batches</span>
+            </div>
+
+            <div className="space-y-2">
+              {/* Batch A */}
+              <div className="p-2.5 rounded-xl bg-teal-950/80 border border-teal-500/60 text-[11px] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-black text-teal-200 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-teal-400" /> Batch A (AUG-2027A)
+                  </span>
+                  <span className="text-[9px] font-black bg-emerald-600 text-white px-1.5 py-0.2 rounded">
+                    ⭐ DISPENSE FIRST
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-300 text-[10px]">
+                  <span>Expires: <b className="text-emerald-300">Jan 2027</b></span>
+                  <span>Stock: <b>40 units</b> (Rack A-02)</span>
+                </div>
+              </div>
+
+              {/* Batch B */}
+              <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-[11px] space-y-1 opacity-75">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-300">Batch B (AUG-2027B)</span>
+                  <span className="text-[9px] font-bold bg-slate-700 text-slate-300 px-1.5 py-0.2 rounded">
+                    HOLD BEHIND BATCH A
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-400 text-[10px]">
+                  <span>Expires: <b>Jun 2027</b></span>
+                  <span>Stock: <b>100 units</b></span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[10px] text-teal-300/90 italic">
+              ✔ System pre-selects Batch A automatically at POS and Prescription Workbench.
+            </p>
+          </div>
+
+          {/* Item 2: Glucophage 850mg */}
+          <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-black text-slate-100">Glucophage 850mg</span>
+              <span className="text-[10px] text-teal-400 font-bold">2 Active Batches</span>
+            </div>
+
+            <div className="space-y-2">
+              {/* Batch A */}
+              <div className="p-2.5 rounded-xl bg-teal-950/80 border border-teal-500/60 text-[11px] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-black text-teal-200 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-teal-400" /> Batch A (MET-2027A)
+                  </span>
+                  <span className="text-[9px] font-black bg-emerald-600 text-white px-1.5 py-0.2 rounded">
+                    ⭐ DISPENSE FIRST
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-300 text-[10px]">
+                  <span>Expires: <b className="text-emerald-300">Feb 2027</b></span>
+                  <span>Stock: <b>60 units</b> (Rack B-01)</span>
+                </div>
+              </div>
+
+              {/* Batch B */}
+              <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-[11px] space-y-1 opacity-75">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-300">Batch B (MET-2027B)</span>
+                  <span className="text-[9px] font-bold bg-slate-700 text-slate-300 px-1.5 py-0.2 rounded">
+                    HOLD BEHIND BATCH A
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-400 text-[10px]">
+                  <span>Expires: <b>Sep 2027</b></span>
+                  <span>Stock: <b>120 units</b></span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[10px] text-teal-300/90 italic">
+              ✔ Out-of-sequence override requires documented clinical or patient reason.
+            </p>
+          </div>
+
+          {/* Item 3: Panadol Extra */}
+          <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-black text-slate-100">Panadol Extra</span>
+              <span className="text-[10px] text-teal-400 font-bold">2 Active Batches</span>
+            </div>
+
+            <div className="space-y-2">
+              {/* Batch A */}
+              <div className="p-2.5 rounded-xl bg-teal-950/80 border border-teal-500/60 text-[11px] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-black text-teal-200 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-teal-400" /> Batch A (PAN-2027A)
+                  </span>
+                  <span className="text-[9px] font-black bg-emerald-600 text-white px-1.5 py-0.2 rounded">
+                    ⭐ DISPENSE FIRST
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-300 text-[10px]">
+                  <span>Expires: <b className="text-emerald-300">Jan 2027</b></span>
+                  <span>Stock: <b>80 units</b> (Shelf 1)</span>
+                </div>
+              </div>
+
+              {/* Batch B */}
+              <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-700 text-[11px] space-y-1 opacity-75">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-300">Batch B (PAN-2027B)</span>
+                  <span className="text-[9px] font-bold bg-slate-700 text-slate-300 px-1.5 py-0.2 rounded">
+                    HOLD BEHIND BATCH A
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-400 text-[10px]">
+                  <span>Expires: <b>Aug 2027</b></span>
+                  <span>Stock: <b>250 units</b></span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-[10px] text-teal-300/90 italic">
+              ✔ Protects pharmacy from inventory write-offs via active FEFO queuing.
+            </p>
           </div>
         </div>
       </div>

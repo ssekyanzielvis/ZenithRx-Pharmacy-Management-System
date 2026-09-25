@@ -27,6 +27,10 @@ export default defineConfig(({ mode }) => {
     build: {
       chunkSizeWarningLimit: 800,
       rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          patient: path.resolve(__dirname, 'patient.html'),
+        },
         output: {
           manualChunks: {
             'vendor-react': ['react', 'react-dom'],

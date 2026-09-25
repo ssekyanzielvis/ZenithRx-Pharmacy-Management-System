@@ -38,6 +38,7 @@ import {
 import { StatCard } from './ui/StatCard';
 import { Badge } from './ui/Badge';
 import { CashUpModal } from './CashUpModal';
+import { PharmacyAnalyticsSuite } from './PharmacyAnalyticsSuite';
 
 interface SalesReportsProps {
   transactions: POSTransaction[];
@@ -46,7 +47,7 @@ interface SalesReportsProps {
   customers?: CustomerProfile[];
 }
 
-type ReportTab = 'salesKpi' | 'stockAgeing' | 'openSearch' | 'warehouseCdc';
+type ReportTab = 'analyticsSuite' | 'salesKpi' | 'stockAgeing' | 'openSearch' | 'warehouseCdc';
 type DateRange = 'today' | 'week' | 'month' | 'all';
 
 const DATE_RANGE_LABELS: Record<DateRange, string> = {
@@ -91,7 +92,7 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
   prescriptions = [],
   customers = [],
 }) => {
-  const [activeTab, setActiveTab] = useState<ReportTab>('salesKpi');
+  const [activeTab, setActiveTab] = useState<ReportTab>('analyticsSuite');
   const [dateRange, setDateRange] = useState<DateRange>('all');
   const [isCashUpOpen, setIsCashUpOpen] = useState(false);
 
@@ -154,20 +155,20 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
       {/* Top Banner */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-50 border border-blue-100 rounded-2xl text-blue-600">
+          <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-2xl text-indigo-600">
             <BarChart3 className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-xl font-black text-slate-900">
-                Search, Analytics &amp; Reporting
+                Executive Analytics &amp; Reporting Suite
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200 flex items-center gap-1">
-                <Database className="w-3 h-3 text-blue-600" /> Isolated OLAP Reporting Path
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 flex items-center gap-1">
+                <Database className="w-3 h-3 text-indigo-600" /> Operational, Inventory &amp; Clinical BI
               </span>
             </div>
             <p className="text-xs text-slate-600 mt-1">
-              Materialized views, stock ageing matrices, OpenSearch full-text cluster &amp; BigQuery data warehouse pipelines.
+              Today's dispensing telemetry, fast/slow velocity tiers, dead stock capital, and pharmacovigilance safety indicators.
             </p>
           </div>
         </div>
@@ -191,54 +192,83 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
       </div>
 
       {/* Feature Cards Navigation */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+
+        {/* Card 0 — Executive Analytics Suite */}
+        <button
+          onClick={() => setActiveTab('analyticsSuite')}
+          className={`group relative text-left rounded-3xl border-t-4 p-4 flex flex-col gap-2.5 cursor-pointer transition-all duration-300 ${
+            activeTab === 'analyticsSuite'
+              ? 'bg-indigo-50/70 border-indigo-600 shadow-sm ring-1 ring-indigo-400'
+              : 'bg-white border-slate-200 hover:-translate-y-1 hover:shadow-md'
+          }`}
+          style={{ borderTopColor: activeTab === 'analyticsSuite' ? '#4f46e5' : '#818cf8' }}
+        >
+          <span className="absolute top-3 right-3 text-[9px] font-black px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
+            ALL INDICATORS
+          </span>
+
+          <div className={`w-9 h-9 rounded-2xl flex items-center justify-center ${
+            activeTab === 'analyticsSuite' ? 'bg-indigo-100' : 'bg-indigo-50'
+          }`}>
+            <BarChart3 className="w-5 h-5 text-indigo-600" />
+          </div>
+
+          <div className="space-y-0.5">
+            <h3 className="text-xs font-black leading-tight text-slate-900">
+              Executive Analytics &amp; Safety
+            </h3>
+            <p className="text-[10px] leading-relaxed text-slate-600">
+              Today's sales, dispensing, velocity &amp; ADR safety.
+            </p>
+          </div>
+
+          <div className="mt-auto pt-2 border-t border-slate-200">
+            {activeTab === 'analyticsSuite' ? (
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-indigo-800 bg-indigo-100 px-2.5 py-0.5 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-indigo-700" /> Active
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                ▶ View
+              </span>
+            )}
+          </div>
+        </button>
 
         {/* Card 1 — Financial KPIs & Revenue */}
         <button
           onClick={() => setActiveTab('salesKpi')}
-          className={`group relative text-left rounded-3xl border-t-4 p-5 flex flex-col gap-3 cursor-pointer transition-all duration-300 ${
+          className={`group relative text-left rounded-3xl border-t-4 p-4 flex flex-col gap-2.5 cursor-pointer transition-all duration-300 ${
             activeTab === 'salesKpi'
               ? 'bg-blue-50/70 border-blue-600 shadow-sm'
               : 'bg-white border-slate-200 hover:-translate-y-1 hover:shadow-md'
           }`}
           style={{ borderTopColor: activeTab === 'salesKpi' ? '#2563EB' : '#93C5FD' }}
         >
-          {/* Icon */}
-          <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${
+          <div className={`w-9 h-9 rounded-2xl flex items-center justify-center ${
             activeTab === 'salesKpi' ? 'bg-blue-100' : 'bg-blue-50'
           }`}>
-            <TrendingUp className="w-6 h-6 text-blue-600" />
+            <TrendingUp className="w-5 h-5 text-blue-600" />
           </div>
 
-          {/* Title & description */}
-          <div className="space-y-1">
-            <h3 className="text-sm font-black leading-tight text-slate-900">
+          <div className="space-y-0.5">
+            <h3 className="text-xs font-black leading-tight text-slate-900">
               Financial KPIs &amp; Revenue
             </h3>
-            <p className="text-[11px] leading-relaxed text-slate-600">
-              Real-time revenue analytics, gross profit, and payment channel distribution.
+            <p className="text-[10px] leading-relaxed text-slate-600">
+              Net sales, gross profit, payment channels &amp; tax.
             </p>
           </div>
 
-          {/* Feature bullets */}
-          <ul className="space-y-1">
-            {['Net Sales & Gross Profit', 'Avg Order Value (AOV)', 'Payment Channel Breakdown', 'VAT & COGS Settlement'].map((f) => (
-              <li key={f} className="text-[10px] font-semibold flex items-center gap-1.5 text-slate-600">
-                <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-blue-500" />
-                {f}
-              </li>
-            ))}
-          </ul>
-
-          {/* Footer CTA */}
           <div className="mt-auto pt-2 border-t border-slate-200">
             {activeTab === 'salesKpi' ? (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-blue-800 bg-blue-100 px-3 py-1 rounded-full">
-                <CheckCircle2 className="w-3 h-3 text-blue-700" /> Viewing
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-blue-800 bg-blue-100 px-2.5 py-0.5 rounded-full">
+                <CheckCircle2 className="w-3 h-3 text-blue-700" /> Active
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full group-hover:bg-blue-100 transition">
-                ▶ Open
+              <span className="inline-flex items-center gap-1 text-[9px] font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                ▶ View
               </span>
             )}
           </div>
@@ -408,6 +438,11 @@ export const SalesReports: React.FC<SalesReportsProps> = ({
         </button>
 
       </div>
+
+      {/* TAB 0: ADVANCED PHARMACY ANALYTICS & DASHBOARD SUITE */}
+      {activeTab === 'analyticsSuite' && (
+        <PharmacyAnalyticsSuite />
+      )}
 
       {/* TAB 1: FINANCIAL KPIS & REVENUE */}
       {activeTab === 'salesKpi' && (

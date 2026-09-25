@@ -90,17 +90,36 @@ export function useCustomerProfiles({
 
   // ─── WhatsApp Refill Link Generator ────────────────────────────────────────
   const generateWhatsAppLink = useCallback(
-    (customer: CustomerProfile, drugName?: string, nextRefillDate?: string) => {
+    (customer: CustomerProfile, drugName?: string, nextRefillDate?: string, quantity?: number, posology?: string) => {
       const cleanPhone = customer.phone.replace(/[^0-9]/g, '');
       const medicationText = drugName ? `*${drugName}*` : 'your routine prescription refill';
-      const dateText = nextRefillDate ? ` scheduled for *${nextRefillDate}*` : '';
+      
+      let countdownNotice = '🔔 Your routine medication supply is reaching its estimated depletion date.';
+      if (nextRefillDate) {
+        const today = new Date('2026-09-25');
+        const target = new Date(nextRefillDate);
+        const diffDays = Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays < 0) {
+          countdownNotice = `⚠️ *Alert:* Your routine supply ran out *${Math.abs(diffDays)} days ago*. To prevent missed doses, please refill immediately.`;
+        } else if (diffDays === 0) {
+          countdownNotice = `🔔 *Alert:* Your supply *runs out today* (${nextRefillDate}).`;
+        } else if (diffDays === 1) {
+          countdownNotice = `🔔 *Refill Notice:* Your supply *runs out tomorrow* (1 day remaining).`;
+        } else {
+          countdownNotice = `🔔 *Refill Notice:* *Refill due in ${diffDays} days* (Estimated Depletion: *${nextRefillDate}*).`;
+        }
+      }
 
       const message =
         `Hello *${customer.name}*! 👋\n\n` +
-        `This is *${pharmacyName}* reaching out regarding your ${medicationText}${dateText}.\n\n` +
-        `💊 Your routine medication is due for a refill to ensure continuous adherence. We have freshly verified stock ready for you.\n\n` +
-        `⭐ *Loyalty Balance:* You currently have *${customer.loyaltyPoints || 0} ZenithPoints* available for instant discounts!\n\n` +
-        `Reply *REFILL* to confirm delivery to your location or reserve for immediate pickup.\n\n` +
+        `This is *${pharmacyName}* with your precision refill reminder regarding ${medicationText}.\n\n` +
+        `${countdownNotice}\n\n` +
+        (posology ? `📋 *Prescribed Posology:* ${posology}\n` : '') +
+        (quantity ? `📦 *Original Pack Dispensed:* ${quantity} units\n` : '') +
+        `✅ Your refill has been verified in-stock by our supervising pharmacist.\n\n` +
+        `⭐ *Loyalty Balance:* You have *${customer.loyaltyPoints || 0} ZenithPoints* available for instant discounts!\n\n` +
+        `Reply *REFILL* to reserve for fast-track pharmacy pickup or confirm doorstep courier delivery.\n\n` +
         `📞 Call/WhatsApp us directly at ${pharmacyPhone} for any pharmacist counseling.`;
 
       return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;

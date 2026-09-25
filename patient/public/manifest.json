@@ -1,0 +1,19 @@
+{
+  "name": "ZenithRx Patient Care & Health Portal",
+  "short_name": "ZenithRx Patient",
+  "description": "Uganda's Premier Clinical Patient Pharmacy, Prescription & Health Companion PWA",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F4F7FB",
+  "theme_color": "#059669",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

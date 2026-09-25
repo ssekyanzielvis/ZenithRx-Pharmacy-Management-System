@@ -36,8 +36,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth, onOpenAdmin }) =
       {/* ── Top Header Bar for Visitors ── */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-slate-200 px-4 sm:px-8 py-3 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-xs">
-            <Pill className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-xs bg-white border border-slate-200">
+            <img src="/icon.png" alt="ZenithRx Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <span className="text-slate-900 font-black text-lg tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>

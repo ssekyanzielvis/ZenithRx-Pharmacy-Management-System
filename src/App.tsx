@@ -60,6 +60,40 @@ import { AICounselingModal }     from './components/AICounselingModal';
 import { PharmacyFeedbackModal } from './components/PharmacyFeedbackModal';
 import { PlanEnforcementGuard }   from './components/PlanEnforcementGuard';
 import { RoleAccessGuard }        from './components/RoleAccessGuard';
+import { DispensingRegister }     from './components/DispensingRegister';
+import { AdrReportingModule }     from './components/AdrReportingModule';
+import { SupplierManagement }     from './components/SupplierManagement';
+import { DeliveryLogisticsModule }from './components/DeliveryLogisticsModule';
+import { AdherenceRefillTracker } from './components/AdherenceRefillTracker';
+import { TeleconsultationHub }    from './components/TeleconsultationHub';
+import { AdminExecutiveCockpit }  from './components/admin/AdminExecutiveCockpit';
+import { AdminPoliciesPanel }     from './components/admin/AdminPoliciesPanel';
+import { AdminDualControl }       from './components/admin/AdminDualControl';
+import { AdminIncidentResponse }  from './components/admin/AdminIncidentResponse';
+import { AdminAccessMatrix }      from './components/admin/AdminAccessMatrix';
+import { AdminPharmacistVerification } from './components/admin/AdminPharmacistVerification';
+import { AdminMedicineSafetyCatalogue }from './components/admin/AdminMedicineSafetyCatalogue';
+import { AdminHealthEducationCMS }from './components/admin/AdminHealthEducationCMS';
+import { AdminPrescriptionOCRQueue }  from './components/admin/AdminPrescriptionOCRQueue';
+import { PharmacyOwnerDashboard } from './components/owner/PharmacyOwnerDashboard';
+import { PharmacyServiceCatalogueConsole } from './components/owner/PharmacyServiceCatalogueConsole';
+import { CustomerSupportDeskConsole } from './components/CustomerSupportDeskConsole';
+import { NotificationCenterConsole } from './components/NotificationCenterConsole';
+import { StockForecastingAndReservationsConsole } from './components/StockForecastingAndReservationsConsole';
+import { PatientOnlineOrdersQueue } from './components/PatientOnlineOrdersQueue';
+import { BatchManagementConsole } from './components/BatchManagementConsole';
+import { StockReconciliationConsole } from './components/StockReconciliationConsole';
+import { ReturnsManagementConsole } from './components/ReturnsManagementConsole';
+import { MedicineRecallConsole } from './components/MedicineRecallConsole';
+import { PharmacistInterventionConsole } from './components/PharmacistInterventionConsole';
+import { ProcureToPayConsole } from './components/ProcureToPayConsole';
+import { InvoiceReconciliationConsole } from './components/InvoiceReconciliationConsole';
+import { FinancialAccountingConsole } from './components/FinancialAccountingConsole';
+import { BackupDisasterRecoveryConsole } from './components/BackupDisasterRecoveryConsole';
+import { SecurityHardeningConsole } from './components/SecurityHardeningConsole';
+import { DataPrivacyConsole } from './components/DataPrivacyConsole';
+import { StorageAndTransferConsole } from './components/StorageAndTransferConsole';
+import { PrescriptionSubstitutionConsole } from './components/PrescriptionSubstitutionConsole';
 
 export default function App() {
   const auth = useAuth();
@@ -82,6 +116,19 @@ export default function App() {
     if (path.includes('adminbilling')) return 'adminBilling';
     if (path.includes('adminregister')) return 'adminRegister';
     if (path.includes('adminfeedback')) return 'adminFeedback';
+    if (path.includes('financialaccounting') || path.includes('accounting') || path.includes('pnl')) return 'financialAccounting';
+    if (path.includes('backupdisasterrecovery') || path.includes('backup') || path.includes('disaster') || path.includes('recovery')) return 'backupDisasterRecovery';
+    if (path.includes('securityhardening') || path.includes('mfa') || path.includes('security') || path.includes('siem') || path.includes('threats')) return 'securityHardening';
+    if (path.includes('dataprivacy') || path.includes('privacy') || path.includes('consent') || path.includes('phi') || path.includes('retention')) return 'dataPrivacy';
+    if (path.includes('prescriptionsubstitutions') || path.includes('substitutions') || path.includes('interchange')) return 'prescriptionSubstitutions';
+    if (path.includes('storageandtransfers') || path.includes('transfers') || path.includes('bins') || path.includes('stocktransfer')) return 'storageAndTransfers';
+    if (path.includes('invoicereconciliation') || path.includes('3waymatch') || path.includes('invoicematching')) return 'invoiceReconciliation';
+    if (path.includes('procuretopay') || path.includes('p2p') || path.includes('procurement')) return 'procureToPay';
+    if (path.includes('pharmacistinterventions') || path.includes('interventions') || path.includes('clinicalinterventions')) return 'pharmacistInterventions';
+    if (path.includes('medicinerecall') || path.includes('recall')) return 'medicineRecall';
+    if (path.includes('returnsmanagement') || path.includes('returns')) return 'returnsManagement';
+    if (path.includes('stockreconciliation') || path.includes('stocktake') || path.includes('stockadjustment')) return 'stockReconciliation';
+    if (path.includes('batchmanagement') || path.includes('batches')) return 'batchManagement';
     if (path.includes('admin')) return 'adminControlPlane';
     if (path.includes('tenancy')) return 'tenancy';
     if (path.includes('pos')) return 'pos';
@@ -428,6 +475,30 @@ export default function App() {
               </RoleAccessGuard>
             )}
 
+            {activeTab === 'batchManagement' && (
+              <RoleAccessGuard user={auth.user} tab="batchManagement" onNavigateTab={handleTabChange}>
+                <BatchManagementConsole />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'stockReconciliation' && (
+              <RoleAccessGuard user={auth.user} tab="stockReconciliation" onNavigateTab={handleTabChange}>
+                <StockReconciliationConsole drugs={drugs} />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'returnsManagement' && (
+              <RoleAccessGuard user={auth.user} tab="returnsManagement" onNavigateTab={handleTabChange}>
+                <ReturnsManagementConsole />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'medicineRecall' && (
+              <RoleAccessGuard user={auth.user} tab="medicineRecall" onNavigateTab={handleTabChange}>
+                <MedicineRecallConsole />
+              </RoleAccessGuard>
+            )}
+
             {activeTab === 'expiry' && (
               <RoleAccessGuard user={auth.user} tab="expiry" onNavigateTab={handleTabChange}>
                 <ExpiryAlerts
@@ -462,6 +533,15 @@ export default function App() {
               </RoleAccessGuard>
             )}
 
+            {activeTab === 'stockForecasting' && (
+              <RoleAccessGuard user={auth.user} tab="reordering" onNavigateTab={handleTabChange}>
+                <StockForecastingAndReservationsConsole
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  onNavigateTab={handleTabChange}
+                />
+              </RoleAccessGuard>
+            )}
+
             {activeTab === 'pos' && (
               <RoleAccessGuard user={auth.user} tab="pos" onNavigateTab={handleTabChange}>
                 <PointOfSale
@@ -470,6 +550,17 @@ export default function App() {
                   transactions={posTransactions}
                   onCompleteSale={handleCompleteSale}
                   openBarcodeScanner={() => setIsBarcodeOpen(true)}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'financialAccounting' && (
+              <RoleAccessGuard user={auth.user} tab="financialAccounting" onNavigateTab={handleTabChange}>
+                <FinancialAccountingConsole
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                  currentUserName={auth.user?.fullName}
+                  currentUserRole={auth.user?.rankRole}
                 />
               </RoleAccessGuard>
             )}
@@ -546,6 +637,24 @@ export default function App() {
               </RoleAccessGuard>
             )}
 
+            {activeTab === 'backupDisasterRecovery' && (
+              <RoleAccessGuard user={auth.user} tab="backupDisasterRecovery" onNavigateTab={handleTabChange}>
+                <BackupDisasterRecoveryConsole />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'securityHardening' && (
+              <RoleAccessGuard user={auth.user} tab="securityHardening" onNavigateTab={handleTabChange}>
+                <SecurityHardeningConsole />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'dataPrivacy' && (
+              <RoleAccessGuard user={auth.user} tab="dataPrivacy" onNavigateTab={handleTabChange}>
+                <DataPrivacyConsole />
+              </RoleAccessGuard>
+            )}
+
             {activeTab === 'nda' && (
               <NdaRegistryViewer />
             )}
@@ -556,6 +665,211 @@ export default function App() {
               </RoleAccessGuard>
             )}
 
+            {activeTab === 'dispensingRegister' && (
+              <RoleAccessGuard user={auth.user} tab="dispensingRegister" onNavigateTab={handleTabChange}>
+                <DispensingRegister
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                  currentPharmacistName={auth.user?.fullName}
+                  currentPharmacistRole={auth.user?.rankRole}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'prescriptionSubstitutions' && (
+              <RoleAccessGuard user={auth.user} tab="prescriptionSubstitutions" onNavigateTab={handleTabChange}>
+                <PrescriptionSubstitutionConsole
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                  currentPharmacistName={auth.user?.fullName}
+                  currentPharmacistRole={auth.user?.rankRole}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'pharmacistInterventions' && (
+              <RoleAccessGuard user={auth.user} tab="pharmacistInterventions" onNavigateTab={handleTabChange}>
+                <PharmacistInterventionConsole
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                  currentPharmacistName={auth.user?.fullName}
+                  currentPharmacistRole={auth.user?.rankRole}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adrReporting' && (
+              <RoleAccessGuard user={auth.user} tab="adrReporting" onNavigateTab={handleTabChange}>
+                <AdrReportingModule
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                  currentUser={{
+                    name: auth.user?.fullName,
+                    role: auth.user?.rankRole,
+                    phone: auth.user?.phone,
+                  }}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'procureToPay' && (
+              <RoleAccessGuard user={auth.user} tab="procureToPay" onNavigateTab={handleTabChange}>
+                <ProcureToPayConsole
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                  currentUser={{
+                    name: auth.user?.fullName,
+                    role: auth.user?.rankRole,
+                  }}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'storageAndTransfers' && (
+              <RoleAccessGuard user={auth.user} tab="storageAndTransfers" onNavigateTab={handleTabChange}>
+                <StorageAndTransferConsole />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'invoiceReconciliation' && (
+              <RoleAccessGuard user={auth.user} tab="procureToPay" onNavigateTab={handleTabChange}>
+                <InvoiceReconciliationConsole
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  currentUser={{
+                    name: auth.user?.fullName,
+                    role: auth.user?.rankRole,
+                  }}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'supplierManagement' && (
+              <RoleAccessGuard user={auth.user} tab="supplierManagement" onNavigateTab={handleTabChange}>
+                <SupplierManagement
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminOrdersDelivery' && (
+              <RoleAccessGuard user={auth.user} tab="pos" onNavigateTab={handleTabChange}>
+                <DeliveryLogisticsModule
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'onlineOrders' && (
+              <RoleAccessGuard user={auth.user} tab="pos" onNavigateTab={handleTabChange}>
+                <PatientOnlineOrdersQueue />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminAdherenceRefill' && (
+              <RoleAccessGuard user={auth.user} tab="prescriptions" onNavigateTab={handleTabChange}>
+                <AdherenceRefillTracker
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminConsultation' && (
+              <RoleAccessGuard user={auth.user} tab="prescriptions" onNavigateTab={handleTabChange}>
+                <TeleconsultationHub
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  pharmacyName={activeClient.clientName}
+                  currentPharmacistName={auth.user?.fullName}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminExecutive' && (
+              <RoleAccessGuard user={auth.user} tab="adminExecutive" onNavigateTab={handleTabChange}>
+                <AdminExecutiveCockpit />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminPolicies' && (
+              <RoleAccessGuard user={auth.user} tab="adminPolicies" onNavigateTab={handleTabChange}>
+                <AdminPoliciesPanel />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminDualControl' && (
+              <RoleAccessGuard user={auth.user} tab="adminDualControl" onNavigateTab={handleTabChange}>
+                <AdminDualControl />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminIncidents' && (
+              <RoleAccessGuard user={auth.user} tab="adminIncidents" onNavigateTab={handleTabChange}>
+                <AdminIncidentResponse />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminMatrix' && (
+              <RoleAccessGuard user={auth.user} tab="adminMatrix" onNavigateTab={handleTabChange}>
+                <AdminAccessMatrix />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminPharmacistVerification' && (
+              <RoleAccessGuard user={auth.user} tab="adminPharmacistVerification" onNavigateTab={handleTabChange}>
+                <AdminPharmacistVerification />
+              </RoleAccessGuard>
+            )}
+
+            {(activeTab === 'adminMedicineCatalogue' || activeTab === 'adminMedicineSafety') && (
+              <RoleAccessGuard user={auth.user} tab="adminMedicineCatalogue" onNavigateTab={handleTabChange}>
+                <AdminMedicineSafetyCatalogue />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminHealthEducation' && (
+              <RoleAccessGuard user={auth.user} tab="adminHealthEducation" onNavigateTab={handleTabChange}>
+                <AdminHealthEducationCMS />
+              </RoleAccessGuard>
+            )}
+
+            {(activeTab === 'adminOCR' || activeTab === 'adminRxVerification') && (
+              <RoleAccessGuard user={auth.user} tab="adminOCR" onNavigateTab={handleTabChange}>
+                <AdminPrescriptionOCRQueue />
+              </RoleAccessGuard>
+            )}
+
+            {(activeTab === 'ownerDashboard' || activeTab === 'ownerSales' || activeTab === 'ownerStock' || activeTab === 'ownerReports') && (
+              <RoleAccessGuard user={auth.user} tab="ownerDashboard" onNavigateTab={handleTabChange}>
+                <PharmacyOwnerDashboard onNavigateTab={handleTabChange} />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'pharmacyServices' && (
+              <RoleAccessGuard user={auth.user} tab="pharmacyServices" onNavigateTab={handleTabChange}>
+                <PharmacyServiceCatalogueConsole />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'customerSupport' && (
+              <RoleAccessGuard user={auth.user} tab="customerSupport" onNavigateTab={handleTabChange}>
+                <CustomerSupportDeskConsole
+                  currentStaffName={auth.user?.fullName || 'Sarah Namubiru'}
+                  currentStaffRole={auth.user?.rankRole || 'Customer Support & Billing Agent'}
+                />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminNotifications' && (
+              <RoleAccessGuard user={auth.user} tab="adminNotifications" onNavigateTab={handleTabChange}>
+                <NotificationCenterConsole
+                  tenantId={auth.user?.tenantId || activeClient.id}
+                  onNavigateTab={handleTabChange}
+                />
+              </RoleAccessGuard>
+            )}
+
             {(activeTab === 'adminPackages' ||
               activeTab === 'adminControlPlane' ||
               activeTab === 'adminQuantumWorkbench' ||
@@ -563,12 +877,7 @@ export default function App() {
               activeTab === 'adminCapacity' ||
               activeTab === 'adminMessagingHub' ||
               activeTab === 'adminRevenueLedger' ||
-              activeTab === 'adminExecutive' ||
-              activeTab === 'adminPolicies' ||
               activeTab === 'adminDelegated' ||
-              activeTab === 'adminDualControl' ||
-              activeTab === 'adminIncidents' ||
-              activeTab === 'adminMatrix' ||
               activeTab === 'adminUsers' ||
               activeTab === 'adminBilling' ||
               activeTab === 'adminRegister' ||

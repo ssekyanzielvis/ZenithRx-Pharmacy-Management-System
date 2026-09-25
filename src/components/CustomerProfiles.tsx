@@ -32,8 +32,10 @@ import {
   Check,
   CreditCard,
   Building2,
-  ChevronRight
+  ChevronRight,
+  History,
 } from 'lucide-react';
+import { PatientMedicationTimeline } from './PatientMedicationTimeline';
 
 interface CustomerProfilesProps {
   customers: CustomerProfile[];
@@ -128,6 +130,8 @@ export const CustomerProfiles: React.FC<CustomerProfilesProps> = ({
     frequency: 'Once daily with water',
     daysSupply: 30,
   });
+
+  const [activeDossierTab, setActiveDossierTab] = useState<'cadence' | 'timeline'>('cadence');
 
   const handleAddAllergy = () => {
     if (allergyInput.trim() && !formData.allergies?.includes(allergyInput.trim())) {
@@ -504,161 +508,201 @@ export const CustomerProfiles: React.FC<CustomerProfilesProps> = ({
                 </a>
               </div>
 
-              {/* Patient Demographics & Insurance Summary Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
-                <div>
-                  <span className="text-slate-400 text-[11px]">Age & Gender</span>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                    {selectedCustomer.age} yrs • {selectedCustomer.gender}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-[11px]">Blood Group</span>
-                  <p className="font-bold text-red-600 mt-0.5">
-                    {selectedCustomer.bloodGroup || 'O+'}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-[11px]">ZenithPoints Balance</span>
-                  <p className="font-bold text-amber-600 mt-0.5 flex items-center gap-1">
-                    <Award className="w-3.5 h-3.5" /> {selectedCustomer.loyaltyPoints || 0} pts
-                  </p>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-[11px]">Insurance Policy</span>
-                  <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5 truncate">
-                    {selectedCustomer.policyNumber || 'Self-Pay'}
-                  </p>
-                </div>
+              {/* Tab Selector: Overview & Refills vs Longitudinal Medication Timeline */}
+              <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+                <button
+                  onClick={() => setActiveDossierTab('cadence')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    activeDossierTab === 'cadence'
+                      ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  <Pill className="w-3.5 h-3.5 text-sky-500" />
+                  <span>Demographics &amp; Refill Cadence</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveDossierTab('timeline')}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    activeDossierTab === 'timeline'
+                      ? 'bg-teal-700 text-white shadow-xs'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  <History className="w-3.5 h-3.5 text-teal-400" />
+                  <span>Medication History Timeline</span>
+                </button>
               </div>
 
-              {/* Clinical Allergy Warnings */}
-              <div>
-                <div className="flex items-center gap-1.5 font-bold text-red-600 mb-2">
-                  <ShieldAlert className="w-4 h-4" />
-                  <span>Known Clinical Allergies & Contraindications</span>
-                </div>
-                {selectedCustomer.allergies.length === 0 ? (
-                  <p className="text-slate-400 text-xs italic bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl">
-                    No known drug allergies reported.
-                  </p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCustomer.allergies.map((al, i) => (
-                      <span
-                        key={i}
-                        className="bg-red-50 dark:bg-red-950/60 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 font-bold px-3 py-1 rounded-xl text-xs flex items-center gap-1.5"
-                      >
-                        <AlertTriangle className="w-3.5 h-3.5" /> {al}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Chronic Medication Regimen & Cadence Tracker */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100">
-                    <Pill className="w-4 h-4 text-sky-500" />
-                    <span>Chronic Medication Cadence & WhatsApp Refill Engine</span>
+              {activeDossierTab === 'cadence' ? (
+                <>
+                  {/* Patient Demographics & Insurance Summary Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                    <div>
+                      <span className="text-slate-400 text-[11px]">Age & Gender</span>
+                      <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                        {selectedCustomer.age} yrs • {selectedCustomer.gender}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 text-[11px]">Blood Group</span>
+                      <p className="font-bold text-red-600 mt-0.5">
+                        {selectedCustomer.bloodGroup || 'O+'}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 text-[11px]">ZenithPoints Balance</span>
+                      <p className="font-bold text-amber-600 mt-0.5 flex items-center gap-1">
+                        <Award className="w-3.5 h-3.5" /> {selectedCustomer.loyaltyPoints || 0} pts
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 text-[11px]">Insurance Policy</span>
+                      <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5 truncate">
+                        {selectedCustomer.policyNumber || 'Self-Pay'}
+                      </p>
+                    </div>
                   </div>
 
-                  <button
-                    onClick={() => setShowAddMedModal(true)}
-                    className="text-xs text-sky-600 hover:underline font-bold flex items-center gap-1"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> Add Medication Cadence
-                  </button>
-                </div>
-
-                {(!selectedCustomer.chronicMedications || selectedCustomer.chronicMedications.length === 0) ? (
-                  <div className="border border-dashed border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center text-slate-400">
-                    <Clock className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
-                    <p className="font-semibold text-slate-700 dark:text-slate-300">No active refill schedules</p>
-                    <p className="text-[11px] mt-0.5">Add a chronic medication to enable automated WhatsApp refill alerts.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {selectedCustomer.chronicMedications.map((med, idx) => (
-                      <div
-                        key={idx}
-                        className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-900 dark:text-slate-100">
-                              {med.drugName}
-                            </span>
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                med.status === 'Due'
-                                  ? 'bg-red-100 text-red-700 border border-red-300 animate-pulse'
-                                  : med.status === 'Upcoming'
-                                  ? 'bg-amber-100 text-amber-700 border border-amber-300'
-                                  : 'bg-emerald-100 text-emerald-700 border border-emerald-300'
-                              }`}
-                            >
-                              {med.status.toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="text-slate-500 text-[11px] mt-0.5">
-                            {med.dosage} • {med.frequency} • {med.daysSupply} days pack
-                          </div>
-                          <div className="text-slate-400 text-[10px] mt-0.5 flex items-center gap-1 font-mono">
-                            <Calendar className="w-3 h-3 text-sky-500" />
-                            Next Refill Date: <b>{med.nextRefillDate}</b>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() =>
-                              handleDispatchWhatsAppRefill(
-                                selectedCustomer,
-                                med.drugName,
-                                med.nextRefillDate
-                              )
-                            }
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg flex items-center gap-1.5 text-xs shadow-sm transition-all"
-                            title="Open WhatsApp 1-click refill chat"
+                  {/* Clinical Allergy Warnings */}
+                  <div>
+                    <div className="flex items-center gap-1.5 font-bold text-red-600 mb-2">
+                      <ShieldAlert className="w-4 h-4" />
+                      <span>Known Clinical Allergies & Contraindications</span>
+                    </div>
+                    {selectedCustomer.allergies.length === 0 ? (
+                      <p className="text-slate-400 text-xs italic bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl">
+                        No known drug allergies reported.
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {selectedCustomer.allergies.map((al, i) => (
+                          <span
+                            key={i}
+                            className="bg-red-50 dark:bg-red-950/60 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 font-bold px-3 py-1 rounded-xl text-xs flex items-center gap-1.5"
                           >
-                            <Send className="w-3.5 h-3.5" />
-                            <span>WhatsApp Refill Alert</span>
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              handleMarkMedicationRefilled(selectedCustomer.id, med.drugName)
-                            }
-                            className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/60 dark:hover:bg-sky-900 text-sky-700 dark:text-sky-300 font-bold rounded-lg flex items-center gap-1 text-xs border border-sky-200 dark:border-sky-800"
-                            title="Dispense & advance next refill date by 30 days (+50 pts)"
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                            <span>Mark Refilled (+50 Pts)</span>
-                          </button>
-                        </div>
+                            <AlertTriangle className="w-3.5 h-3.5" /> {al}
+                          </span>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* Purchase History & Financial Lifetime Value */}
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 text-slate-500 text-xs">
-                <div>
-                  <span>Total Purchases: </span>
-                  <b className="text-slate-800 dark:text-slate-200">{selectedCustomer.totalPurchasesCount} orders</b>
+                  {/* Chronic Medication Regimen & Cadence Tracker */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100">
+                        <Pill className="w-4 h-4 text-sky-500" />
+                        <span>Chronic Medication Cadence & WhatsApp Refill Engine</span>
+                      </div>
+
+                      <button
+                        onClick={() => setShowAddMedModal(true)}
+                        className="text-xs text-sky-600 hover:underline font-bold flex items-center gap-1"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add Medication Cadence
+                      </button>
+                    </div>
+
+                    {(!selectedCustomer.chronicMedications || selectedCustomer.chronicMedications.length === 0) ? (
+                      <div className="border border-dashed border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center text-slate-400">
+                        <Clock className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
+                        <p className="font-semibold text-slate-700 dark:text-slate-300">No active refill schedules</p>
+                        <p className="text-[11px] mt-0.5">Add a chronic medication to enable automated WhatsApp refill alerts.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        {selectedCustomer.chronicMedications.map((med, idx) => (
+                          <div
+                            key={idx}
+                            className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                          >
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-slate-900 dark:text-slate-100">
+                                  {med.drugName}
+                                </span>
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    med.status === 'Due'
+                                      ? 'bg-red-100 text-red-700 border border-red-300 animate-pulse'
+                                      : med.status === 'Upcoming'
+                                      ? 'bg-amber-100 text-amber-700 border border-amber-300'
+                                      : 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+                                  }`}
+                                >
+                                  {med.status.toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="text-slate-500 text-[11px] mt-0.5">
+                                {med.dosage} • {med.frequency} • {med.daysSupply} days pack
+                              </div>
+                              <div className="text-slate-400 text-[10px] mt-0.5 flex items-center gap-1 font-mono">
+                                <Calendar className="w-3 h-3 text-sky-500" />
+                                Next Refill Date: <b>{med.nextRefillDate}</b>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() =>
+                                  handleDispatchWhatsAppRefill(
+                                    selectedCustomer,
+                                    med.drugName,
+                                    med.nextRefillDate
+                                  )
+                                }
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg flex items-center gap-1.5 text-xs shadow-sm transition-all"
+                                title="Open WhatsApp 1-click refill chat"
+                              >
+                                <Send className="w-3.5 h-3.5" />
+                                <span>WhatsApp Refill Alert</span>
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  handleMarkMedicationRefilled(selectedCustomer.id, med.drugName)
+                                }
+                                className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/60 dark:hover:bg-sky-900 text-sky-700 dark:text-sky-300 font-bold rounded-lg flex items-center gap-1 text-xs border border-sky-200 dark:border-sky-800"
+                                title="Dispense & advance next refill date by 30 days (+50 pts)"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Mark Refilled (+50 Pts)</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Purchase History & Financial Lifetime Value */}
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4 text-slate-500 text-xs">
+                    <div>
+                      <span>Total Purchases: </span>
+                      <b className="text-slate-800 dark:text-slate-200">{selectedCustomer.totalPurchasesCount} orders</b>
+                    </div>
+                    <div>
+                      <span>Lifetime Spend: </span>
+                      <b className="text-emerald-600">{formatUGX(selectedCustomer.totalAmountSpent)}</b>
+                    </div>
+                    <div>
+                      <span>Last Visit: </span>
+                      <b className="text-slate-800 dark:text-slate-200">{selectedCustomer.lastVisit}</b>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="pt-1">
+                  <PatientMedicationTimeline
+                    patientId={selectedCustomer.id}
+                    patientName={selectedCustomer.name}
+                    patientAge={selectedCustomer.age}
+                    patientGender={selectedCustomer.gender}
+                  />
                 </div>
-                <div>
-                  <span>Lifetime Spend: </span>
-                  <b className="text-emerald-600">{formatUGX(selectedCustomer.totalAmountSpent)}</b>
-                </div>
-                <div>
-                  <span>Last Visit: </span>
-                  <b className="text-slate-800 dark:text-slate-200">{selectedCustomer.lastVisit}</b>
-                </div>
-              </div>
+              )}
             </div>
           ) : (
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center text-slate-400">

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+
+    <!-- ─── Core PWA / Identity ──────────────────────────────── -->
+    <title>ZenithRx Patient Care &amp; Health Portal</title>
+    <meta name="description" content="ZenithRx Patient Care — Search medicines, upload prescriptions, track orders, manage dose schedules, and access 24/7 AI clinical guidance." />
+    <meta name="application-name" content="ZenithRx Patient" />
+    <meta name="keywords" content="pharmacy, medicine, prescription, health, Uganda, teleconsultation, patient portal" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- ─── Web App Manifest ─────────────────────────────────── -->
+    <link rel="manifest" href="/patient-manifest.json" />
+
+    <!-- ─── Favicon & Icons ──────────────────────────────────── -->
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="shortcut icon" href="/icon.png" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+
+    <!-- ─── Theme ────────────────────────────────────────────── -->
+    <meta name="theme-color" content="#059669" />
+    <meta name="msapplication-TileColor" content="#059669" />
+    <meta name="msapplication-TileImage" content="/icon.png" />
+    <meta name="msapplication-config" content="none" />
+
+    <!-- ─── Apple PWA Installability ─────────────────────────── -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="ZenithRx" />
+
+    <!-- ─── Open Graph (for link sharing in WhatsApp etc.) ───── -->
+    <meta property="og:title" content="ZenithRx Patient Care &amp; Health Portal" />
+    <meta property="og:description" content="Uganda's premier pharmacy companion app. Manage prescriptions, track orders, and get 24/7 clinical AI guidance." />
+    <meta property="og:image" content="/icon.png" />
+    <meta property="og:type" content="website" />
+
+    <!-- ─── Service Worker Registration ─────────────────────── -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/sw.js', { scope: '/' })
+            .then((reg) => {
+              console.log('[ZenithRx PWA] Service Worker registered:', reg.scope);
+              // Trigger update check on each page load
+              reg.update();
+            })
+            .catch((err) => {
+              console.warn('[ZenithRx PWA] Service Worker registration failed:', err);
+            });
+        });
+      }
+    </script>
+  </head>
+  <body class="bg-[#F4F7FB] dark:bg-[#0B131F] text-slate-900 dark:text-slate-100 font-sans antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/patientMain.tsx"></script>
+  </body>
+</html>

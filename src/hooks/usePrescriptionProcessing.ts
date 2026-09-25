@@ -38,7 +38,7 @@ export function usePrescriptionProcessing({
 }: UsePrescriptionProcessingProps) {
   // ─── Queue & Search State ──────────────────────────────────────────────────
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Pending' | 'Dispensed' | 'Partially Dispensed'>('All');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
   const [selectedRxId, setSelectedRxId] = useState<string | null>(prescriptions[0]?.id ?? null);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -67,9 +67,17 @@ export function usePrescriptionProcessing({
       const matchesSearch =
         rx.rxNumber.toLowerCase().includes(q) ||
         rx.patientName.toLowerCase().includes(q) ||
-        rx.doctorName.toLowerCase().includes(q) ||
-        rx.patientPhone.includes(q);
-      const matchesStatus = statusFilter === 'All' || rx.status === statusFilter;
+        (rx.doctorName && rx.doctorName.toLowerCase().includes(q)) ||
+        (rx.prescriberName && rx.prescriberName.toLowerCase().includes(q)) ||
+        (rx.patientPhone && rx.patientPhone.includes(q)) ||
+        (rx.diagnosis && rx.diagnosis.toLowerCase().includes(q));
+
+      const matchesStatus =
+        statusFilter === 'All' ||
+        rx.status === statusFilter ||
+        (statusFilter === 'Pending' && (rx.status === 'Pending' || rx.status === 'Pending Verification')) ||
+        (statusFilter === 'Dispensed' && (rx.status === 'Dispensed' || rx.status === 'Fully Dispensed'));
+
       return matchesSearch && matchesStatus;
     });
   }, [prescriptions, searchTerm, statusFilter]);
