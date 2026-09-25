@@ -259,8 +259,67 @@ html.dark {
 }
 
 /* ============================================================
-   THERMAL RECEIPT PRINT STYLES (80mm roll printer)
+   MOBILE RESPONSIVENESS UTILITIES
    ============================================================ */
+
+/* Prevent horizontal scroll on mobile — common source of layout bugs */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Safe area inset for bottom bar on notched phones (iPhone X+, modern Android) */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Improved tap targets for mobile (minimum 44px per Apple/Google guidelines) */
+@media (max-width: 768px) {
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+}
+
+/* Prevent text from being too small on mobile */
+@media (max-width: 480px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Fix iOS-specific input zoom (prevents auto-zoom when input font-size < 16px) */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="search"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Responsive card grids */
+@media (max-width: 640px) {
+  .responsive-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Smooth scroll on mobile */
+@media (max-width: 768px) {
+  .overflow-y-auto,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 @media print {
   /* Hide everything except receipt */
   body * {

@@ -1,16 +1,18 @@
 // ============================================================
-// ZenithRx Patient Care Portal — Service Worker v2.2
-// Network-first navigation strategy ensures latest bundle updates
+// ZenithRx Patient Care Portal — Service Worker v2.3
+// Cache-first for static assets, network-first for navigation
 // ============================================================
-const CACHE_NAME = 'zenithrx-patient-pwa-v2.2';
+const CACHE_NAME = 'zenithrx-patient-pwa-v2.3';
+const STATIC_CACHE = 'zenithrx-static-v2.3';
+
+// Pre-cache minimal critical assets only (icon is large — let it be fetched on demand)
 const PRECACHE_ASSETS = [
-  '/icon.png',
-  '/manifest.json'
+  '/manifest.json',
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
+    caches.open(STATIC_CACHE).then((cache) => {
       return cache.addAll(PRECACHE_ASSETS);
     })
   );
@@ -21,7 +23,9 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys
+          .filter((key) => key !== CACHE_NAME && key !== STATIC_CACHE)
+          .map((key) => caches.delete(key))
       );
     })
   );
@@ -34,8 +38,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // 1. Navigation / HTML page requests: Network-first to always fetch latest Vite script hashes
-  if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
+  // 1. Navigation (HTML pages): Network-first so updates always propagate
+  if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((networkResponse) => {
@@ -45,29 +49,46 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
+        .catch(() =>
+          caches.match(request).then((cached) => cached || caches.match('/index.html'))
+        )
     );
     return;
   }
 
-  // 2. Dynamic API / External URLs: Direct network request with fallback
-  if (url.origin !== self.location.origin) {
+  // 2. Vite-hashed assets (/assets/*): Cache-first — these NEVER change (content-hashed)
+  if (url.pathname.startsWith('/assets/')) {
     event.respondWith(
-      fetch(request).catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // 3. Static Assets: Network-first with cache fallback
-  event.respondWith(
-    fetch(request)
-      .then((networkResponse) => {
+      caches.open(CACHE_NAME).then(async (cache) => {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        const networkResponse = await fetch(request);
         if (networkResponse && networkResponse.status === 200) {
-          const copy = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          cache.put(request, networkResponse.clone());
         }
         return networkResponse;
       })
-      .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // 3. External requests (Supabase, CDNs, APIs): Direct network, no SW interference
+  if (url.origin !== self.location.origin) {
+    event.respondWith(fetch(request).catch(() => caches.match(request)));
+    return;
+  }
+
+  // 4. Other same-origin requests: Stale-while-revalidate
+  event.respondWith(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cached = await cache.match(request);
+      const fetchPromise = fetch(request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          cache.put(request, networkResponse.clone());
+        }
+        return networkResponse;
+      });
+      return cached || fetchPromise;
+    })
   );
 });

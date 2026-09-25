@@ -61,12 +61,23 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    chunkSizeWarningLimit: 800,
+    chunkSizeWarningLimit: 600,
+    // Enable minification and tree-shaking
+    minify: 'esbuild',
+    target: 'es2015',
+    // Enable CSS code splitting
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
+        // Named entry chunks for better caching
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        // Explicit vendor splitting — each is its own cached chunk
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
           'vendor-icons': ['lucide-react'],
+          'vendor-motion': ['motion'],
+          'vendor-supabase': ['@supabase/supabase-js'],
         },
       },
     },
