@@ -417,7 +417,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Associated Reference
                     </p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       {Object.entries(selectedItem.actionPayload).map(([key, val]) => (
                         <div key={key} className="truncate">
                           <span className="text-slate-400 capitalize">{key}: </span>
@@ -433,7 +433,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                   <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
                     Multi-Channel Dispatch Posture
                   </p>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between">
                       <span className="text-emerald-800 dark:text-emerald-300 font-medium">In-App Inbox</span>
                       <span className="text-[10px] font-black text-emerald-600 bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 rounded">

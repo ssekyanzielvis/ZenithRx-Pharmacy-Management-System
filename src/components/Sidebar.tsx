@@ -614,13 +614,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const categories = isAdminContext ? adminCategories : userCategories;
 
   return (
-    <aside
-      className={`fixed lg:sticky top-0 left-0 z-40 h-screen bg-white dark:bg-[#0D1A2A] border-r border-slate-200/90 dark:border-slate-700/70 transition-all duration-300 flex flex-col justify-between select-none shadow-xs ${
-        isOpen ? 'w-64 lg:w-72' : 'w-16'
-      }`}
-    >
-      {/* Sidebar Header Title & Collapse Toggle */}
-      <div className="p-3.5 border-b border-slate-200/90 dark:border-slate-700/70 bg-slate-50/60 dark:bg-[#0A1520]/80 flex items-center justify-between gap-2">
+    <>
+      {/* Mobile / Tablet Backdrop Overlay (< lg) */}
+      {isOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-xs z-30 transition-opacity"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed lg:sticky top-0 left-0 z-40 h-screen bg-white dark:bg-[#0D1A2A] border-r border-slate-200/90 dark:border-slate-700/70 transition-all duration-300 flex flex-col justify-between select-none shadow-xl lg:shadow-xs ${
+          isOpen ? 'translate-x-0 w-72 max-w-[85vw]' : '-translate-x-full lg:translate-x-0 lg:w-16'
+        }`}
+      >
+        {/* Sidebar Header Title & Collapse Toggle */}
+        <div className="p-3.5 border-b border-slate-200/90 dark:border-slate-700/70 bg-slate-50/60 dark:bg-[#0A1520]/80 flex items-center justify-between gap-2">
         {isOpen ? (
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center p-1 shadow-xs shrink-0">
@@ -845,5 +854,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
     </aside>
+    </>
   );
 };

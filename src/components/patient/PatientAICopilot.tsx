@@ -327,7 +327,7 @@ export const PatientAICopilot: React.FC<PatientAICopilotProps> = ({
             <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
               Common Questions When Stuck:
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {DEFAULT_PROMPT_PILLS.map((pill, idx) => {
                 const Icon = pill.icon;
                 return (

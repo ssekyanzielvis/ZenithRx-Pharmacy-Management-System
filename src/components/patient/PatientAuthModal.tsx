@@ -168,7 +168,7 @@ export const PatientAuthModal: React.FC<PatientAuthModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
       <div className="relative w-full max-w-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden my-8">
         {/* Header Ribbon */}
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 p-6 text-white relative">
+        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 p-4 sm:p-6 text-white relative">
           <button
             onClick={onClose}
             className="absolute top-5 right-5 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -221,7 +221,7 @@ export const PatientAuthModal: React.FC<PatientAuthModalProps> = ({
         </div>
 
         {/* Content Area */}
-        <div className="p-6 max-h-[75vh] overflow-y-auto space-y-6">
+        <div className="p-4 sm:p-6 max-h-[75vh] overflow-y-auto space-y-6">
           {mode === 'signin' ? (
             /* ── Sign In View ── */
             <div className="space-y-6">
