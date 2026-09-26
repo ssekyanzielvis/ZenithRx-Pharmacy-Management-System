@@ -39,6 +39,7 @@ import {
   BadgeCheck,
   Navigation,
   MessageCircle,
+  Menu,
 } from 'lucide-react';
 import {
   pharmacyDiscoveryService,
@@ -69,6 +70,7 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
   currentUser,
   onReturnToPortal,
 }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('all');
   const [openNowOnly, setOpenNowOnly] = useState(false);
@@ -145,28 +147,33 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
         </div>
       </div>
 
-      {/* ── 2. Glassmorphic Navigation Bar (At least 2.5cm / 95px height with 1cm padding) ── */}
+      {/* ── 2. Glassmorphic Navigation Bar (Responsive on Mobile & Desktop) ── */}
       <nav 
-        className="bg-white/90 dark:bg-[#0B131F]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-40 transition-all flex items-center shadow-xs"
-        style={{ paddingLeft: '1cm', paddingRight: '1cm', paddingTop: '0.45cm', paddingBottom: '0.45cm', minHeight: '90px' }}
+        className="bg-white/95 dark:bg-[#0B131F]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-40 transition-all flex flex-col justify-center shadow-xs px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 min-h-[72px] sm:min-h-[88px]"
       >
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between" style={{ gap: '1cm' }}>
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-3 sm:gap-6">
           
           {/* Brand Logo */}
-          <div className="flex items-center gap-4 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl overflow-hidden border border-emerald-500/30 bg-emerald-950/10 dark:bg-emerald-950/30 p-2 flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+          <div 
+            className="flex items-center gap-2.5 sm:gap-4 cursor-pointer group shrink-0" 
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              setMobileMenuOpen(false);
+            }}
+          >
+            <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl overflow-hidden border border-emerald-500/30 bg-emerald-950/10 dark:bg-emerald-950/30 p-1.5 sm:p-2 flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
               <img src="/icon.png" alt="ZenithRx Logo" className="w-full h-full object-contain" />
             </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+            <div className="space-y-0.5 sm:space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
                   ZENITHRX
                 </span>
-                <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase border border-emerald-300/80 dark:border-emerald-800 shadow-2xs">
+                <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[8px] sm:text-[10px] px-2 py-0.5 rounded-full font-black uppercase border border-emerald-300/80 dark:border-emerald-800 shadow-2xs">
                   NDA VERIFIED
                 </span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
+              <h1 className="text-base sm:text-xl lg:text-2xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
                 Patient Portal
               </h1>
             </div>
@@ -188,8 +195,8 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
             </a>
           </div>
 
-          {/* Right Action Controls (Generous 1cm Layout Rhythm & Spacious Buttons) */}
-          <div className="flex items-center gap-3.5 sm:gap-5">
+          {/* Right Action Controls (Desktop + Tablet) */}
+          <div className="hidden sm:flex items-center gap-3 sm:gap-4">
             <ThemeToggle variant="segmented" />
 
             {currentUser ? (
@@ -198,31 +205,129 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
                   if (onReturnToPortal) onReturnToPortal();
                   else onSelectAction('search');
                 }}
-                className="px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-black shadow-md shadow-emerald-600/25 transition-all cursor-pointer flex items-center gap-2.5 active:scale-98 hover:scale-102"
+                className="px-4.5 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-black shadow-md shadow-emerald-600/25 transition-all cursor-pointer flex items-center gap-2 active:scale-98 hover:scale-102 shrink-0"
               >
                 <span>Portal ({currentUser.fullName.split(' ')[0]})</span>
-                <ArrowRight className="w-4 h-4 hidden sm:inline" />
+                <ArrowRight className="w-4 h-4 hidden md:inline" />
               </button>
             ) : (
-              <div className="flex items-center gap-3 sm:gap-3.5">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={() => onOpenAuth('signin')}
-                  className="px-4.5 sm:px-5.5 py-2.5 sm:py-3 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-98"
+                  className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs active:scale-98 shrink-0"
                 >
                   Sign In
                 </button>
 
                 <button
                   onClick={() => onOpenAuth('register')}
-                  className="px-5.5 sm:px-6.5 py-2.5 sm:py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-black shadow-md shadow-emerald-600/30 transition-all cursor-pointer flex items-center gap-2 active:scale-98 hover:scale-102"
+                  className="px-4.5 sm:px-5.5 py-2 sm:py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-black shadow-md shadow-emerald-600/30 transition-all cursor-pointer flex items-center gap-1.5 active:scale-98 hover:scale-102 shrink-0"
                 >
                   <span>Register</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               </div>
             )}
           </div>
+
+          {/* Mobile Quick Actions & Hamburger Menu Toggle (< 640px) */}
+          <div className="flex sm:hidden items-center gap-2">
+            <ThemeToggle variant="compact" />
+
+            {currentUser ? (
+              <button
+                onClick={() => {
+                  if (onReturnToPortal) onReturnToPortal();
+                  else onSelectAction('search');
+                }}
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-xs"
+              >
+                Portal
+              </button>
+            ) : (
+              <button
+                onClick={() => onOpenAuth('signin')}
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-xs"
+              >
+                Sign In
+              </button>
+            )}
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
+
+        {/* ── Mobile Collapsible Menu Accordion ── */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden w-full pt-3 pb-2 border-t border-slate-100 dark:border-slate-800 mt-2 space-y-3 animate-in fade-in slide-in-from-top-2">
+            <div className="grid grid-cols-2 gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+              <a 
+                href="#pharmacies" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 text-center hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 transition-all"
+              >
+                🏥 Live Pharmacies
+              </a>
+              <a 
+                href="#medicines" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 text-center hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 transition-all"
+              >
+                💊 Price Index
+              </a>
+              <a 
+                href="#workflow" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 text-center hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 transition-all"
+              >
+                🛡️ Safety Workflow
+              </a>
+              <a 
+                href="#health-library" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700 text-center hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 transition-all"
+              >
+                📚 Health Guides
+              </a>
+            </div>
+
+            {!currentUser && (
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAuth('signin');
+                  }}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold text-center bg-slate-50 dark:bg-slate-800"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAuth('register');
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-black text-center shadow-xs"
+                >
+                  Register
+                </button>
+              </div>
+            )}
+
+            <div className="pt-1 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+              <span className="font-semibold">📞 24/7 Helpline:</span>
+              <a href="tel:0200913555" className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                0200 913 555
+              </a>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ── 3. Clean, Airy Hero Section (Strictly Centered on Page with 1cm Rhythm) ── */}
