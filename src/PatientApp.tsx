@@ -2051,65 +2051,78 @@ export const PatientApp: React.FC = () => {
       </div>
 
       {/* ── Slide-Over Cart & Mobile Money Checkout Drawer ── */}
+      {/* ── Slide-Over Cart & Mobile Money Checkout Drawer ── */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/60 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col border-l border-slate-200 dark:border-slate-800">
+        <div className="fixed inset-0 z-[100] flex justify-end bg-slate-950/70 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-md sm:max-w-lg bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col border-l border-slate-200 dark:border-slate-800">
             
-            {/* Drawer Header */}
-            <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="w-5 h-5 text-emerald-600" />
-                <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
-                  {checkoutStep === 'cart' ? 'Medicine Cart' : checkoutStep === 'payment' ? 'Mobile Money Checkout' : 'Order Confirmed'}
-                </h3>
+            {/* Drawer Header with Generous Padding */}
+            <div className="p-6 sm:p-7 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 flex items-center justify-center">
+                  <ShoppingCart className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                    {checkoutStep === 'cart' ? 'Medicine Cart' : checkoutStep === 'payment' ? 'Mobile Money Checkout' : 'Order Confirmed'}
+                  </h3>
+                  <span className="text-xs text-slate-400 font-medium">
+                    {cartItems.length} item{cartItems.length === 1 ? '' : 's'} in prescription order
+                  </span>
+                </div>
               </div>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+                className="w-9 h-9 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center transition-all cursor-pointer text-sm font-bold"
               >
                 ✕
               </button>
             </div>
 
             {/* Drawer Content */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 sm:p-7 space-y-4">
               {checkoutStep === 'cart' ? (
                 cartItems.length === 0 ? (
-                  <div className="text-center py-12 space-y-2">
-                    <ShoppingCart className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-700" />
-                    <p className="text-sm font-bold text-slate-500">Your cart is empty</p>
-                    <p className="text-xs text-slate-400">Search medicines to add to your order.</p>
+                  <div className="text-center py-16 space-y-3">
+                    <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600 mx-auto flex items-center justify-center">
+                      <ShoppingCart className="w-8 h-8" />
+                    </div>
+                    <p className="text-sm sm:text-base font-bold text-slate-700 dark:text-slate-300">Your cart is empty</p>
+                    <p className="text-xs text-slate-400 max-w-xs mx-auto">Search medicines in the verified formulary to add to your order.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-3.5">
                     {cartItems.map((item) => (
                       <div
                         key={item.id}
-                        className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3"
+                        className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-700/80 flex items-center justify-between gap-4 shadow-xs"
                       >
-                        <div className="truncate">
-                          <h4 className="text-xs font-black text-slate-900 dark:text-slate-100 truncate">{item.drug.brandName}</h4>
-                          <span className="text-[10px] text-slate-400 block">{item.pharmacyName}</span>
-                          <span className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">{formatUGX(item.unitPriceUgx)}</span>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 truncate">{item.drug.brandName}</h4>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5 truncate">{item.pharmacyName}</span>
+                          <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 block">{formatUGX(item.unitPriceUgx)}</span>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xs">
                           <button
                             onClick={() => handleUpdateCartQty(item.id, -1)}
-                            className="p-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                            className="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer active:scale-90 transition-all"
+                            title="Decrease quantity"
                           >
-                            <Minus className="w-3 h-3" />
+                            <Minus className="w-3.5 h-3.5" />
                           </button>
-                          <span className="text-xs font-black w-4 text-center">{item.quantity}</span>
+                          <span className="text-xs sm:text-sm font-black w-6 text-center text-slate-900 dark:text-slate-100">{item.quantity}</span>
                           <button
                             onClick={() => handleUpdateCartQty(item.id, 1)}
-                            className="p-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                            className="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer active:scale-90 transition-all"
+                            title="Increase quantity"
                           >
-                            <Plus className="w-3 h-3" />
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleRemoveCartItem(item.id)}
-                            className="p-1 text-rose-500 hover:text-rose-700 ml-1"
+                            className="w-7 h-7 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-500 hover:text-rose-600 flex items-center justify-center cursor-pointer transition-all active:scale-90 ml-0.5"
+                            title="Remove from cart"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -2119,91 +2132,108 @@ export const PatientApp: React.FC = () => {
                   </div>
                 )
               ) : checkoutStep === 'payment' ? (
-                <form onSubmit={handleProcessCheckout} className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs space-y-1">
-                    <div className="flex justify-between font-bold text-slate-700 dark:text-slate-300">
+                <form onSubmit={handleProcessCheckout} className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '0.7cm' }}>
+                  {/* Order Summary Box */}
+                  <div className="p-5 sm:p-6 rounded-3xl bg-emerald-50/90 dark:bg-emerald-950/50 border border-emerald-200/90 dark:border-emerald-800 space-y-2.5 shadow-2xs">
+                    <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
                       <span>Items Total:</span>
-                      <span>{formatUGX(cartTotalUgx)}</span>
+                      <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(cartTotalUgx)}</span>
                     </div>
-                    <div className="flex justify-between text-slate-500">
+                    <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
                       <span>Express Rider Delivery:</span>
-                      <span>{formatUGX(deliveryFeeUgx)}</span>
+                      <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(deliveryFeeUgx)}</span>
                     </div>
-                    <div className="flex justify-between text-sm font-black text-emerald-700 dark:text-emerald-300 pt-2 border-t border-emerald-200 dark:border-emerald-800">
+                    <div className="flex justify-between text-base sm:text-lg font-black text-emerald-800 dark:text-emerald-300 pt-3 border-t border-emerald-200/90 dark:border-emerald-800">
                       <span>Total Amount:</span>
-                      <span>{formatUGX(grandTotalUgx)}</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-black">{formatUGX(grandTotalUgx)}</span>
                     </div>
                   </div>
 
+                  {/* Provider Selection */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">Select Mobile Money Provider *</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <label className="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mb-2.5">Select Mobile Money Provider *</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <button
                         type="button"
                         onClick={() => setMomoProvider('MTN')}
-                        className={`p-3 rounded-xl border text-xs font-black transition-all cursor-pointer ${
+                        className={`p-4 rounded-2xl border text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
                           momoProvider === 'MTN'
-                            ? 'bg-amber-400 text-amber-950 border-amber-500 shadow-xs'
-                            : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600'
+                            ? 'bg-amber-400 text-amber-950 border-amber-500 shadow-md shadow-amber-400/30 ring-2 ring-amber-400/40'
+                            : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60'
                         }`}
                       >
-                        MTN MoMo (Uganda)
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-900" />
+                        <span>MTN MoMo (Uganda)</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => setMomoProvider('Airtel')}
-                        className={`p-3 rounded-xl border text-xs font-black transition-all cursor-pointer ${
+                        className={`p-4 rounded-2xl border text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
                           momoProvider === 'Airtel'
-                            ? 'bg-rose-600 text-white border-rose-700 shadow-xs'
-                            : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600'
+                            ? 'bg-rose-600 text-white border-rose-700 shadow-md shadow-rose-600/30 ring-2 ring-rose-500/40'
+                            : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60'
                         }`}
                       >
-                        Airtel Money (Uganda)
+                        <span className="w-2.5 h-2.5 rounded-full bg-white" />
+                        <span>Airtel Money (Uganda)</span>
                       </button>
                     </div>
                   </div>
 
+                  {/* Phone Input */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">
                       Phone Number for USSD Prompt *
                     </label>
-                    <div className="relative">
-                      <Smartphone className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
+                    <div className="relative flex items-center">
+                      <Smartphone className="w-5 h-5 absolute left-4 text-slate-400 pointer-events-none" />
                       <input
                         type="text"
                         required
                         value={momoPhone}
                         onChange={(e) => setMomoPhone(e.target.value)}
                         placeholder="+256 774 607782"
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold"
+                        className="w-full pl-12 pr-4 py-3.5 sm:py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
                       />
                     </div>
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={isProcessingPayment}
-                    className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    {isProcessingPayment ? (
-                      <span>Sending MoMo PIN Prompt to Phone...</span>
-                    ) : (
-                      <>
-                        <span>Pay {formatUGX(grandTotalUgx)} via {momoProvider}</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="space-y-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={isProcessingPayment}
+                      className="w-full py-4 sm:py-4.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-98"
+                    >
+                      {isProcessingPayment ? (
+                        <span>Sending MoMo PIN Prompt to Phone...</span>
+                      ) : (
+                        <>
+                          <span>Pay {formatUGX(grandTotalUgx)} via {momoProvider}</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setCheckoutStep('cart')}
+                      className="w-full py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>Back to Cart Items</span>
+                    </button>
+                  </div>
                 </form>
               ) : (
-                <div className="text-center py-10 space-y-4">
+                <div className="text-center py-12 space-y-4">
                   <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 mx-auto flex items-center justify-center">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
                   <div>
                     <h4 className="text-lg font-black text-slate-900 dark:text-slate-100">Order Confirmed!</h4>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
                       Your payment has been received. The pharmacy has been notified and is preparing your express dispatch.
                     </p>
                   </div>
@@ -2212,7 +2242,7 @@ export const PatientApp: React.FC = () => {
                       setIsCartOpen(false);
                       setActiveTab('orders');
                     }}
-                    className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-md cursor-pointer"
+                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black shadow-md cursor-pointer"
                   >
                     Track Live Delivery
                   </button>
@@ -2220,24 +2250,24 @@ export const PatientApp: React.FC = () => {
               )}
             </div>
 
-            {/* Drawer Footer */}
+            {/* Drawer Footer with Generous Padding & Distinct Totals */}
             {checkoutStep === 'cart' && cartItems.length > 0 && (
-              <div className="p-5 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 space-y-3">
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-500">Subtotal:</span>
-                  <span className="font-bold">{formatUGX(cartTotalUgx)}</span>
+              <div className="p-6 sm:p-7 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 space-y-3.5 shadow-xl">
+                <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+                  <span>Subtotal:</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{formatUGX(cartTotalUgx)}</span>
                 </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-slate-500">Express Delivery:</span>
-                  <span className="font-bold">{formatUGX(deliveryFeeUgx)}</span>
+                <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+                  <span>Express Delivery:</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{formatUGX(deliveryFeeUgx)}</span>
                 </div>
-                <div className="flex justify-between text-sm font-black text-slate-900 dark:text-slate-100 pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 pt-3 border-t border-slate-200 dark:border-slate-700">
                   <span>Grand Total:</span>
-                  <span className="text-emerald-600 dark:text-emerald-400">{formatUGX(grandTotalUgx)}</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-black">{formatUGX(grandTotalUgx)}</span>
                 </div>
                 <button
                   onClick={() => setCheckoutStep('payment')}
-                  className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
                   <span>Proceed to Mobile Money Checkout</span>
                   <ArrowRight className="w-4 h-4" />
@@ -2501,9 +2531,9 @@ export const PatientApp: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Quantum RxAI Copilot Launcher (when not already on copilot page) */}
-      {activeTab !== 'copilot' && (
-        <aside aria-label="Clinical AI Assistant" className="fixed bottom-6 right-6 z-50">
+      {/* Floating Quantum RxAI Copilot Launcher (when not already on copilot page and no drawer open) */}
+      {activeTab !== 'copilot' && !isCartOpen && !reservationTarget && (
+        <aside aria-label="Clinical AI Assistant" className="fixed bottom-6 right-6 z-40">
           <button
             onClick={() => setActiveTab('copilot')}
             className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-700 hover:from-teal-500 hover:to-emerald-500 text-white rounded-full shadow-2xl hover:shadow-teal-500/40 border border-teal-400/40 transition-all hover:scale-105 cursor-pointer"
