@@ -963,15 +963,17 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
 
               {modalActiveTab === 'shelf' && (
                 <div className="space-y-2.5">
-                  <div className="relative">
-                    <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3 z-10 flex items-center pointer-events-none text-slate-400">
+                      <Search className="w-3.5 h-3.5" />
+                    </span>
                     <input
                       type="text"
                       placeholder="Filter shelf..."
                       value={shelfSearchQuery}
                       onChange={(e) => setShelfSearchQuery(e.target.value)}
-                      style={{ paddingLeft: '2rem', paddingRight: '0.75rem' }}
-                      className="w-full py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs"
+                      style={{ paddingLeft: '2.25rem', paddingRight: '0.75rem' }}
+                      className="w-full py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                     />
                   </div>
                   {(selectedPharmacyForModal.inventory || [])
