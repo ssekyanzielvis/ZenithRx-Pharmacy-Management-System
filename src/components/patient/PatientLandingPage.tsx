@@ -520,42 +520,23 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
             </h2>
           </div>
 
-          {/* District Selection: Clean Native Dropdown on Mobile (< sm), Horizontal Pills on Desktop (>= sm) */}
-          <div className="w-full sm:w-auto shrink-0">
-            {/* 1. Mobile Dropdown (< sm) */}
-            <div className="sm:hidden relative w-full">
-              <div className="relative flex items-center">
-                <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-3.5 pointer-events-none shrink-0" />
-                <select
-                  value={selectedDistrict}
-                  onChange={(e) => setSelectedDistrict(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-2xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs appearance-none cursor-pointer"
-                >
-                  {districts.map((d) => (
-                    <option key={d} value={d}>
-                      {d === 'all' ? 'All Uganda (All Districts)' : `District: ${d}`}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 pointer-events-none shrink-0" />
-              </div>
-            </div>
-
-            {/* 2. Desktop/Tablet Pills (>= sm) */}
-            <div className="hidden sm:flex items-center gap-2 overflow-x-auto pb-1 max-w-md scrollbar-none" style={{ scrollbarWidth: 'none' }}>
-              {districts.map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setSelectedDistrict(d)}
-                  className={`px-3.5 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
-                    selectedDistrict === d
-                      ? 'bg-emerald-600 text-white shadow-xs font-black'
-                      : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                  }`}
-                >
-                  {d === 'all' ? 'All Uganda' : d}
-                </button>
-              ))}
+          {/* District Selection: Universal Modern Dropdown Selector */}
+          <div className="w-full sm:w-72 md:w-80 shrink-0">
+            <div className="relative flex items-center">
+              <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-4 pointer-events-none shrink-0 z-10" />
+              <select
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                style={{ paddingLeft: '2.75rem', paddingRight: '2.5rem' }}
+                className="w-full py-3 sm:py-3.5 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-2xl text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 shadow-2xs appearance-none cursor-pointer transition-all hover:border-slate-300 dark:hover:border-slate-600"
+              >
+                {districts.map((d) => (
+                  <option key={d} value={d}>
+                    {d === 'all' ? '📍 All Uganda (All Districts)' : `📍 District: ${d}`}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 pointer-events-none shrink-0 z-10" />
             </div>
           </div>
         </div>
