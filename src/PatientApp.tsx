@@ -584,15 +584,15 @@ export const PatientApp: React.FC = () => {
           </div>
         )}
 
-        {/* Top Header — Fixed Clinical Command Bar (Non-Scrolling, Always Accessible at Top) */}
+        {/* Top Header — Fixed Clinical Command Bar (Compact on mobile, Spacious on Desktop) */}
         <header
-          className="shrink-0 z-30 flex items-center justify-between px-4 sm:px-8 py-4 sm:py-5 border-b gap-4 sm:gap-6 min-h-[82px] sm:min-h-[88px] bg-[#07111e] border-slate-800 text-slate-100 shadow-md transition-all"
+          className="shrink-0 z-30 flex items-center justify-between px-3.5 sm:px-8 py-2.5 sm:py-4 border-b gap-3 sm:gap-6 min-h-[64px] sm:min-h-[76px] bg-[#07111e] border-slate-800 text-slate-100 shadow-md transition-all"
         >
           {/* 1. Left Section: Hamburger + Brand Title + System Online */}
-          <div className="flex items-center gap-3.5 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
             <button
               onClick={() => setIsMobileNavOpen(true)}
-              className="md:hidden p-2.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shrink-0 cursor-pointer shadow-xs"
+              className="md:hidden p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
               aria-label="Open Navigation Menu"
               title="Open Navigation Menu"
             >
@@ -600,14 +600,14 @@ export const PatientApp: React.FC = () => {
             </button>
 
             <div
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
               onClick={() => {
                 setActiveTab('search');
                 setForceExploreView(false);
               }}
               title="ZenithRx Patient Care Network"
             >
-              <div className="relative w-11 h-11 rounded-2xl flex items-center justify-center shadow-xs overflow-hidden group-hover:scale-105 transition-transform bg-slate-800 border border-slate-700 p-1.5 shrink-0">
+              <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xs overflow-hidden group-hover:scale-105 transition-transform bg-slate-800 border border-slate-700 p-1 sm:p-1.5 shrink-0">
                 <img src="/icon.png" alt="ZenithRx Logo" className="w-full h-full object-contain" />
               </div>
 
@@ -624,6 +624,16 @@ export const PatientApp: React.FC = () => {
                   ZenithRx
                   <span className="text-[11px] font-bold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-lg">
                     Patient v3.2
+                  </span>
+                </h1>
+              </div>
+
+              {/* Mobile compact title */}
+              <div className="block sm:hidden">
+                <h1 className="text-base font-black tracking-tight text-white flex items-center gap-1.5 leading-none">
+                  ZenithRx
+                  <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-1.5 py-0.5 rounded-md">
+                    Live
                   </span>
                 </h1>
               </div>
@@ -901,32 +911,32 @@ export const PatientApp: React.FC = () => {
         {/* Main Content Area — Single-Child Body Scroll View (Header Stays Pinned at Top) */}
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col focus:outline-none">
           {/* Default Clean Responsive Viewport for all screen sizes with expanded canvas for branches */}
-          <div className={`flex-1 w-full ${activeTab === 'branches' ? 'max-w-[1600px]' : 'max-w-7xl'} mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8`}>
+          <div className={`flex-1 w-full ${activeTab === 'branches' ? 'max-w-[1600px]' : 'max-w-7xl'} mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-5 sm:space-y-8`}>
 
           {/* ── 1. Medicine Search & Multi-Pharmacy Formulary ── */}
           {activeTab === 'search' && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
 
               {/* ── Search & Filter Bar (Clean, Unified & Breathable) ── */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-4">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-3.5">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
                   <div className="relative flex-1 flex items-center">
-                    <span className="absolute left-4 z-10 flex items-center pointer-events-none text-slate-400">
-                      <Search className="w-5 h-5" />
+                    <span className="absolute left-3.5 sm:left-4 z-10 flex items-center pointer-events-none text-slate-400">
+                      <Search className="w-4 h-4 sm:w-5 sm:h-5" />
                     </span>
                     <input
                       type="text"
-                      placeholder="Search medicines by brand or generic name (e.g. Augmentin, Metformin, Ventolin)..."
+                      placeholder="Search medicines (e.g. Augmentin, Metformin, Ventolin)..."
                       value={medSearch}
                       onChange={(e) => setMedSearch(e.target.value)}
-                      style={{ paddingLeft: '3.25rem', paddingRight: '1.25rem' }}
-                      className="w-full py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium transition-all"
+                      style={{ paddingLeft: '2.75rem', paddingRight: '1rem' }}
+                      className="w-full py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium transition-all"
                     />
                   </div>
                   <select
                     value={selectedPharmacyFilter}
                     onChange={(e) => setSelectedPharmacyFilter(e.target.value)}
-                    className="px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 sm:w-64 shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                    className="px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 sm:w-64 shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
                   >
                     <option value="all">🏥 All Partner Pharmacies</option>
                     {pharmacies.map((p) => (
@@ -936,13 +946,13 @@ export const PatientApp: React.FC = () => {
                 </div>
 
                 {/* Therapeutic Category Filter Pills */}
-                <div className="flex items-center justify-between gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex-wrap sm:flex-nowrap">
-                  <div className="flex items-center gap-2 overflow-x-auto flex-1 py-1" style={{ scrollbarWidth: 'none' }}>
+                <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80">
+                  <div className="flex items-center gap-1.5 overflow-x-auto flex-1 py-0.5 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
                     {['all', 'Antibiotics', 'Diabetes', 'Cardiovascular', 'Respiratory', 'Analgesics'].map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                        className={`px-3 py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                           selectedCategory === cat
                             ? 'bg-emerald-600 text-white shadow-xs font-extrabold'
                             : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-200'
@@ -952,17 +962,17 @@ export const PatientApp: React.FC = () => {
                       </button>
                     ))}
                   </div>
-                  <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap shrink-0">
-                    <span className="font-black text-slate-900 dark:text-slate-100 text-sm">{filteredMeds.length}</span> results
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap shrink-0">
+                    <span className="font-black text-slate-900 dark:text-slate-100 text-xs sm:text-sm">{filteredMeds.length}</span> results
                   </div>
                 </div>
               </div>
 
               {/* ── Medicine Formulary Clean Grid ── */}
               {filteredMeds.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-12 text-center shadow-xs space-y-3">
-                  <Search className="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" />
-                  <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">No medicines match your search</h3>
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-xs space-y-3">
+                  <Search className="w-8 h-8 sm:w-10 sm:h-10 mx-auto text-slate-300 dark:text-slate-600" />
+                  <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200">No medicines match your search</h3>
                   <p className="text-xs text-slate-400 max-w-sm mx-auto">Try searching generic compounds like Amoxicillin, Paracetamol, or reset the therapeutic category filters.</p>
                   <button
                     onClick={() => { setMedSearch(''); setSelectedCategory('all'); }}
@@ -972,13 +982,13 @@ export const PatientApp: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   {filteredMeds.map((med) => {
                     const isExpanded = expandedMedId === med.id;
                     return (
                       <div
                         key={med.id}
-                        className={`bg-white dark:bg-slate-900 border rounded-3xl p-6 shadow-xs transition-all flex flex-col justify-between space-y-4 hover:shadow-md ${
+                        className={`bg-white dark:bg-slate-900 border rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs transition-all flex flex-col justify-between space-y-3 sm:space-y-4 hover:shadow-md ${
                           isExpanded
                             ? 'border-emerald-500 ring-2 ring-emerald-500/10'
                             : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
@@ -1107,26 +1117,26 @@ export const PatientApp: React.FC = () => {
           {activeTab === 'prescriptions' && (
             <div className="space-y-8">
               {/* Header Title & Registered Badge */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
-                <div className="space-y-1.5">
-                  <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 sm:pb-6 border-b border-slate-200 dark:border-slate-800">
+                <div className="space-y-1">
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
                     Doctor Prescription Verification
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
                     Upload handwritten or printed doctor slips for pharmacist clinical validation, drug interaction checks, and automated digitization into your records.
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-violet-50 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 text-xs font-extrabold border border-violet-200 dark:border-violet-800/80 shadow-xs shrink-0 self-start sm:self-auto">
+                <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl sm:rounded-2xl bg-violet-50 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 text-xs font-extrabold border border-violet-200 dark:border-violet-800/80 shadow-xs shrink-0 self-start sm:self-auto">
                   <ShieldCheck className="w-4 h-4 text-violet-600 dark:text-violet-400" />
                   <span>PSU Registered Pharmacist Review</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
                 {/* Prescription Upload Form (Left Column - 6 Cols) */}
-                <div className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-7 sm:p-9 shadow-xs space-y-6">
+                <div className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xs space-y-5">
                   <div className="space-y-1">
-                    <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">
+                    <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
                       Upload New Prescription
                     </h3>
                     <p className="text-xs text-slate-400">
@@ -1135,20 +1145,20 @@ export const PatientApp: React.FC = () => {
                   </div>
 
                   {rxUploadedSuccess && (
-                    <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-3.5 shadow-xs">
-                      <CheckCircle className="w-6 h-6 text-emerald-600 shrink-0" />
+                    <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-3 shadow-xs">
+                      <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
                       <div>
-                        <p className="text-sm font-black">Prescription Uploaded Successfully!</p>
-                        <p className="text-xs font-normal text-emerald-700 dark:text-emerald-300 mt-0.5">
+                        <p className="text-xs sm:text-sm font-black">Prescription Uploaded Successfully!</p>
+                        <p className="text-[11px] sm:text-xs font-normal text-emerald-700 dark:text-emerald-300 mt-0.5">
                           Our clinical pharmacy team has queued this slip for review and dosage safety verification.
                         </p>
                       </div>
                     </div>
                   )}
 
-                  <form onSubmit={handleUploadRx} className="space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                      <div className="space-y-1.5">
+                  <form onSubmit={handleUploadRx} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                           Patient Name <span className="text-rose-500">*</span>
                         </label>
@@ -1158,11 +1168,11 @@ export const PatientApp: React.FC = () => {
                           value={rxPatientName}
                           onChange={(e) => setRxPatientName(e.target.value)}
                           placeholder="Full Legal Name"
-                          className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
+                          className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
                         />
                       </div>
 
-                      <div className="space-y-1.5">
+                      <div className="space-y-1">
                         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                           Phone / WhatsApp <span className="text-rose-500">*</span>
                         </label>
@@ -1172,19 +1182,19 @@ export const PatientApp: React.FC = () => {
                           value={rxPhone}
                           onChange={(e) => setRxPhone(e.target.value)}
                           placeholder="+256 700 000000"
-                          className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
+                          className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                         Preferred Dispensing Pharmacy <span className="text-rose-500">*</span>
                       </label>
                       <select
                         value={rxSelectedPharmacy}
                         onChange={(e) => setRxSelectedPharmacy(e.target.value)}
-                        className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all cursor-pointer"
+                        className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all cursor-pointer"
                       >
                         {pharmacies.map((p) => (
                           <option key={p.id} value={p.name}>
@@ -1195,15 +1205,15 @@ export const PatientApp: React.FC = () => {
                     </div>
 
                     {/* Elevated Dropzone */}
-                    <div className="border-2 border-dashed border-violet-200 dark:border-violet-900/60 hover:border-violet-500 rounded-3xl p-7 text-center space-y-3 cursor-pointer transition-all bg-violet-50/30 dark:bg-violet-950/20 hover:bg-violet-50/60 group">
-                      <div className="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 mx-auto flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-                        <Upload className="w-6 h-6" />
+                    <div className="border-2 border-dashed border-violet-200 dark:border-violet-900/60 hover:border-violet-500 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-center space-y-2 sm:space-y-3 cursor-pointer transition-all bg-violet-50/30 dark:bg-violet-950/20 hover:bg-violet-50/60 group">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 mx-auto flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                        <Upload className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-0.5">
                         <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
                           Snap photo or upload prescription file
                         </p>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-[10px] sm:text-[11px] text-slate-400">
                           Supports high-res JPG, PNG, PDF formats up to 10MB
                         </p>
                       </div>
@@ -1211,7 +1221,7 @@ export const PatientApp: React.FC = () => {
 
                     <button
                       type="submit"
-                      className="w-full py-4 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs sm:text-sm shadow-md shadow-violet-600/25 hover:shadow-lg hover:shadow-violet-600/35 active:scale-[0.98] cursor-pointer transition-all flex items-center justify-center gap-2"
+                      className="w-full py-3.5 rounded-xl sm:rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs sm:text-sm shadow-md shadow-violet-600/25 hover:shadow-lg hover:shadow-violet-600/35 active:scale-[0.98] cursor-pointer transition-all flex items-center justify-center gap-2"
                     >
                       <Upload className="w-4 h-4" />
                       <span>Submit for Pharmacist Review</span>
@@ -1220,39 +1230,39 @@ export const PatientApp: React.FC = () => {
                 </div>
 
                 {/* Prescription Status & History List (Right Column - 6 Cols) */}
-                <div className="lg:col-span-6 space-y-5">
+                <div className="lg:col-span-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">
+                    <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
                       Verification History ({uploadedPrescriptionsList.length})
                     </h3>
-                    <span className="text-xs font-semibold text-slate-400">
+                    <span className="text-[11px] sm:text-xs font-semibold text-slate-400">
                       Live status tracker
                     </span>
                   </div>
 
-                  <div className="space-y-5">
+                  <div className="space-y-4">
                     {uploadedPrescriptionsList.map((rx) => (
                       <div
                         key={rx.id}
-                        className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-violet-400/40 rounded-3xl p-6 sm:p-7 shadow-xs space-y-5 transition-all"
+                        className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-violet-400/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 transition-all"
                       >
                         {/* Header with Rx ID and Status Badge */}
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="space-y-1 min-w-0">
-                            <span className="inline-block font-mono text-[11px] font-extrabold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60 px-2.5 py-0.5 rounded-lg border border-violet-200/60 dark:border-violet-800/60">
+                        <div className="flex justify-between items-start gap-2.5">
+                          <div className="space-y-0.5 min-w-0">
+                            <span className="inline-block font-mono text-[10px] sm:text-[11px] font-extrabold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60 px-2 py-0.5 rounded-md border border-violet-200/60 dark:border-violet-800/60">
                               {rx.id}
                             </span>
-                            <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug truncate">
+                            <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug truncate">
                               {rx.pharmacy}
                             </h4>
-                            <span className="text-xs text-slate-400 flex items-center gap-1 font-medium">
+                            <span className="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1 font-medium">
                               <Clock className="w-3.5 h-3.5 text-slate-400" />
                               Uploaded on {rx.date}
                             </span>
                           </div>
 
                           <span
-                            className={`text-xs font-bold px-3 py-1 rounded-full shrink-0 shadow-2xs ${
+                            className={`text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full shrink-0 shadow-2xs ${
                               rx.status === 'Verified by Pharmacist'
                                 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
                                 : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60'
@@ -1263,15 +1273,15 @@ export const PatientApp: React.FC = () => {
                         </div>
 
                         {/* Digitized Medicines Breakdown */}
-                        <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
-                          <span className="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                        <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                          <span className="text-[10px] sm:text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
                             Digitized Medications:
                           </span>
-                          <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                          <ul className="space-y-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                             {rx.medicines.map((m, idx) => (
-                              <li key={idx} className="flex items-center gap-2.5 bg-slate-50/80 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
-                                <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0" />
-                                <span className="font-semibold">{m}</span>
+                              <li key={idx} className="flex items-center gap-2 bg-slate-50/80 dark:bg-slate-800/50 p-2 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span className="w-1.5 h-1.5 rounded-full bg-violet-500 shrink-0" />
+                                <span className="font-semibold text-xs">{m}</span>
                               </li>
                             ))}
                           </ul>
@@ -1300,8 +1310,8 @@ export const PatientApp: React.FC = () => {
 
           {/* ── 3. Chronic Refills & Interactive Adherence Tracker ── */}
           {activeTab === 'refills' && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">
                     Chronic Medication &amp; Refills
@@ -1316,20 +1326,20 @@ export const PatientApp: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {refills.map((refill) => (
                   <div
                     key={refill.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4 hover:shadow-md transition-all flex flex-col justify-between"
+                    className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-3.5 hover:shadow-md transition-all flex flex-col justify-between"
                   >
-                    <div className="space-y-3.5">
+                    <div className="space-y-3">
                       {/* Header with Condition and Adherence Gauge */}
-                      <div className="flex justify-between items-start gap-3">
-                        <div className="space-y-1 min-w-0">
-                          <span className="inline-block text-[10px] font-extrabold uppercase tracking-wide px-2.5 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-950/70 text-cyan-800 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-800/60">
+                      <div className="flex justify-between items-start gap-2.5">
+                        <div className="space-y-0.5 min-w-0">
+                          <span className="inline-block text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wide px-2.5 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-950/70 text-cyan-800 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-800/60">
                             {refill.chronicCondition}
                           </span>
-                          <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
+                          <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
                             {refill.medicationName}
                           </h3>
                         </div>
@@ -1338,7 +1348,7 @@ export const PatientApp: React.FC = () => {
                           <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 block">
                             {refill.adherenceRatePercent}% Adherence
                           </span>
-                          <div className="w-24 sm:w-28 bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-200/60 dark:border-slate-700">
+                          <div className="w-20 sm:w-28 bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-200/60 dark:border-slate-700">
                             <div
                               className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                               style={{ width: `${refill.adherenceRatePercent}%` }}
@@ -1360,7 +1370,7 @@ export const PatientApp: React.FC = () => {
                       </div>
 
                       {doseLoggedSuccess === refill.id && (
-                        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2 animate-in fade-in">
+                        <div className="p-2.5 sm:p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2 animate-in fade-in">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                           <span>Today's dose logged! Streak updated.</span>
                         </div>
@@ -1368,7 +1378,7 @@ export const PatientApp: React.FC = () => {
                     </div>
 
                     {/* Action Command Row */}
-                    <div className="pt-4 flex items-center gap-3 border-t border-slate-100 dark:border-slate-800">
+                    <div className="pt-3.5 flex items-center gap-2.5 border-t border-slate-100 dark:border-slate-800">
                       <button
                         onClick={() => handleLogDose(refill.id)}
                         className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-[0.98]"
