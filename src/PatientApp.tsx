@@ -43,8 +43,9 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { PatientLandingPage } from './components/patient/PatientLandingPage';
-import { PatientAuthModal } from './components/patient/PatientAuthModal';
+import { PatientAuthModal, PatientAuthPage } from './components/patient/PatientAuthModal';
 import { PatientAICopilot } from './components/patient/PatientAICopilot';
+import { PatientAICopilotPage } from './components/patient/PatientAICopilotPage';
 import { PatientSidebar } from './components/patient/PatientSidebar';
 import { PatientBranchesPage } from './components/patient/PatientBranchesPage';
 import { PatientSupportHub } from './components/patient/PatientSupportHub';
@@ -89,7 +90,7 @@ export const PatientApp: React.FC = () => {
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<
-    'search' | 'branches' | 'prescriptions' | 'refills' | 'telehealth' | 'orders' | 'notifications' | 'healthLibrary' | 'adr' | 'support' | 'profile'
+    'search' | 'branches' | 'copilot' | 'prescriptions' | 'refills' | 'telehealth' | 'orders' | 'notifications' | 'healthLibrary' | 'adr' | 'support' | 'profile'
   >('search');
 
   // Listen to auth changes
@@ -456,6 +457,22 @@ export const PatientApp: React.FC = () => {
     setTimeout(() => setDoseLoggedSuccess(null), 3000);
   };
 
+  // If Auth page is active (either requested from landing page or in-app), render the dedicated standalone PatientAuthPage
+  if (isAuthModalOpen) {
+    return (
+      <PatientAuthPage
+        initialMode={authModalMode}
+        redirectReason={authRedirectReason}
+        onBack={() => setIsAuthModalOpen(false)}
+        onSuccess={(patient) => {
+          setPatientUser(patient);
+          setIsAuthModalOpen(false);
+          setForceExploreView(false);
+        }}
+      />
+    );
+  }
+
   // If user is NOT logged in or explicitly clicked "Explore System", render the full Public Landing Page
   if (!patientUser || forceExploreView) {
     return (
@@ -509,17 +526,6 @@ export const PatientApp: React.FC = () => {
             }
           }}
         />
-
-        <PatientAuthModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-          initialMode={authModalMode}
-          redirectReason={authRedirectReason}
-          onSuccess={(patient) => {
-            setPatientUser(patient);
-            setForceExploreView(false);
-          }}
-        />
       </>
     );
   }
@@ -538,7 +544,7 @@ export const PatientApp: React.FC = () => {
         patientName={patientUser.fullName}
         cartCount={cartItems.reduce((acc, i) => acc + i.quantity, 0)}
         onOpenCart={() => { setCheckoutStep('cart'); setIsCartOpen(true); }}
-        onOpenAI={() => setIsAICopilotOpen(true)}
+        onOpenAI={() => setActiveTab('copilot')}
         onLogout={() => patientAuthService.logout()}
         onInstallPWA={deferredPrompt ? handleInstallClick : undefined}
         showInstallHint={showInstallBanner}
@@ -586,10 +592,11 @@ export const PatientApp: React.FC = () => {
 
         {/* Top Header — Fixed Clinical Command Bar (Compact on mobile, Spacious on Desktop) */}
         <header
-          className="shrink-0 z-30 flex items-center justify-between px-3.5 sm:px-8 py-2.5 sm:py-4 border-b gap-3 sm:gap-6 min-h-[64px] sm:min-h-[76px] bg-[#07111e] border-slate-800 text-slate-100 shadow-md transition-all"
+          className="shrink-0 z-30 flex items-center justify-between border-b bg-[#07111e] border-slate-800 text-slate-100 shadow-md transition-all"
+          style={{ paddingLeft: '1cm', paddingRight: '1cm', paddingTop: '0.45cm', paddingBottom: '0.45cm', minHeight: '80px', gap: '1cm' }}
         >
           {/* 1. Left Section: Hamburger + Brand Title + System Online */}
-          <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             <button
               onClick={() => setIsMobileNavOpen(true)}
               className="md:hidden p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
@@ -600,19 +607,19 @@ export const PatientApp: React.FC = () => {
             </button>
 
             <div
-              className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
+              className="flex items-center gap-3 sm:gap-3.5 cursor-pointer group"
               onClick={() => {
                 setActiveTab('search');
                 setForceExploreView(false);
               }}
               title="ZenithRx Patient Care Network"
             >
-              <div className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xs overflow-hidden group-hover:scale-105 transition-transform bg-slate-800 border border-slate-700 p-1 sm:p-1.5 shrink-0">
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xs overflow-hidden group-hover:scale-105 transition-transform bg-slate-800 border border-slate-700 p-1 sm:p-1.5 shrink-0">
                 <img src="/icon.png" alt="ZenithRx Logo" className="w-full h-full object-contain" />
               </div>
 
               <div className="hidden sm:block">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <span className="text-[10px] tracking-widest text-slate-400 font-extrabold uppercase">
                     QUANTUM NETWORKS LTD
                   </span>
@@ -620,11 +627,8 @@ export const PatientApp: React.FC = () => {
                     SYSTEM ONLINE
                   </span>
                 </div>
-                <h1 className="text-lg font-black tracking-tight text-white flex items-center gap-2 mt-0.5">
+                <h1 className="text-lg font-black tracking-tight text-white mt-0.5">
                   ZenithRx
-                  <span className="text-[11px] font-bold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-lg">
-                    Patient v3.2
-                  </span>
                 </h1>
               </div>
 
@@ -646,7 +650,7 @@ export const PatientApp: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsServicesMenuOpen((prev) => !prev)}
-                className="flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-white font-bold text-xs shadow-xs transition cursor-pointer group"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-white font-bold text-xs shadow-xs transition cursor-pointer group"
                 title="Clinical Services & Network Hub"
               >
                 <div className="w-6 h-6 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -661,30 +665,39 @@ export const PatientApp: React.FC = () => {
 
               {/* Clinical Services Dropdown Panel */}
               {isServicesMenuOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-80 rounded-2xl bg-[#0B131F] border border-slate-800 shadow-2xl z-50 p-2 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+                <div 
+                  className="absolute left-1/2 -translate-x-1/2 mt-3 w-88 rounded-3xl bg-[#0B131F] border border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100"
+                  style={{ padding: '0.6cm', display: 'flex', flexDirection: 'column', gap: '0.45cm' }}
+                >
                   {/* Network Context Header */}
-                  <div className="px-3 py-2 border-b border-slate-800 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                  <div 
+                    className="border-b border-slate-800 flex items-center justify-between"
+                    style={{ paddingBottom: '0.4cm' }}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Building2 className="w-4.5 h-4.5 text-cyan-400 shrink-0" />
                       <span className="text-xs font-bold text-white">Kampala Care Hub</span>
                     </div>
-                    <span className="bg-cyan-950 text-cyan-300 text-[9px] font-black px-2 py-0.5 rounded-full border border-cyan-800">
+                    <span className="bg-cyan-950 text-cyan-300 text-[9px] font-black px-2.5 py-0.5 rounded-full border border-cyan-800">
                       Enterprise Network
                     </span>
                   </div>
 
                   {/* Menu Options */}
-                  <div className="py-1 space-y-0.5 text-xs">
+                  <div 
+                    className="text-xs"
+                    style={{ display: 'flex', flexDirection: 'column', gap: '0.2cm' }}
+                  >
                     {/* 1. AI Clinical Assistant */}
                     <button
                       onClick={() => {
-                        setIsAICopilotOpen(true);
+                        setActiveTab('copilot');
                         setIsServicesMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-emerald-950/40 text-left transition cursor-pointer group"
+                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-emerald-950/40 text-left transition cursor-pointer group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                        <Sparkles className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <Sparkles className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">AI Clinical Assistant</p>
@@ -698,10 +711,10 @@ export const PatientApp: React.FC = () => {
                         setActiveTab('prescriptions');
                         setIsServicesMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-violet-950/40 text-left transition cursor-pointer group"
+                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-violet-950/40 text-left transition cursor-pointer group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-violet-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                        <Upload className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-xl bg-violet-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <Upload className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-white group-hover:text-violet-400 transition-colors">Doctor Prescriptions &amp; AI OCR</p>
@@ -715,10 +728,10 @@ export const PatientApp: React.FC = () => {
                         setForceExploreView(true);
                         setIsServicesMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-cyan-950/40 text-left transition cursor-pointer group"
+                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-cyan-950/40 text-left transition cursor-pointer group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-cyan-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                        <Layers className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-xl bg-cyan-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <Layers className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">Explore Partner Pharmacies</p>
@@ -732,10 +745,10 @@ export const PatientApp: React.FC = () => {
                         setActiveTab('branches');
                         setIsServicesMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-800/80 text-left transition cursor-pointer group"
+                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-slate-800/80 text-left transition cursor-pointer group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                        <Building2 className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                        <Building2 className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">Branch Stock &amp; Hold</p>
@@ -749,7 +762,7 @@ export const PatientApp: React.FC = () => {
           </div>
 
           {/* 3. Right Header Section: Profile & Theme (Zero Header Congestion) */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3.5 sm:gap-4 shrink-0">
             {/* Theme Dropdown Menu */}
             <ThemeToggle variant="menu" />
 
@@ -759,7 +772,7 @@ export const PatientApp: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                  className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer shadow-xs group"
+                  className="flex items-center gap-3 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer shadow-xs group"
                   title="Patient Profile & Account Menu"
                 >
                   <div className="relative">
@@ -787,41 +800,50 @@ export const PatientApp: React.FC = () => {
 
                 {/* Patient Account Dropdown Panel */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#0B131F] border border-slate-800 shadow-2xl z-50 p-2 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+                  <div 
+                    className="absolute right-0 mt-3 w-80 rounded-3xl bg-[#0B131F] border border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100"
+                    style={{ padding: '0.6cm', display: 'flex', flexDirection: 'column', gap: '0.45cm' }}
+                  >
                     {/* User Header */}
-                    <div className="px-3 py-2.5 border-b border-slate-800 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shrink-0">
+                    <div 
+                      className="border-b border-slate-800 flex items-center gap-3.5"
+                      style={{ paddingBottom: '0.45cm' }}
+                    >
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-black text-base flex items-center justify-center shrink-0 shadow-xs">
                         {patientUser.fullName.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-white truncate">{patientUser.fullName}</p>
-                        <p className="text-[10px] text-slate-400 truncate">{patientUser.phone}</p>
-                        <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-950/80 px-1.5 py-0.2 rounded mt-0.5 border border-emerald-800/60">
+                        <p className="text-sm font-black text-white truncate">{patientUser.fullName}</p>
+                        <p className="text-[11px] text-slate-400 truncate mt-0.5">{patientUser.phone}</p>
+                        <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full mt-1 border border-emerald-800/60">
                           NDA Verified Patient
                         </span>
                       </div>
                     </div>
 
                     {/* Quick Menu Options */}
-                    <div className="py-1 space-y-0.5 text-xs">
+                    <div 
+                      className="text-xs"
+                      style={{ display: 'flex', flexDirection: 'column', gap: '0.2cm' }}
+                    >
                       {/* Notifications & Alerts */}
                       <button
                         onClick={() => {
                           setActiveTab('notifications');
                           setIsUserMenuOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition cursor-pointer text-left ${
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl transition cursor-pointer text-left ${
                           activeTab === 'notifications'
                             ? 'bg-emerald-950/50 text-emerald-300 font-bold border border-emerald-800/60'
                             : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <Bell className="w-4 h-4 text-emerald-400" />
-                          <span className="font-semibold">Notifications &amp; Alerts</span>
+                        <div className="flex items-center gap-3">
+                          <Bell className="w-4.5 h-4.5 text-emerald-400" />
+                          <span className="font-semibold text-xs">Notifications &amp; Alerts</span>
                         </div>
                         {notificationCenterService.getUnreadCount(patientUser?.phone || patientUser?.id) > 0 ? (
-                          <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow ring-1 ring-emerald-400/50 animate-pulse">
+                          <span className="bg-emerald-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow ring-1 ring-emerald-400/50 animate-pulse">
                             {notificationCenterService.getUnreadCount(patientUser?.phone || patientUser?.id)} new
                           </span>
                         ) : (
@@ -836,14 +858,14 @@ export const PatientApp: React.FC = () => {
                           setIsCartOpen(true);
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <ShoppingCart className="w-4 h-4 text-amber-400" />
-                          <span className="font-semibold">Medicine Cart</span>
+                        <div className="flex items-center gap-3">
+                          <ShoppingCart className="w-4.5 h-4.5 text-amber-400" />
+                          <span className="font-semibold text-xs">Medicine Cart</span>
                         </div>
                         {cartItems.length > 0 ? (
-                          <span className="bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                          <span className="bg-emerald-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full">
                             {cartItems.reduce((acc, i) => acc + i.quantity, 0)} items
                           </span>
                         ) : (
@@ -857,10 +879,10 @@ export const PatientApp: React.FC = () => {
                           setActiveTab('profile');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
                       >
-                        <User className="w-4 h-4 text-emerald-400" />
-                        <span className="font-semibold">Digital Health Passport</span>
+                        <User className="w-4.5 h-4.5 text-emerald-400" />
+                        <span className="font-semibold text-xs">Digital Health Passport</span>
                       </button>
 
                       {/* My Prescriptions */}
@@ -869,10 +891,10 @@ export const PatientApp: React.FC = () => {
                           setActiveTab('prescriptions');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
                       >
-                        <Upload className="w-4 h-4 text-violet-400" />
-                        <span className="font-semibold">My Prescriptions</span>
+                        <Upload className="w-4.5 h-4.5 text-violet-400" />
+                        <span className="font-semibold text-xs">My Prescriptions</span>
                       </button>
 
                       {/* Live Orders */}
@@ -881,21 +903,24 @@ export const PatientApp: React.FC = () => {
                           setActiveTab('orders');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
                       >
-                        <Truck className="w-4 h-4 text-cyan-400" />
-                        <span className="font-semibold">Live Orders &amp; Deliveries</span>
+                        <Truck className="w-4.5 h-4.5 text-cyan-400" />
+                        <span className="font-semibold text-xs">Live Orders &amp; Deliveries</span>
                       </button>
                     </div>
 
                     {/* Log Out Option in Dropdown */}
-                    <div className="pt-1 border-t border-slate-800">
+                    <div 
+                      className="border-t border-slate-800"
+                      style={{ paddingTop: '0.45cm' }}
+                    >
                       <button
                         onClick={() => {
                           setIsUserMenuOpen(false);
                           patientAuthService.logout();
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition cursor-pointer text-xs font-bold text-left"
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition cursor-pointer text-xs font-bold text-left"
                       >
                         <LogOut className="w-4 h-4 text-rose-400" />
                         <span>Sign Out of Patient Portal</span>
@@ -915,10 +940,13 @@ export const PatientApp: React.FC = () => {
 
           {/* ── 1. Medicine Search & Multi-Pharmacy Formulary ── */}
           {activeTab === 'search' && (
-            <div className="space-y-4 sm:space-y-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1cm' }}>
 
-              {/* ── Search & Filter Bar (Clean, Unified & Breathable) ── */}
-              <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-3.5">
+              {/* ── Search & Filter Bar (Clean, Unified & Breathable with 1cm Spacing) ── */}
+              <div
+                className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs"
+                style={{ padding: '1cm', display: 'flex', flexDirection: 'column', gap: '0.6cm' }}
+              >
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
                   <div className="relative flex-1 flex items-center">
                     <span className="absolute left-3.5 sm:left-4 z-10 flex items-center pointer-events-none text-slate-400">
@@ -945,30 +973,30 @@ export const PatientApp: React.FC = () => {
                   </select>
                 </div>
 
-                {/* Therapeutic Category Filter Pills */}
-                <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80">
-                  <div className="flex items-center gap-1.5 overflow-x-auto flex-1 py-0.5 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
+                {/* Therapeutic Category Filter Pills with Generous Spacing */}
+                <div className="flex items-center justify-between gap-4 border-t border-slate-100 dark:border-slate-800/80 pt-5 sm:pt-6 flex-wrap sm:flex-nowrap">
+                  <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto flex-1 py-1 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
                     {['all', 'Antibiotics', 'Diabetes', 'Cardiovascular', 'Respiratory', 'Analgesics'].map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-3 py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                        className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 active:scale-95 ${
                           selectedCategory === cat
-                            ? 'bg-emerald-600 text-white shadow-xs font-extrabold'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-200'
+                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25 font-black'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-slate-700'
                         }`}
                       >
                         {cat === 'all' ? 'All Medicines' : cat}
                       </button>
                     ))}
                   </div>
-                  <div className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap shrink-0">
-                    <span className="font-black text-slate-900 dark:text-slate-100 text-xs sm:text-sm">{filteredMeds.length}</span> results
+                  <div className="px-3.5 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap shrink-0">
+                    <span className="font-black text-slate-900 dark:text-slate-100 text-xs sm:text-sm mr-1">{filteredMeds.length}</span> results
                   </div>
                 </div>
               </div>
 
-              {/* ── Medicine Formulary Clean Grid ── */}
+              {/* ── Medicine Formulary Clean Grid with 1cm Spacing ── */}
               {filteredMeds.length === 0 ? (
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-8 sm:p-12 text-center shadow-xs space-y-3">
                   <Search className="w-8 h-8 sm:w-10 sm:h-10 mx-auto text-slate-300 dark:text-slate-600" />
@@ -982,20 +1010,21 @@ export const PatientApp: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-[1cm]" style={{ gap: '1cm' }}>
                   {filteredMeds.map((med) => {
                     const isExpanded = expandedMedId === med.id;
                     return (
                       <div
                         key={med.id}
-                        className={`bg-white dark:bg-slate-900 border rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs transition-all flex flex-col justify-between space-y-3 sm:space-y-4 hover:shadow-md ${
+                        className={`bg-white dark:bg-slate-900 border rounded-2xl sm:rounded-3xl shadow-xs transition-all flex flex-col justify-between hover:shadow-md ${
                           isExpanded
                             ? 'border-emerald-500 ring-2 ring-emerald-500/10'
                             : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                         }`}
+                        style={{ padding: '1cm', gap: '1cm' }}
                       >
                         {/* Header & Identification */}
-                        <div className="space-y-3">
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm' }}>
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full">
                               {med.category}
@@ -1026,7 +1055,7 @@ export const PatientApp: React.FC = () => {
                           </div>
 
                           {/* Adult Dose & Usage Guidance */}
-                          <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1 pt-1">
+                          <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 pt-1">
                             <p className="leading-relaxed">
                               <span className="font-bold text-slate-700 dark:text-slate-300">Adult Dosage:</span> {med.standardDoseAdult}
                             </p>
@@ -1043,19 +1072,19 @@ export const PatientApp: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Price & Action Row (Clean, uncrowded 2-column layout) */}
-                        <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                        {/* Price & Action Row (Clean, uncrowded 2-column layout with generous button padding and spacing) */}
+                        <div className="pt-4 sm:pt-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
                           <div className="shrink-0">
-                            <span className="text-[10px] text-slate-400 font-semibold block leading-none">Price per pack</span>
-                            <span className="text-lg sm:text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
+                            <span className="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">Price per pack</span>
+                            <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 block">
                               {formatUGX(med.suggestedRetailPriceUgx)}
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2 sm:gap-2.5 justify-end">
+                          <div className="flex items-center gap-2.5 sm:gap-3.5 justify-end flex-wrap">
                             <button
                               onClick={() => setExpandedMedId(isExpanded ? null : med.id)}
-                              className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                              className="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             >
                               {isExpanded ? 'Less' : 'Details'}
                             </button>
@@ -1065,17 +1094,17 @@ export const PatientApp: React.FC = () => {
                                 setSelectedStockMedicine(med);
                                 setActiveTab('branches');
                               }}
-                              className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-400 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+                              className="px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs"
                             >
-                              <Building2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                               <span>Branches</span>
                             </button>
 
                             <button
                               onClick={() => handleAddToCart(med, selectedPharmacyFilter === 'all' ? 'Kampala City Pharmacy' : selectedPharmacyFilter)}
-                              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-98"
+                              className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black shadow-md shadow-emerald-600/20 flex items-center gap-2 transition-all cursor-pointer active:scale-95"
                             >
-                              <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                              <ShoppingCart className="w-4 h-4 shrink-0" />
                               <span>Order</span>
                             </button>
                           </div>
@@ -1113,12 +1142,27 @@ export const PatientApp: React.FC = () => {
             />
           )}
 
-          {/* ── 3. Prescription Upload & Verification History ── */}
+          {/* ── 3. Dedicated Quantum RxAI Copilot Independent Clinical Triage Page ── */}
+          {activeTab === 'copilot' && (
+            <PatientAICopilotPage
+              patientUser={patientUser}
+              onOpenTeleconsult={() => setActiveTab('telehealth')}
+              onNavigateToMedSearch={(query) => {
+                setMedSearch(query);
+                setActiveTab('search');
+              }}
+            />
+          )}
+
+          {/* ── 4. Prescription Upload & Verification History ── */}
           {activeTab === 'prescriptions' && (
-            <div className="space-y-8">
+            <div className="space-y-[1cm]" style={{ gap: '1cm', display: 'flex', flexDirection: 'column' }}>
               {/* Header Title & Registered Badge */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 sm:pb-6 border-b border-slate-200 dark:border-slate-800">
-                <div className="space-y-1">
+              <div
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800"
+                style={{ paddingBottom: '1cm', marginBottom: '0.5cm' }}
+              >
+                <div className="space-y-2">
                   <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
                     Doctor Prescription Verification
                   </h2>
@@ -1126,16 +1170,22 @@ export const PatientApp: React.FC = () => {
                     Upload handwritten or printed doctor slips for pharmacist clinical validation, drug interaction checks, and automated digitization into your records.
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl sm:rounded-2xl bg-violet-50 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 text-xs font-extrabold border border-violet-200 dark:border-violet-800/80 shadow-xs shrink-0 self-start sm:self-auto">
+                <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-violet-50 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 text-xs font-extrabold border border-violet-200 dark:border-violet-800/80 shadow-xs shrink-0 self-start sm:self-auto">
                   <ShieldCheck className="w-4 h-4 text-violet-600 dark:text-violet-400" />
                   <span>PSU Registered Pharmacist Review</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
+              <div
+                className="grid grid-cols-1 lg:grid-cols-12 items-start"
+                style={{ gap: '1cm' }}
+              >
                 {/* Prescription Upload Form (Left Column - 6 Cols) */}
-                <div className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xs space-y-5">
-                  <div className="space-y-1">
+                <div
+                  className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-6"
+                  style={{ padding: '1cm' }}
+                >
+                  <div className="space-y-1.5 border-b border-slate-100 dark:border-slate-800" style={{ paddingBottom: '0.5cm' }}>
                     <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
                       Upload New Prescription
                     </h3>
@@ -1145,7 +1195,10 @@ export const PatientApp: React.FC = () => {
                   </div>
 
                   {rxUploadedSuccess && (
-                    <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-3 shadow-xs">
+                    <div
+                      className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-3 shadow-xs"
+                      style={{ padding: '0.6cm' }}
+                    >
                       <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
                       <div>
                         <p className="text-xs sm:text-sm font-black">Prescription Uploaded Successfully!</p>
@@ -1156,9 +1209,9 @@ export const PatientApp: React.FC = () => {
                     </div>
                   )}
 
-                  <form onSubmit={handleUploadRx} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <div className="space-y-1">
+                  <form onSubmit={handleUploadRx} className="space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                           Patient Name <span className="text-rose-500">*</span>
                         </label>
@@ -1168,11 +1221,11 @@ export const PatientApp: React.FC = () => {
                           value={rxPatientName}
                           onChange={(e) => setRxPatientName(e.target.value)}
                           placeholder="Full Legal Name"
-                          className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
+                          className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
                         />
                       </div>
 
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                           Phone / WhatsApp <span className="text-rose-500">*</span>
                         </label>
@@ -1182,19 +1235,19 @@ export const PatientApp: React.FC = () => {
                           value={rxPhone}
                           onChange={(e) => setRxPhone(e.target.value)}
                           placeholder="+256 700 000000"
-                          className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
+                          className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
                         Preferred Dispensing Pharmacy <span className="text-rose-500">*</span>
                       </label>
                       <select
                         value={rxSelectedPharmacy}
                         onChange={(e) => setRxSelectedPharmacy(e.target.value)}
-                        className="w-full px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all cursor-pointer"
+                        className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all cursor-pointer"
                       >
                         {pharmacies.map((p) => (
                           <option key={p.id} value={p.name}>
@@ -1204,12 +1257,15 @@ export const PatientApp: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* Elevated Dropzone */}
-                    <div className="border-2 border-dashed border-violet-200 dark:border-violet-900/60 hover:border-violet-500 rounded-2xl sm:rounded-3xl p-5 sm:p-7 text-center space-y-2 sm:space-y-3 cursor-pointer transition-all bg-violet-50/30 dark:bg-violet-950/20 hover:bg-violet-50/60 group">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 mx-auto flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-                        <Upload className="w-5 h-5 sm:w-6 sm:h-6" />
+                    {/* Elevated Dropzone with 0.8cm internal padding */}
+                    <div
+                      className="border-2 border-dashed border-violet-200 dark:border-violet-900/60 hover:border-violet-500 rounded-3xl text-center space-y-3 cursor-pointer transition-all bg-violet-50/30 dark:bg-violet-950/20 hover:bg-violet-50/60 group"
+                      style={{ padding: '0.8cm' }}
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 mx-auto flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                        <Upload className="w-6 h-6" />
                       </div>
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
                         <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
                           Snap photo or upload prescription file
                         </p>
@@ -1221,7 +1277,7 @@ export const PatientApp: React.FC = () => {
 
                     <button
                       type="submit"
-                      className="w-full py-3.5 rounded-xl sm:rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs sm:text-sm shadow-md shadow-violet-600/25 hover:shadow-lg hover:shadow-violet-600/35 active:scale-[0.98] cursor-pointer transition-all flex items-center justify-center gap-2"
+                      className="w-full py-4 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs sm:text-sm shadow-md shadow-violet-600/25 hover:shadow-lg hover:shadow-violet-600/35 active:scale-[0.98] cursor-pointer transition-all flex items-center justify-center gap-2"
                     >
                       <Upload className="w-4 h-4" />
                       <span>Submit for Pharmacist Review</span>
@@ -1230,8 +1286,8 @@ export const PatientApp: React.FC = () => {
                 </div>
 
                 {/* Prescription Status & History List (Right Column - 6 Cols) */}
-                <div className="lg:col-span-6 space-y-4">
-                  <div className="flex items-center justify-between">
+                <div className="lg:col-span-6 flex flex-col" style={{ gap: '0.8cm' }}>
+                  <div className="flex items-center justify-between" style={{ paddingBottom: '0.2cm' }}>
                     <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
                       Verification History ({uploadedPrescriptionsList.length})
                     </h3>
@@ -1240,29 +1296,30 @@ export const PatientApp: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="flex flex-col" style={{ gap: '1cm' }}>
                     {uploadedPrescriptionsList.map((rx) => (
                       <div
                         key={rx.id}
-                        className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-violet-400/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 transition-all"
+                        className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-violet-400/40 rounded-3xl shadow-xs space-y-4 transition-all"
+                        style={{ padding: '1cm' }}
                       >
                         {/* Header with Rx ID and Status Badge */}
                         <div className="flex justify-between items-start gap-2.5">
-                          <div className="space-y-0.5 min-w-0">
-                            <span className="inline-block font-mono text-[10px] sm:text-[11px] font-extrabold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60 px-2 py-0.5 rounded-md border border-violet-200/60 dark:border-violet-800/60">
+                          <div className="space-y-1 min-w-0">
+                            <span className="inline-block font-mono text-[10px] sm:text-[11px] font-extrabold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60 px-2.5 py-1 rounded-md border border-violet-200/60 dark:border-violet-800/60">
                               {rx.id}
                             </span>
                             <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug truncate">
                               {rx.pharmacy}
                             </h4>
-                            <span className="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1 font-medium">
+                            <span className="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1.5 font-medium">
                               <Clock className="w-3.5 h-3.5 text-slate-400" />
                               Uploaded on {rx.date}
                             </span>
                           </div>
 
                           <span
-                            className={`text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full shrink-0 shadow-2xs ${
+                            className={`text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full shrink-0 shadow-2xs ${
                               rx.status === 'Verified by Pharmacist'
                                 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
                                 : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60'
@@ -1272,23 +1329,29 @@ export const PatientApp: React.FC = () => {
                           </span>
                         </div>
 
-                        {/* Digitized Medicines Breakdown */}
-                        <div className="space-y-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                        {/* Digitized Medicines Breakdown with 0.5cm top spacing */}
+                        <div
+                          className="space-y-2.5 border-t border-slate-100 dark:border-slate-800"
+                          style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                        >
                           <span className="text-[10px] sm:text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
                             Digitized Medications:
                           </span>
-                          <ul className="space-y-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                          <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
                             {rx.medicines.map((m, idx) => (
-                              <li key={idx} className="flex items-center gap-2 bg-slate-50/80 dark:bg-slate-800/50 p-2 rounded-xl border border-slate-100 dark:border-slate-800">
-                                <span className="w-1.5 h-1.5 rounded-full bg-violet-500 shrink-0" />
+                              <li key={idx} className="flex items-center gap-2.5 bg-slate-50/80 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                                <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0" />
                                 <span className="font-semibold text-xs">{m}</span>
                               </li>
                             ))}
                           </ul>
                         </div>
 
-                        {/* Reviewer and Track Order Action */}
-                        <div className="flex items-center justify-between text-xs pt-4 border-t border-slate-100 dark:border-slate-800">
+                        {/* Reviewer and Track Order Action with 0.5cm top spacing */}
+                        <div
+                          className="flex items-center justify-between text-xs border-t border-slate-100 dark:border-slate-800"
+                          style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                        >
                           <span className="text-slate-500 dark:text-slate-400 font-medium">
                             Reviewer: <strong className="text-slate-700 dark:text-slate-300">{rx.pharmacistName}</strong>
                           </span>
@@ -1310,32 +1373,36 @@ export const PatientApp: React.FC = () => {
 
           {/* ── 3. Chronic Refills & Interactive Adherence Tracker ── */}
           {activeTab === 'refills' && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">
+            <div className="space-y-[1cm]" style={{ gap: '1cm', display: 'flex', flexDirection: 'column' }}>
+              <div
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800"
+                style={{ paddingBottom: '1cm', marginBottom: '0.5cm' }}
+              >
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
                     Chronic Medication &amp; Refills
                   </h2>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
                     Track daily intake schedules, maintain your streak, and order 30-day refills before your supply ends.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800 self-start sm:self-auto">
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800 shadow-xs self-start sm:self-auto shrink-0">
                   <HeartPulse className="w-4 h-4 text-emerald-600" />
                   <span>94% Adherence · 18-Day Streak 🔥</span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: '1cm' }}>
                 {refills.map((refill) => (
                   <div
                     key={refill.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-3.5 hover:shadow-md transition-all flex flex-col justify-between"
+                    className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-5 hover:shadow-md transition-all flex flex-col justify-between"
+                    style={{ padding: '1cm' }}
                   >
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {/* Header with Condition and Adherence Gauge */}
                       <div className="flex justify-between items-start gap-2.5">
-                        <div className="space-y-0.5 min-w-0">
+                        <div className="space-y-1 min-w-0">
                           <span className="inline-block text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wide px-2.5 py-0.5 rounded-full bg-cyan-50 dark:bg-cyan-950/70 text-cyan-800 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-800/60">
                             {refill.chronicCondition}
                           </span>
@@ -1348,7 +1415,7 @@ export const PatientApp: React.FC = () => {
                           <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 block">
                             {refill.adherenceRatePercent}% Adherence
                           </span>
-                          <div className="w-20 sm:w-28 bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-1 overflow-hidden border border-slate-200/60 dark:border-slate-700">
+                          <div className="w-20 sm:w-28 bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-1.5 overflow-hidden border border-slate-200/60 dark:border-slate-700">
                             <div
                               className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                               style={{ width: `${refill.adherenceRatePercent}%` }}
@@ -1358,7 +1425,7 @@ export const PatientApp: React.FC = () => {
                       </div>
 
                       {/* Dosage Schedule & Due Date */}
-                      <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1 pt-1">
+                      <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-1.5 pt-1">
                         <p>
                           <strong className="text-slate-800 dark:text-slate-200 font-bold">Dosage Schedule:</strong>{' '}
                           {refill.dosageSchedule}
@@ -1370,18 +1437,24 @@ export const PatientApp: React.FC = () => {
                       </div>
 
                       {doseLoggedSuccess === refill.id && (
-                        <div className="p-2.5 sm:p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2 animate-in fade-in">
+                        <div
+                          className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2.5 shadow-xs animate-in fade-in"
+                          style={{ padding: '0.4cm' }}
+                        >
                           <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                           <span>Today's dose logged! Streak updated.</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Action Command Row */}
-                    <div className="pt-3.5 flex items-center gap-2.5 border-t border-slate-100 dark:border-slate-800">
+                    {/* Action Command Row with 0.5cm top spacing */}
+                    <div
+                      className="flex items-center gap-3 border-t border-slate-100 dark:border-slate-800"
+                      style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                    >
                       <button
                         onClick={() => handleLogDose(refill.id)}
-                        className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs active:scale-[0.98]"
+                        className="flex-1 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 shadow-2xs active:scale-[0.98]"
                       >
                         <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                         <span>Log Dose</span>
@@ -1392,7 +1465,7 @@ export const PatientApp: React.FC = () => {
                           const matchedDrug = medicines.find((m) => m.brandName.toLowerCase().includes(refill.medicationName.toLowerCase())) || medicines[0];
                           handleAddToCart(matchedDrug);
                         }}
-                        className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-xs cursor-pointer transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]"
+                        className="flex-1 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-xs cursor-pointer transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                       >
                         <ShoppingCart className="w-3.5 h-3.5" />
                         <span>Order Refill</span>
@@ -1406,10 +1479,13 @@ export const PatientApp: React.FC = () => {
 
           {/* ── 4. Live Pharmacist Teleconsultation ── */}
           {activeTab === 'telehealth' && (
-            <div className="space-y-8 max-w-7xl mx-auto">
+            <div className="space-y-[1cm]" style={{ gap: '1cm', display: 'flex', flexDirection: 'column' }}>
               {/* 1. Page Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
-                <div className="space-y-1.5">
+              <div
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800"
+                style={{ paddingBottom: '1cm', marginBottom: '0.5cm' }}
+              >
+                <div className="space-y-2">
                   <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
                     Ask a Licensed Pharmacist
                   </h2>
@@ -1417,7 +1493,7 @@ export const PatientApp: React.FC = () => {
                     Virtual clinical triage for dosage questions, drug interactions, and medical guidance.
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800/80 shadow-xs shrink-0 self-start sm:self-auto">
+                <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800/80 shadow-xs shrink-0 self-start sm:self-auto">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
@@ -1427,10 +1503,16 @@ export const PatientApp: React.FC = () => {
               </div>
 
               {/* 2. Main Content Grid (Two Columns) */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+              <div
+                className="grid grid-cols-1 lg:grid-cols-12 items-start"
+                style={{ gap: '1cm' }}
+              >
                 {/* Left Column: Submit Clinical Inquiry (lg:col-span-5) */}
-                <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-                  <div className="space-y-1.5">
+                <div
+                  className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-6"
+                  style={{ padding: '1cm' }}
+                >
+                  <div className="space-y-1.5 border-b border-slate-100 dark:border-slate-800" style={{ paddingBottom: '0.5cm' }}>
                     <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
                       Submit Clinical Inquiry
                     </h3>
@@ -1440,9 +1522,12 @@ export const PatientApp: React.FC = () => {
                   </div>
 
                   {consultSuccess && (
-                    <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-medium text-emerald-800 dark:text-emerald-200 flex items-start gap-3 shadow-xs animate-in fade-in">
+                    <div
+                      className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-medium text-emerald-800 dark:text-emerald-200 flex items-start gap-3 shadow-xs animate-in fade-in"
+                      style={{ padding: '0.6cm' }}
+                    >
                       <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                      <div className="space-y-0.5">
+                      <div className="space-y-1">
                         <p className="font-bold">Inquiry submitted successfully!</p>
                         <p className="text-emerald-700 dark:text-emerald-300">
                           A licensed pharmacist has received your request and will review it in our clinical queue.
@@ -1462,28 +1547,31 @@ export const PatientApp: React.FC = () => {
                         placeholder="Describe your symptoms or medicine dosage question..."
                         value={consultComplaint}
                         onChange={(e) => setConsultComplaint(e.target.value)}
-                        className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-normal text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-y min-h-[120px] max-h-[260px] leading-relaxed"
+                        className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-normal text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-y min-h-[130px] max-h-[260px] leading-relaxed"
                       />
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full py-3.5 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-600/20 hover:shadow-lg hover:shadow-blue-600/30 active:scale-[0.99] cursor-pointer transition-all flex items-center justify-center gap-2"
+                      className="w-full py-4 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-600/20 hover:shadow-lg hover:shadow-blue-600/30 active:scale-[0.99] cursor-pointer transition-all flex items-center justify-center gap-2"
                     >
                       <MessageSquare className="w-4 h-4" />
                       <span>Submit Pharmacist Inquiry</span>
                     </button>
                   </form>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-3 text-xs text-slate-400">
+                  <div
+                    className="border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-3 text-xs text-slate-400"
+                    style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                  >
                     <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0" />
                     <span className="leading-snug">Encrypted &amp; reviewed by PSU registered pharmacists</span>
                   </div>
                 </div>
 
                 {/* Right Column: Your Pharmacist Consultations (lg:col-span-7) */}
-                <div className="lg:col-span-7 space-y-5">
-                  <div className="flex items-center justify-between">
+                <div className="lg:col-span-7 flex flex-col" style={{ gap: '0.8cm' }}>
+                  <div className="flex items-center justify-between" style={{ paddingBottom: '0.2cm' }}>
                     <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
                       Your Pharmacist Consultations
                     </h3>
@@ -1493,11 +1581,14 @@ export const PatientApp: React.FC = () => {
                   </div>
 
                   {consultations.length === 0 ? (
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-8 text-center space-y-3 shadow-xs">
-                      <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center">
-                        <MessageSquare className="w-6 h-6" />
+                    <div
+                      className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl text-center space-y-4 shadow-xs"
+                      style={{ padding: '1.2cm' }}
+                    >
+                      <div className="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center">
+                        <MessageSquare className="w-7 h-7" />
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         <h4 className="text-base font-bold text-slate-800 dark:text-slate-200">No consultations yet</h4>
                         <p className="text-xs text-slate-400 max-w-sm mx-auto">
                           Have a question about your medicines or dosage? Use the form on the left to submit a clinical inquiry.
@@ -1505,7 +1596,7 @@ export const PatientApp: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="flex flex-col" style={{ gap: '1cm' }}>
                       {consultations.map((c) => {
                         const isCompleted = c.status === 'Completed';
                         const isInConsult = c.status === 'In Consultation';
@@ -1523,16 +1614,20 @@ export const PatientApp: React.FC = () => {
                         return (
                           <div
                             key={c.id}
-                            className={`bg-white dark:bg-slate-900 border rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-xs space-y-4 transition-all hover:border-slate-300 dark:hover:border-slate-700 ${
+                            className={`bg-white dark:bg-slate-900 border rounded-3xl shadow-xs space-y-4 transition-all hover:border-slate-300 dark:hover:border-slate-700 ${
                               isCompleted
                                 ? 'border-slate-200/70 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/60'
                                 : 'border-slate-200/90 dark:border-slate-800'
                             }`}
+                            style={{ padding: '1cm' }}
                           >
                             {/* Top Meta & Status Row */}
-                            <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+                            <div
+                              className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80"
+                              style={{ paddingBottom: '0.4cm' }}
+                            >
                               <div className="flex items-center gap-2">
-                                <span className="font-mono text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
+                                <span className="font-mono text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
                                   {sessionCode}
                                 </span>
                               </div>
@@ -1574,19 +1669,25 @@ export const PatientApp: React.FC = () => {
 
                             {/* Pharmacist Guidance / Advice Callout if Available */}
                             {adviceText && (
-                              <div className="bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-2xl p-4 space-y-1">
+                              <div
+                                className="bg-blue-50/60 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/40 rounded-2xl space-y-1.5"
+                                style={{ marginTop: '0.5cm', padding: '0.6cm' }}
+                              >
                                 <p className="text-xs font-bold text-blue-900 dark:text-blue-300 flex items-center gap-1.5">
-                                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                                  <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                                   <span>Pharmacist Clinical Guidance:</span>
                                 </p>
-                                <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
+                                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
                                   {adviceText}
                                 </p>
                               </div>
                             )}
 
                             {/* Pharmacist Secondary Info Footer */}
-                            <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <div
+                              className="border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400"
+                              style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                            >
                               <div className="flex items-center gap-1.5">
                                 <span className="font-normal text-slate-400">Pharmacist:</span>
                                 <span className="font-medium text-slate-700 dark:text-slate-300">
@@ -1606,36 +1707,51 @@ export const PatientApp: React.FC = () => {
 
           {/* ── 5. Orders & Live Delivery Tracking ── */}
           {activeTab === 'orders' && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">Live Deliveries &amp; Orders</h2>
-                <p className="text-xs text-slate-500 mt-1">Track express motorcycle delivery orders and view your 4-digit handover OTP code.</p>
+            <div className="space-y-[1cm]" style={{ gap: '1cm', display: 'flex', flexDirection: 'column' }}>
+              <div
+                className="border-b border-slate-200 dark:border-slate-800"
+                style={{ paddingBottom: '1cm', marginBottom: '0.5cm' }}
+              >
+                <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+                  Live Deliveries &amp; Orders
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                  Track express motorcycle delivery orders and view your 4-digit handover OTP code.
+                </p>
               </div>
 
-              <div className="space-y-4">
+              <div className="flex flex-col" style={{ gap: '1cm' }}>
                 {orders.map((order) => (
                   <div
                     key={order.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-4"
+                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-xs space-y-5 transition-all hover:border-indigo-400/40"
+                    style={{ padding: '1cm' }}
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div>
-                        <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">{order.orderNumber}</span>
-                        <h3 className="text-base font-black text-slate-900 dark:text-slate-100 mt-0.5">{order.itemsSummary}</h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="space-y-1 min-w-0">
+                        <span className="inline-block font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-md border border-indigo-200/60 dark:border-indigo-800/60">
+                          {order.orderNumber}
+                        </span>
+                        <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 mt-1">
+                          {order.itemsSummary}
+                        </h3>
                         <p className="text-xs text-slate-500">From {order.pharmacyName}</p>
                       </div>
                       <span
-                        className={`text-xs font-bold px-3 py-1 rounded-full self-start sm:self-auto ${
+                        className={`text-xs font-bold px-3 py-1 rounded-full self-start sm:self-auto shadow-2xs ${
                           order.status === 'Delivered'
-                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                            : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300'
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
+                            : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60'
                         }`}
                       >
                         {order.status}
                       </span>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <div
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800"
+                      style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                    >
                       <div>
                         <span className="font-semibold text-slate-700 dark:text-slate-300">Deliver To:</span> {order.deliveryAddress}
                         <span className="text-slate-400 ml-2">({order.deliveryDistrict})</span>
@@ -1644,7 +1760,7 @@ export const PatientApp: React.FC = () => {
                       {order.deliveryOtpCode && (
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-slate-500">Handover OTP:</span>
-                          <span className="font-mono font-black text-sm px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          <span className="font-mono font-black text-sm px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs">
                             {order.deliveryOtpCode}
                           </span>
                         </div>
@@ -1658,28 +1774,43 @@ export const PatientApp: React.FC = () => {
 
           {/* ── 6. Health Education Library ── */}
           {activeTab === 'healthLibrary' && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">Health Education &amp; Advice</h2>
-                <p className="text-xs text-slate-500 mt-1">Clinically verified health advice written by registered Ugandan pharmacists.</p>
+            <div className="space-y-[1cm]" style={{ gap: '1cm', display: 'flex', flexDirection: 'column' }}>
+              <div
+                className="border-b border-slate-200 dark:border-slate-800"
+                style={{ paddingBottom: '1cm', marginBottom: '0.5cm' }}
+              >
+                <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+                  Health Education &amp; Advice
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                  Clinically verified health advice written by registered Ugandan pharmacists.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: '1cm' }}>
                 {articles.map((art) => (
                   <div
                     key={art.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-md transition-all"
+                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-xs flex flex-col justify-between space-y-5 hover:shadow-md transition-all hover:border-emerald-400/40"
+                    style={{ padding: '1cm' }}
                   >
-                    <div>
-                      <span className="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2.5 py-0.5 rounded-md">
+                    <div className="space-y-3">
+                      <span className="inline-block text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">
                         {art.category}
                       </span>
-                      <h3 className="text-base font-black text-slate-900 dark:text-slate-100 mt-2">{art.title}</h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">{art.summary}</p>
+                      <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 leading-snug">
+                        {art.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        {art.summary}
+                      </p>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 flex justify-between">
-                      <span>By {art.authorName}</span>
+                    <div
+                      className="border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 flex justify-between items-center"
+                      style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                    >
+                      <span className="font-semibold text-slate-600 dark:text-slate-300">By {art.authorName}</span>
                       <span>{art.readTimeMinutes} min read</span>
                     </div>
                   </div>
@@ -1690,55 +1821,69 @@ export const PatientApp: React.FC = () => {
 
           {/* ── 7. Report Drug Side Effect (ADR) ── */}
           {activeTab === 'adr' && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-xl mx-auto shadow-xs space-y-6">
-              <div className="text-center space-y-1">
-                <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 mx-auto flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6" />
+            <div
+              className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl max-w-xl mx-auto shadow-xs space-y-6"
+              style={{ padding: '1cm' }}
+            >
+              <div className="text-center space-y-2 border-b border-slate-100 dark:border-slate-800" style={{ paddingBottom: '0.6cm' }}>
+                <div className="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 mx-auto flex items-center justify-center shadow-xs">
+                  <AlertTriangle className="w-7 h-7" />
                 </div>
-                <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 pt-2">Report an Adverse Drug Side Effect</h3>
-                <p className="text-xs text-slate-500">
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 pt-1">
+                  Report an Adverse Drug Side Effect
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
                   Directly report unexpected symptoms or reactions to the National Drug Authority Pharmacovigilance Centre.
                 </p>
               </div>
 
               {adrSuccess && (
-                <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <div
+                  className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-2.5 shadow-xs"
+                  style={{ padding: '0.5cm' }}
+                >
+                  <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
                   <span>Safety report received! A supervising pharmacist will evaluate your case immediately.</span>
                 </div>
               )}
 
-              <form onSubmit={handleReportAdr} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Medication Brand / Generic Name *</label>
+              <form onSubmit={handleReportAdr} style={{ display: 'flex', flexDirection: 'column', gap: '1cm' }}>
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Medication Brand / Generic Name <span className="text-rose-500">*</span>
+                  </label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Augmentin 625mg or Metformin"
                     value={adrDrug}
                     onChange={(e) => setAdrDrug(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium"
+                    className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-slate-400"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Batch Number (Optional)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Batch Number (Optional)
+                    </label>
                     <input
                       type="text"
                       placeholder="e.g. AUG-2025-08"
                       value={adrBatch}
                       onChange={(e) => setAdrBatch(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium font-mono"
+                      className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium font-mono focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all placeholder:text-slate-400"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Severity *</label>
+                  <div className="space-y-2">
+                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      Severity <span className="text-rose-500">*</span>
+                    </label>
                     <select
                       value={adrSeverity}
                       onChange={(e) => setAdrSeverity(e.target.value as any)}
-                      className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium"
+                      className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all cursor-pointer"
                     >
                       <option value="Mild">Mild Discomfort</option>
                       <option value="Moderate">Moderate Reaction</option>
@@ -1747,23 +1892,26 @@ export const PatientApp: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Symptoms Experienced *</label>
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    Symptoms Experienced <span className="text-rose-500">*</span>
+                  </label>
                   <textarea
                     required
                     rows={4}
                     placeholder="Describe rashes, swelling, breathing difficulty, dizziness, or gastrointestinal pain..."
                     value={adrSymptoms}
                     onChange={(e) => setAdrSymptoms(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-medium"
+                    className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all leading-relaxed placeholder:text-slate-400 min-h-[120px]"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md cursor-pointer transition-all"
+                  className="w-full py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-black text-xs sm:text-sm shadow-md shadow-rose-600/20 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
-                  Submit Patient Safety Report
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Submit Patient Safety Report</span>
                 </button>
               </form>
             </div>
@@ -1788,43 +1936,58 @@ export const PatientApp: React.FC = () => {
 
           {/* ── 10. My Health Profile (Streamlined & Clean) ── */}
           {activeTab === 'profile' && patientUser && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-2xl mx-auto shadow-xs space-y-6">
-              <div className="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-black text-xl shadow-xs">
+            <div 
+              className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl max-w-2xl mx-auto shadow-xs"
+              style={{ padding: '1cm', display: 'flex', flexDirection: 'column', gap: '1cm' }}
+            >
+              <div 
+                className="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800"
+                style={{ paddingBottom: '0.6cm' }}
+              >
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-black text-2xl shadow-xs shrink-0">
                   {patientUser.fullName.slice(0, 2).toUpperCase()}
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-slate-100">{patientUser.fullName}</h3>
-                  <p className="text-xs text-slate-500">{patientUser.phone} • {patientUser.district}</p>
-                  {patientUser.nin && <p className="text-[11px] font-mono text-slate-400 mt-0.5">National ID (NIN): {patientUser.nin}</p>}
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100">{patientUser.fullName}</h3>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">{patientUser.phone} • {patientUser.district}</p>
+                  {patientUser.nin && <p className="text-[11px] font-mono text-slate-400 mt-1">National ID (NIN): {patientUser.nin}</p>}
                 </div>
               </div>
 
-              <div className="space-y-4 text-xs">
+              <div 
+                className="text-xs"
+                style={{ display: 'flex', flexDirection: 'column', gap: '0.6cm' }}
+              >
                 <div className="space-y-1">
-                  <span className="font-bold text-slate-700 dark:text-slate-300">Known Allergies:</span>
-                  <p className="text-rose-600 dark:text-rose-400 font-semibold">{patientUser.allergies.join(', ') || 'None documented'}</p>
+                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">Known Allergies:</span>
+                  <p className="text-rose-600 dark:text-rose-400 font-bold text-sm">{patientUser.allergies.join(', ') || 'None documented'}</p>
                 </div>
 
-                <div className="space-y-1 pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <span className="font-bold text-slate-700 dark:text-slate-300">Chronic Conditions:</span>
-                  <p className="text-purple-600 dark:text-purple-400 font-semibold">{patientUser.chronicConditions.join(', ') || 'None documented'}</p>
+                <div 
+                  className="space-y-1 border-t border-slate-100 dark:border-slate-800"
+                  style={{ paddingTop: '0.6cm' }}
+                >
+                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">Chronic Conditions:</span>
+                  <p className="text-purple-600 dark:text-purple-400 font-bold text-sm">{patientUser.chronicConditions.join(', ') || 'None documented'}</p>
                 </div>
 
                 {/* Active Reservations */}
                 {patientReservations.length > 0 && (
-                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                    <span className="font-bold text-slate-700 dark:text-slate-300">
+                  <div 
+                    className="space-y-3 border-t border-slate-100 dark:border-slate-800"
+                    style={{ paddingTop: '0.6cm' }}
+                  >
+                    <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">
                       Active 24h Counter Reservations ({patientReservations.filter((r) => r.status === 'active').length})
                     </span>
-                    <div className="space-y-1.5 pt-1">
+                    <div className="space-y-2">
                       {patientReservations.map((r) => (
-                        <div key={r.id} className="flex items-center justify-between text-xs py-1">
+                        <div key={r.id} className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
                           <div>
                             <span className="font-bold text-slate-900 dark:text-slate-100">{r.quantityReserved}x {r.brandName}</span>
                             <span className="text-[11px] text-slate-400 ml-2">({r.pharmacyName})</span>
                           </div>
-                          <span className="font-mono font-bold text-xs text-emerald-600">
+                          <span className="font-mono font-bold text-xs text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
                             PIN: {r.reservationPin}
                           </span>
                         </div>
@@ -1833,15 +1996,21 @@ export const PatientApp: React.FC = () => {
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400">
+                <div 
+                  className="border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 font-medium"
+                  style={{ paddingTop: '0.6cm' }}
+                >
                   Data securely cached offline for seamless emergency access.
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div 
+                className="border-t border-slate-100 dark:border-slate-800"
+                style={{ paddingTop: '0.6cm' }}
+              >
                 <button
                   onClick={() => patientAuthService.logout()}
-                  className="w-full py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-800/60 transition-all cursor-pointer shadow-xs active:scale-[0.99]"
                 >
                   Sign Out of Patient Portal
                 </button>
@@ -1852,8 +2021,14 @@ export const PatientApp: React.FC = () => {
           </div>
 
           {/* ── Executive Clinical Footer (Expanded Length & Height with Generous Spacing) ── */}
-          <footer className="w-full bg-[#07111e] border-t border-slate-800 mt-20 sm:mt-28 py-12 sm:py-16 px-6 sm:px-12 text-center text-xs space-y-4 shadow-md shrink-0 text-slate-400 pb-36 sm:pb-44">
-            <div className="max-w-7xl mx-auto space-y-3.5 sm:space-y-4">
+          <footer 
+            className="w-full bg-[#07111e] border-t border-slate-800 mt-20 sm:mt-28 text-center text-xs shadow-md shrink-0 text-slate-400"
+            style={{ padding: '1cm', paddingBottom: '3.5cm' }}
+          >
+            <div 
+              className="max-w-7xl mx-auto"
+              style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm' }}
+            >
               <p className="text-white font-black tracking-wider text-sm sm:text-base uppercase">
                 ZENITHRX – CLINICAL PHARMACY MANAGEMENT SYSTEM
               </p>
@@ -2326,32 +2501,27 @@ export const PatientApp: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Quantum RxAI Copilot Launcher */}
-      <aside aria-label="Clinical AI Assistant" className="fixed bottom-6 right-6 z-50">
-        <button
-          onClick={() => setIsAICopilotOpen(true)}
-          className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-700 hover:from-teal-500 hover:to-emerald-500 text-white rounded-full shadow-2xl hover:shadow-teal-500/40 border border-teal-400/40 transition-all hover:scale-105 cursor-pointer"
-          title="Ask Quantum RxAI Copilot"
-        >
-          <div className="p-1.5 bg-white/20 rounded-full animate-pulse">
-            <Sparkles className="w-4 h-4 text-amber-200" />
-          </div>
-          <div className="text-left hidden sm:block">
-            <div className="text-xs font-black tracking-tight flex items-center gap-1.5">
-              <span>Stuck? Ask RxAI</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping" />
+      {/* Floating Quantum RxAI Copilot Launcher (when not already on copilot page) */}
+      {activeTab !== 'copilot' && (
+        <aside aria-label="Clinical AI Assistant" className="fixed bottom-6 right-6 z-50">
+          <button
+            onClick={() => setActiveTab('copilot')}
+            className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-700 hover:from-teal-500 hover:to-emerald-500 text-white rounded-full shadow-2xl hover:shadow-teal-500/40 border border-teal-400/40 transition-all hover:scale-105 cursor-pointer"
+            title="Ask Quantum RxAI Copilot"
+          >
+            <div className="p-1.5 bg-white/20 rounded-full animate-pulse">
+              <Sparkles className="w-4 h-4 text-amber-200" />
             </div>
-            <div className="text-[10px] text-teal-100 font-medium">24/7 Clinical Triage &amp; Q&amp;A</div>
-          </div>
-        </button>
-      </aside>
-      {/* Patient AI Copilot Modal */}
-      <PatientAICopilot
-        isOpen={isAICopilotOpen}
-        onClose={() => setIsAICopilotOpen(false)}
-        patientUser={patientUser}
-        onOpenTeleconsult={() => setActiveTab('telehealth')}
-      />
+            <div className="text-left hidden sm:block">
+              <div className="text-xs font-black tracking-tight flex items-center gap-1.5">
+                <span>Stuck? Ask RxAI</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping" />
+              </div>
+              <div className="text-[10px] text-teal-100 font-medium">24/7 Clinical Triage &amp; Q&amp;A</div>
+            </div>
+          </button>
+        </aside>
+      )}
     </div>
   );
 };

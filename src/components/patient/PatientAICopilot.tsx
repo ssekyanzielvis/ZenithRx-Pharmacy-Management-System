@@ -187,8 +187,8 @@ export const PatientAICopilot: React.FC<PatientAICopilotProps> = ({
           </button>
         </div>
 
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/50 dark:bg-slate-950/40">
+        {/* Chat Messages with 1cm vertical spacing */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-[1cm] bg-slate-50/50 dark:bg-slate-950/40">
           {messages.map((msg) => {
             const isAI = msg.sender === 'assistant';
             const triage = msg.triage;
@@ -196,7 +196,7 @@ export const PatientAICopilot: React.FC<PatientAICopilotProps> = ({
             return (
               <div
                 key={msg.id}
-                className={`flex gap-3 ${isAI ? 'justify-start' : 'justify-end'} group`}
+                className={`flex items-start gap-3 ${isAI ? 'justify-start' : 'justify-end'} group`}
               >
                 {isAI && (
                   <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-300 flex items-center justify-center border border-teal-200 dark:border-teal-800 shadow-sm">

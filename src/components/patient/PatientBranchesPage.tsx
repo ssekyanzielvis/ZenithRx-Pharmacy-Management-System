@@ -123,26 +123,29 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
   const minDist = distances.length > 0 ? Math.min(...distances) : 1.2;
 
   return (
-    <div className="space-y-8 sm:space-y-10 pb-36 font-sans w-full max-w-[1600px] mx-auto px-1 sm:px-2">
+    <div className="font-sans w-full max-w-[1600px] mx-auto px-1 sm:px-2 pb-36" style={{ display: 'flex', flexDirection: 'column', gap: '1cm' }}>
       {/* ── Top Navigation / Back Button ── */}
       <div>
         <button
           onClick={onBackToSearch}
-          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-black text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs"
+          className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-black text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Medicines</span>
         </button>
       </div>
 
-      {/* ── Medicine Hero Card (Full Width Banner) ── */}
-      <div className="w-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-7 sm:p-9 shadow-xs flex flex-col sm:flex-row items-start gap-6">
+      {/* ── Medicine Hero Card (Full Width Banner with 1cm Spacing) ── */}
+      <div
+        className="w-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex flex-col sm:flex-row items-start"
+        style={{ padding: '1cm', gap: '1cm' }}
+      >
         {/* Pill Icon illustration */}
         <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
           <Pill className="w-9 h-9 sm:w-11 sm:h-11 rotate-45" />
         </div>
 
-        <div className="space-y-2.5 min-w-0 flex-1">
+        <div className="min-w-0 flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.4cm' }}>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-black uppercase tracking-wider">
               {currentMed.category}
@@ -168,10 +171,13 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
       </div>
 
-      {/* ── Row 2: 4 Clean KPI Metric Cards (Responsive Grid) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* ── Row 2: 4 Clean KPI Metric Cards (Responsive Grid with 1cm Spacing) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[1cm]" style={{ gap: '1cm' }}>
         {/* Metric 1: Green Box */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 shadow-xs flex items-start gap-4 min-w-0">
+        <div
+          className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex items-start min-w-0"
+          style={{ padding: '0.8cm', gap: '0.5cm' }}
+        >
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/30">
             <Building2 className="w-6 h-6" />
           </div>
@@ -190,7 +196,10 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
 
         {/* Metric 2: Blue Tag */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 shadow-xs flex items-start gap-4 min-w-0">
+        <div
+          className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex items-start min-w-0"
+          style={{ padding: '0.8cm', gap: '0.5cm' }}
+        >
           <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/30">
             <Tag className="w-6 h-6" />
           </div>
@@ -204,7 +213,10 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
 
         {/* Metric 3: Purple Pin */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 shadow-xs flex items-start gap-4 min-w-0">
+        <div
+          className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex items-start min-w-0"
+          style={{ padding: '0.8cm', gap: '0.5cm' }}
+        >
           <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 border border-purple-100 dark:border-purple-900/30">
             <MapPin className="w-6 h-6" />
           </div>
@@ -220,7 +232,10 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
 
         {/* Metric 4: Orange Clock */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 shadow-xs flex items-start gap-4 min-w-0">
+        <div
+          className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex items-start min-w-0"
+          style={{ padding: '0.8cm', gap: '0.5cm' }}
+        >
           <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/30">
             <Truck className="w-6 h-6" />
           </div>
@@ -234,8 +249,8 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
       </div>
 
-      {/* ── Section Title & Filter Bar ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+      {/* ── Section Title & Filter Bar with 1cm Spacing ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200 dark:border-slate-800" style={{ paddingTop: '0.4cm' }}>
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
             <Building2 className="w-6 h-6" />
@@ -274,8 +289,8 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
       </div>
 
-      {/* ── 200% EXPANDED PHARMACY CARDS (Generous Length, Width & 4-Quadrant Architecture) ── */}
-      <div className="grid grid-cols-1 gap-8 sm:gap-10">
+      {/* ── EXPANDED PHARMACY CARDS (Generous Length, Width & 4-Quadrant Architecture with 1cm Spacing) ── */}
+      <div className="grid grid-cols-1 gap-[1cm]" style={{ gap: '1cm' }}>
         {displayedBranches.map((branch) => {
           const isOut = branch.stockUnits === 0;
           const isLow = branch.stockUnits > 0 && branch.stockUnits <= 15;
@@ -284,10 +299,14 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
           return (
             <div
               key={branch.pharmacyId}
-              className="bg-white dark:bg-slate-900 border-2 border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/40 rounded-3xl sm:rounded-[32px] p-7 sm:p-10 lg:p-12 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col space-y-8 group"
+              className="bg-white dark:bg-slate-900 border-2 border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/40 rounded-3xl sm:rounded-[32px] shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col group"
+              style={{ padding: '1cm', gap: '1cm' }}
             >
               {/* ── ZONE 1: EXPANSIVE HEADER (Identity, Certification, Distance Pill & Badges) ── */}
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 sm:pb-8 border-b border-slate-100 dark:border-slate-800/90">
+              <div
+                className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800/90"
+                style={{ paddingBottom: '0.6cm' }}
+              >
                 <div className="flex items-start sm:items-center gap-5 min-w-0">
                   {/* Glowing Branch Avatar */}
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-950/80 dark:to-slate-900 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-800/60 shadow-md group-hover:scale-105 transition-transform">
@@ -339,9 +358,12 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
               </div>
 
               {/* ── ZONE 2: CREATIVE 4-QUADRANT INFORMATION & TELEMETRY MATRIX ── */}
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-[0.8cm] items-stretch" style={{ gap: '0.8cm' }}>
                 {/* ── Quadrant 1: Geographic & Access Intelligence ── */}
-                <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
+                <div
+                  className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-3xl flex flex-col justify-between hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors"
+                  style={{ padding: '0.8cm', gap: '0.5cm' }}
+                >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -377,7 +399,10 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
                 </div>
 
                 {/* ── Quadrant 2: Live Stock & Dispensing Quality ── */}
-                <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
+                <div
+                  className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-3xl flex flex-col justify-between hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors"
+                  style={{ padding: '0.8cm', gap: '0.5cm' }}
+                >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -436,7 +461,10 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
                 </div>
 
                 {/* ── Quadrant 3: Transparent Pricing & Breakdown ── */}
-                <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
+                <div
+                  className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-3xl flex flex-col justify-between hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors"
+                  style={{ padding: '0.8cm', gap: '0.5cm' }}
+                >
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -475,7 +503,10 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
                 </div>
 
                 {/* ── Quadrant 4: Fulfillment Options & Speed ── */}
-                <div className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-6 flex flex-col justify-between space-y-4 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors">
+                <div
+                  className="bg-slate-50/80 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 rounded-3xl flex flex-col justify-between hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors"
+                  style={{ padding: '0.8cm', gap: '0.5cm' }}
+                >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -511,7 +542,10 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
               </div>
 
               {/* ── ZONE 3: EXPANSIVE ACTION COMMAND STRIP ── */}
-              <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+              <div
+                className="border-t border-slate-100 dark:border-slate-800 flex flex-col xl:flex-row xl:items-center justify-between gap-6"
+                style={{ paddingTop: '0.6cm' }}
+              >
                 {/* Assurance & Trust Badges */}
                 <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex-wrap">
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/70 font-semibold">

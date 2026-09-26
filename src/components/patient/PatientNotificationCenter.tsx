@@ -163,10 +163,16 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
   };
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto font-sans pb-16">
+    <div className="space-y-[1cm]" style={{ paddingTop: '1cm', paddingBottom: '1cm' }}>
       {/* ── 1. Page Header Hero Section ── */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xs">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+      <div
+        className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
+        style={{ padding: '1cm', marginBottom: '1cm' }}
+      >
+        <div
+          className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800"
+          style={{ paddingBottom: '0.8cm' }}
+        >
           <div className="flex items-start sm:items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
               <Bell className="w-7 h-7" />
@@ -209,7 +215,10 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
         </div>
 
         {/* ── Filter Chips & Search Command Bar ── */}
-        <div className="pt-6 flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center">
+        <div
+          className="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-center"
+          style={{ marginTop: '0.8cm', paddingTop: '0.4cm' }}
+        >
           {/* Filter Pills */}
           <div className="flex flex-wrap items-center gap-2">
             {[
@@ -223,7 +232,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
               <button
                 key={tab.id}
                 onClick={() => setSelectedFilter(tab.id as any)}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
+                className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer shadow-2xs ${
                   selectedFilter === tab.id
                     ? 'bg-emerald-600 text-white shadow-xs shadow-emerald-600/30'
                     : 'bg-slate-100/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-700'
@@ -236,18 +245,18 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
 
           {/* Search box */}
           <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" />
             <input
               type="text"
               placeholder="Search notifications..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-9 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium transition-all placeholder:text-slate-400"
+              className="w-full pl-10 pr-9 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-medium transition-all placeholder:text-slate-400"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2.5 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                className="absolute right-3 top-3 p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -257,11 +266,17 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
       </div>
 
       {/* ── 2. Main Grid: Left Hub (Multi-Channel Delivery + Categories) & Right Activity Stream ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div
+        className="grid grid-cols-1 lg:grid-cols-12 items-start"
+        style={{ marginTop: '1cm', gap: '1cm' }}
+      >
         {/* ── Left Column: Multi-Channel Delivery & Categories Hub (4-5 cols) ── */}
-        <div className="lg:col-span-5 xl:col-span-4 space-y-6">
-          {/* Card 1: Multi-Channel Delivery Guarantee (Moved to Left) */}
-          <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-md space-y-4 border border-slate-800">
+        <div className="lg:col-span-5 xl:col-span-4 flex flex-col" style={{ gap: '1cm' }}>
+          {/* Card 1: Multi-Channel Delivery Guarantee */}
+          <div
+            className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white rounded-3xl shadow-md space-y-5 border border-slate-800"
+            style={{ padding: '1cm' }}
+          >
             <div className="flex items-center gap-2.5">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <h4 className="text-sm sm:text-base font-black text-white tracking-tight">Multi-Channel Delivery</h4>
@@ -270,8 +285,8 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
               ZenithRx guarantees instant failover across 3 notification rails so you never miss an urgent clinical notice or courier arrival.
             </p>
 
-            <div className="space-y-2 pt-1 text-xs">
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/5">
+            <div className="space-y-3 text-xs" style={{ paddingTop: '0.2cm' }}>
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                   <span className="font-semibold text-slate-100">In-App Realtime</span>
@@ -281,7 +296,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/5">
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-blue-400 shrink-0" />
                   <span className="font-semibold text-slate-100">Telecom SMS (OTP)</span>
@@ -291,7 +306,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/5">
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/5">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-teal-400 shrink-0" />
                   <span className="font-semibold text-slate-100">WhatsApp Receipts</span>
@@ -304,8 +319,14 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
           </div>
 
           {/* Card 2: Interactive Category Filter Hub */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div
+            className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-5"
+            style={{ padding: '1cm' }}
+          >
+            <div
+              className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800"
+              style={{ paddingBottom: '0.4cm' }}
+            >
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-emerald-600" />
                 <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">
@@ -326,7 +347,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
               Click any category below to filter alerts across clinical and operational events:
             </p>
 
-            <div className="grid grid-cols-1 gap-2 pt-1">
+            <div className="grid grid-cols-1 gap-2.5 pt-1">
               {NOTIFICATION_CATEGORIES_META.map((meta) => {
                 const isCatSelected = selectedCategory === meta.category;
                 return (
@@ -335,7 +356,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                     onClick={() =>
                       setSelectedCategory(isCatSelected ? 'all' : meta.category)
                     }
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
                       isCatSelected
                         ? 'border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/50 shadow-xs ring-1 ring-emerald-500'
                         : 'border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-200'
@@ -361,13 +382,13 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
         </div>
 
         {/* ── Right Column: Activity Stream & Inspector (7-8 cols) ── */}
-        <div className="lg:col-span-7 xl:col-span-8 space-y-4">
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col" style={{ gap: '1cm' }}>
           <div className="flex items-center justify-between pb-1">
             <div className="flex items-center gap-2">
               <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
                 Activity Stream
               </h3>
-              <span className="text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">
+              <span className="text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
                 {notifications.length} {notifications.length === 1 ? 'alert' : 'alerts'}
               </span>
             </div>
@@ -384,8 +405,14 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
 
           {/* Selected Notification Inspector (displayed above stream when an item is chosen) */}
           {selectedItem && (
-            <div className="bg-white dark:bg-slate-900 border-2 border-emerald-500/40 dark:border-emerald-500/30 rounded-3xl p-6 shadow-md space-y-4 animate-in fade-in">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div
+              className="bg-white dark:bg-slate-900 border-2 border-emerald-500/40 dark:border-emerald-500/30 rounded-3xl shadow-md space-y-4 animate-in fade-in"
+              style={{ padding: '1cm' }}
+            >
+              <div
+                className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800"
+                style={{ paddingBottom: '0.4cm' }}
+              >
                 <span className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   Notification Details Inspector
@@ -399,21 +426,27 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <h4 className="text-base font-extrabold text-slate-900 dark:text-slate-100 leading-snug">
                   {selectedItem.title}
                 </h4>
 
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                <div
+                  className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed"
+                  style={{ padding: '0.6cm' }}
+                >
                   {selectedItem.message}
                 </div>
 
                 {selectedItem.actionPayload && Object.keys(selectedItem.actionPayload).length > 0 && (
-                  <div className="p-3.5 rounded-2xl bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/40 space-y-1.5">
+                  <div
+                    className="rounded-2xl bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/40 space-y-2"
+                    style={{ padding: '0.5cm' }}
+                  >
                     <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Associated Reference Data
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                       {Object.entries(selectedItem.actionPayload).map(([key, val]) => (
                         <div key={key} className="truncate">
                           <span className="text-slate-400 capitalize">{key}: </span>
@@ -427,7 +460,8 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                 {selectedItem.actionType !== 'none' && (
                   <button
                     onClick={() => handleActionClick(selectedItem)}
-                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-2xl font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-2xl font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    style={{ marginTop: '0.4cm' }}
                   >
                     <span>Proceed to Relevant Clinical Module</span>
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -439,11 +473,14 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
 
           {notifications.length === 0 ? (
             /* Spacious & Balanced Empty State */
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-10 sm:p-14 text-center shadow-xs space-y-4">
+            <div
+              className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl text-center shadow-xs space-y-4"
+              style={{ padding: '1.5cm' }}
+            >
               <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <div className="space-y-1.5 max-w-md mx-auto">
+              <div className="space-y-2 max-w-md mx-auto">
                 <h4 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100">
                   You're all caught up!
                 </h4>
@@ -453,10 +490,10 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
               </div>
 
               {(selectedCategory !== 'all' || selectedFilter !== 'all' || searchQuery) && (
-                <div className="pt-2">
+                <div style={{ paddingTop: '0.4cm' }}>
                   <button
                     onClick={resetFilters}
-                    className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
                   >
                     View All Notifications
                   </button>
@@ -464,135 +501,141 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
               )}
             </div>
           ) : (
-            /* Notification Cards List */
-            notifications.map((item) => {
-              const meta = getCategoryMeta(item.category);
-              const isSelected = selectedItem?.id === item.id;
+            /* Notification Cards List with 1cm gap */
+            <div className="flex flex-col" style={{ gap: '1cm' }}>
+              {notifications.map((item) => {
+                const meta = getCategoryMeta(item.category);
+                const isSelected = selectedItem?.id === item.id;
 
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => {
-                    setSelectedItem(item);
-                    if (!item.isRead) handleMarkAsRead(item.id);
-                  }}
-                  className={`p-6 sm:p-7 rounded-3xl border transition-all cursor-pointer relative space-y-4 ${
-                    isSelected
-                      ? 'border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-md ring-2 ring-emerald-500/30'
-                      : !item.isRead
-                      ? 'bg-white dark:bg-slate-900 border-slate-300/90 dark:border-slate-700 shadow-xs hover:border-emerald-400'
-                      : 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300'
-                  }`}
-                >
-                  {/* Unread Accent Bar */}
-                  {!item.isRead && (
-                    <div className="absolute left-0 top-6 bottom-6 w-1.5 bg-emerald-500 rounded-r-full" />
-                  )}
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      setSelectedItem(item);
+                      if (!item.isRead) handleMarkAsRead(item.id);
+                    }}
+                    className={`rounded-3xl border transition-all cursor-pointer relative space-y-4 ${
+                      isSelected
+                        ? 'border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-md ring-2 ring-emerald-500/30'
+                        : !item.isRead
+                        ? 'bg-white dark:bg-slate-900 border-slate-300/90 dark:border-slate-700 shadow-xs hover:border-emerald-400'
+                        : 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300'
+                    }`}
+                    style={{ padding: '1cm' }}
+                  >
+                    {/* Unread Accent Bar */}
+                    {!item.isRead && (
+                      <div className="absolute left-0 top-6 bottom-6 w-1.5 bg-emerald-500 rounded-r-full" />
+                    )}
 
-                  {/* Top Meta & Badge Row */}
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className={`inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1 rounded-full border shadow-2xs ${
-                          meta?.badgeBg || 'bg-slate-100 text-slate-700 border-slate-200'
+                    {/* Top Meta & Badge Row */}
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1 rounded-full border shadow-2xs ${
+                            meta?.badgeBg || 'bg-slate-100 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          {getCategoryIcon(item.category)}
+                          <span>{meta?.label || item.category}</span>
+                        </span>
+
+                        {item.priority === 'urgent' && (
+                          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-200 uppercase tracking-wider">
+                            Urgent
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                        <span>
+                          {new Date(item.createdAt).toLocaleDateString([], {
+                            month: 'short',
+                            day: 'numeric',
+                          })}{' '}
+                          •{' '}
+                          {new Date(item.createdAt).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Content Row: Title & Message */}
+                    <div className="space-y-1.5">
+                      <h4
+                        className={`text-base font-extrabold leading-snug ${
+                          !item.isRead
+                            ? 'text-slate-900 dark:text-white'
+                            : 'text-slate-800 dark:text-slate-200 font-bold'
                         }`}
                       >
-                        {getCategoryIcon(item.category)}
-                        <span>{meta?.label || item.category}</span>
-                      </span>
-
-                      {item.priority === 'urgent' && (
-                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-200 uppercase tracking-wider">
-                          Urgent
-                        </span>
-                      )}
+                        {item.title}
+                      </h4>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {item.message}
+                      </p>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>
-                        {new Date(item.createdAt).toLocaleDateString([], {
-                          month: 'short',
-                          day: 'numeric',
-                        })}{' '}
-                        •{' '}
-                        {new Date(item.createdAt).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Content Row: Title & Message */}
-                  <div className="space-y-1.5">
-                    <h4
-                      className={`text-base font-extrabold leading-snug ${
-                        !item.isRead
-                          ? 'text-slate-900 dark:text-white'
-                          : 'text-slate-800 dark:text-slate-200 font-bold'
-                      }`}
+                    {/* Footer Row: Multi-Channel Delivery Badges & Quick Action */}
+                    <div
+                      className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800/80 text-xs"
+                      style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
                     >
-                      {item.title}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {item.message}
-                    </p>
-                  </div>
+                      {/* Channel delivery confirmations */}
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium flex-wrap">
+                        <span className="text-slate-400">Delivered:</span>
+                        {item.channels.in_app && (
+                          <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md font-semibold border border-emerald-200/60 dark:border-emerald-800/60">
+                            <Check className="w-3 h-3 text-emerald-600" /> In-App
+                          </span>
+                        )}
+                        {item.channels.sms && (
+                          <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md font-semibold border border-blue-200/60 dark:border-blue-800/60">
+                            <Check className="w-3 h-3 text-blue-600" /> SMS
+                          </span>
+                        )}
+                        {item.channels.whatsapp && (
+                          <span className="inline-flex items-center gap-1 text-emerald-800 dark:text-emerald-200 bg-emerald-100/80 dark:bg-emerald-900/60 px-2 py-0.5 rounded-md font-extrabold border border-emerald-300/60 dark:border-emerald-700/60">
+                            <Check className="w-3 h-3 text-emerald-600" /> WhatsApp
+                          </span>
+                        )}
+                      </div>
 
-                  {/* Footer Row: Multi-Channel Delivery Badges & Quick Action */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs">
-                    {/* Channel delivery confirmations */}
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium flex-wrap">
-                      <span className="text-slate-400">Delivered:</span>
-                      {item.channels.in_app && (
-                        <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md font-semibold border border-emerald-200/60 dark:border-emerald-800/60">
-                          <Check className="w-3 h-3 text-emerald-600" /> In-App
-                        </span>
-                      )}
-                      {item.channels.sms && (
-                        <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md font-semibold border border-blue-200/60 dark:border-blue-800/60">
-                          <Check className="w-3 h-3 text-blue-600" /> SMS
-                        </span>
-                      )}
-                      {item.channels.whatsapp && (
-                        <span className="inline-flex items-center gap-1 text-emerald-800 dark:text-emerald-200 bg-emerald-100/80 dark:bg-emerald-900/60 px-2 py-0.5 rounded-md font-extrabold border border-emerald-300/60 dark:border-emerald-700/60">
-                          <Check className="w-3 h-3 text-emerald-600" /> WhatsApp
-                        </span>
-                      )}
-                    </div>
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2">
+                        {item.actionType !== 'none' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleActionClick(item);
+                            }}
+                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                          >
+                            {item.actionType === 'view_prescription' && 'View Rx'}
+                            {item.actionType === 'track_order' && 'Track Order'}
+                            {item.actionType === 'view_receipt' && 'View Receipt'}
+                            {item.actionType === 'refill_now' && 'Refill Now'}
+                            {item.actionType === 'view_adr' && 'Review ADR'}
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        )}
 
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-2">
-                      {item.actionType !== 'none' && (
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleActionClick(item);
-                          }}
-                          className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                          onClick={(e) => handleDelete(item.id, e)}
+                          className="p-2 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer"
+                          title="Delete notification"
                         >
-                          {item.actionType === 'view_prescription' && 'View Rx'}
-                          {item.actionType === 'track_order' && 'Track Order'}
-                          {item.actionType === 'view_receipt' && 'View Receipt'}
-                          {item.actionType === 'refill_now' && 'Refill Now'}
-                          {item.actionType === 'view_adr' && 'Review ADR'}
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
-                      )}
-
-                      <button
-                        onClick={(e) => handleDelete(item.id, e)}
-                        className="p-1.5 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer"
-                        title="Delete notification"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
       </div>

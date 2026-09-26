@@ -28,51 +28,142 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 1. Segmented Pill Variant (☀️ Light | 🌙 Dark | 💻 Auto)
+  // 1. Segmented Pill Variant (Mobile Dropdown + Desktop Spacious ~0.3cm Segmented Pills)
   if (variant === 'segmented') {
     return (
-      <div className={`inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs ${className}`}>
-        <button
-          type="button"
-          onClick={() => setTheme('light')}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-            theme === 'light'
-              ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-400 shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-          }`}
-          title="Clinical Light Day Mode"
-        >
-          <Sun className="w-3.5 h-3.5" />
-          {showLabel && <span>Light</span>}
-        </button>
+      <div className={`relative inline-block text-left ${className}`} ref={dropdownRef}>
+        {/* Mobile Dropdown Trigger (< sm) */}
+        <div className="sm:hidden">
+          <button
+            type="button"
+            onClick={() => setDropdownOpen((prev) => !prev)}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition cursor-pointer shadow-xs active:scale-95"
+            title="Switch Theme"
+            aria-label="Switch Theme"
+          >
+            {theme === 'dark' ? (
+              <Moon className="w-3.5 h-3.5 text-blue-400" />
+            ) : theme === 'light' ? (
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+            ) : (
+              <Laptop className="w-3.5 h-3.5 text-emerald-500" />
+            )}
+            <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => setTheme('dark')}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-            theme === 'dark'
-              ? 'bg-slate-900 text-emerald-400 shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-          }`}
-          title="Clinical Night Shift Mode"
-        >
-          <Moon className="w-3.5 h-3.5" />
-          {showLabel && <span>Dark</span>}
-        </button>
+        {/* Desktop / Tablet Spacious Segmented Pill (>= sm) with even ~0.3cm (11-12px) spacing */}
+        <div className="hidden sm:inline-flex items-center p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs gap-3">
+          <button
+            type="button"
+            onClick={() => setTheme('light')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              theme === 'light'
+                ? 'bg-white dark:bg-slate-700 text-emerald-700 dark:text-emerald-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+            }`}
+            title="Clinical Light Day Mode"
+          >
+            <Sun className="w-4 h-4 text-amber-500" />
+            {showLabel && <span>Light</span>}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setTheme('system')}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-            theme === 'system'
-              ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-          }`}
-          title="Sync with OS System Theme"
-        >
-          <Laptop className="w-3.5 h-3.5" />
-          {showLabel && <span>Auto</span>}
-        </button>
+          <button
+            type="button"
+            onClick={() => setTheme('dark')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              theme === 'dark'
+                ? 'bg-slate-900 text-emerald-400 shadow-xs border border-slate-800'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+            }`}
+            title="Clinical Night Shift Mode"
+          >
+            <Moon className="w-4 h-4 text-blue-400" />
+            {showLabel && <span>Dark</span>}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme('system')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              theme === 'system'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+            }`}
+            title="Sync with OS System Theme"
+          >
+            <Laptop className="w-4 h-4 text-emerald-500" />
+            {showLabel && <span>Auto</span>}
+          </button>
+        </div>
+
+        {/* Mobile Dropdown Panel Popover (< sm) */}
+        {dropdownOpen && (
+          <div className="sm:hidden absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 p-2 space-y-1 animate-in fade-in zoom-in-95 duration-100">
+            <div className="px-2.5 py-1.5 border-b border-slate-100 dark:border-slate-800">
+              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
+                Theme Appearance
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setTheme('light');
+                setDropdownOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                theme === 'light'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Sun className="w-4 h-4 text-amber-500" />
+                <span>Clinical Light</span>
+              </div>
+              {theme === 'light' && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setTheme('dark');
+                setDropdownOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                theme === 'dark'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Moon className="w-4 h-4 text-blue-400" />
+                <span>Night Shift (Dark)</span>
+              </div>
+              {theme === 'dark' && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setTheme('system');
+                setDropdownOpen(false);
+              }}
+              className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+                theme === 'system'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Laptop className="w-4 h-4 text-emerald-500" />
+                <span>System Auto</span>
+              </div>
+              {theme === 'system' && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+            </button>
+          </div>
+        )}
       </div>
     );
   }
@@ -84,7 +175,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
         <button
           type="button"
           onClick={() => setDropdownOpen((prev) => !prev)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition cursor-pointer shadow-xs"
+          className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition cursor-pointer shadow-xs active:scale-95"
           title="Choose Theme & Night-Shift Settings"
         >
           {resolvedTheme === 'dark' ? (
@@ -92,7 +183,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
           ) : (
             <Sun className="w-3.5 h-3.5 text-amber-500" />
           )}
-          <span className="capitalize">
+          <span className="capitalize hidden sm:inline">
             {theme === 'system' ? 'System' : theme === 'dark' ? 'Night Shift' : 'Clinical Day'}
           </span>
           <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />

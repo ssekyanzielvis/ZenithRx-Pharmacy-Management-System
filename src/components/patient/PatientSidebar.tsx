@@ -23,6 +23,7 @@ import {
 export type PatientTab =
   | 'search'
   | 'branches'
+  | 'copilot'
   | 'prescriptions'
   | 'refills'
   | 'telehealth'
@@ -55,6 +56,14 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Partner Pharmacies',
     sublabel: '& Live Stock',
     icon: Building2,
+  },
+  {
+    id: 'copilot',
+    label: 'Quantum RxAI',
+    sublabel: 'Clinical triage & copilot',
+    icon: Sparkles,
+    badge: 'AI 24/7',
+    badgeColor: 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white',
   },
   {
     id: 'prescriptions',
@@ -156,20 +165,23 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
       }}
     >
       {/* ── 1. Top Brand Header ── */}
-      <div className="flex items-center gap-3 px-4 py-4 shrink-0 border-b border-slate-800/80">
-        <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+      <div 
+        className="flex items-center gap-3.5 shrink-0 border-b border-slate-800/80"
+        style={{ padding: '0.45cm 0.45cm' }}
+      >
+        <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-xs">
           <Pill className="w-5 h-5 rotate-45" />
         </div>
         {(!collapsed || isDrawer) && (
           <div className="min-w-0 flex-1 overflow-hidden">
-            <p className="text-[9px] font-black uppercase tracking-[0.22em] text-emerald-400">ZenithRx</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-400">ZenithRx</p>
             <p className="text-white font-extrabold text-sm leading-tight">Patient Portal</p>
           </div>
         )}
         {!isDrawer ? (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-auto"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-auto"
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -186,7 +198,10 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
 
       {/* ── 2. Signed In Profile Card ── */}
       {(!collapsed || isDrawer) && (
-        <div className="mx-3 mt-3.5 mb-2 p-2.5 rounded-2xl bg-[#0e1d33] border border-slate-800/80 flex items-center justify-between gap-3 shadow-xs">
+        <div 
+          className="rounded-2xl bg-[#0e1d33] border border-slate-800/80 flex items-center justify-between gap-3 shadow-xs"
+          style={{ margin: '0.35cm 0.35cm 0.2cm 0.35cm', padding: '0.35cm' }}
+        >
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
               {patientName ? patientName.slice(0, 1).toUpperCase() : 'G'}
@@ -201,9 +216,12 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
       )}
 
       {/* ── 3. Nav Items (MY HEALTH MODULES) ── */}
-      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-2 scrollbar-none">
+      <nav 
+        className="flex-1 overflow-y-auto scrollbar-none"
+        style={{ padding: '0.35cm', display: 'flex', flexDirection: 'column', gap: '0.25cm' }}
+      >
         {(!collapsed || isDrawer) && (
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-2 pb-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400 px-3 pt-1 pb-1">
             MY HEALTH MODULES
           </p>
         )}
@@ -217,12 +235,12 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
               <button
                 key={`${item.id}-${idx}`}
                 onClick={() => onOpenAI()}
-                className={`w-full flex items-center gap-3 rounded-2xl cursor-pointer transition-all p-3 text-left border ${
+                className={`w-full flex items-center gap-3.5 rounded-2xl cursor-pointer transition-all p-3 text-left border ${
                   collapsed && !isDrawer ? 'justify-center' : ''
-                } bg-emerald-950/30 border-emerald-500/40 hover:bg-emerald-950/50 text-white shadow-xs`}
+                } bg-emerald-950/40 border-emerald-500/40 hover:bg-emerald-950/60 text-white shadow-xs`}
               >
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0">
-                  <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0">
+                  <Sparkles className="w-4.5 h-4.5 text-emerald-300 animate-pulse" />
                 </div>
                 {(!collapsed || isDrawer) && (
                   <div className="min-w-0 flex-1">
@@ -241,22 +259,22 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
                 onTabChange(item.id);
                 if (isDrawer && onCloseMobile) onCloseMobile();
               }}
-              className={`w-full flex items-center gap-3 rounded-2xl cursor-pointer transition-all p-2.5 text-left ${
+              className={`w-full flex items-center gap-3.5 rounded-2xl cursor-pointer transition-all p-3 text-left ${
                 collapsed && !isDrawer ? 'justify-center' : ''
               } ${
                 isActive
-                  ? 'bg-emerald-600/90 text-white font-bold shadow-md shadow-emerald-600/25 border border-emerald-500/40'
+                  ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/30 border border-emerald-500/50'
                   : 'text-slate-300 hover:text-white hover:bg-white/5 border border-transparent'
               }`}
             >
               <div
-                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
                   isActive
                     ? 'bg-white text-emerald-800 shadow-xs'
                     : 'bg-slate-800/80 text-slate-300'
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className="w-4.5 h-4.5" />
               </div>
 
               {(!collapsed || isDrawer) && (
@@ -274,7 +292,7 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
 
               {(!collapsed || isDrawer) && item.badge && (
                 <span
-                  className={`text-[9px] font-black px-2 py-0.5 rounded-full shrink-0 shadow-xs ${
+                  className={`text-[9px] font-black px-2.5 py-0.5 rounded-full shrink-0 shadow-xs ${
                     item.badgeColor || 'bg-emerald-600 text-white'
                   }`}
                 >
@@ -284,48 +302,76 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
             </button>
           );
         })}
+        {/* ── Medicine Cart Item in Navigation ── */}
+        <button
+          onClick={() => {
+            onOpenCart();
+            if (isDrawer && onCloseMobile) onCloseMobile();
+          }}
+          className={`w-full flex items-center gap-3.5 rounded-2xl cursor-pointer transition-all p-3 text-left ${
+            collapsed && !isDrawer ? 'justify-center' : ''
+          } text-slate-300 hover:text-white hover:bg-white/5 border border-transparent`}
+          title={collapsed && !isDrawer ? `Medicine Cart (${cartCount} items)` : undefined}
+        >
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-slate-800/80 text-amber-400 relative">
+            <ShoppingCart className="w-4.5 h-4.5" />
+            {collapsed && !isDrawer && cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-[#07111e]" />
+            )}
+          </div>
+
+          {(!collapsed || isDrawer) && (
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-extrabold leading-snug truncate">Medicine Cart</p>
+              <p className="text-[10px] leading-snug truncate text-slate-500">
+                Review &amp; Checkout
+              </p>
+            </div>
+          )}
+
+          {(!collapsed || isDrawer) && (
+            <span
+              className={`text-[9px] font-black px-2.5 py-0.5 rounded-full shrink-0 shadow-xs ${
+                cartCount > 0 ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'
+              }`}
+            >
+              {cartCount > 0 ? `${cartCount} items` : '0 items'}
+            </span>
+          )}
+        </button>
       </nav>
 
-      {/* ── 4. Bottom Actions (Cart + Sign Out) ── */}
-      <div className="shrink-0 p-3 space-y-2.5 border-t border-slate-800/80">
-        {(!collapsed || isDrawer) ? (
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={onOpenCart}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-2xl bg-[#0e1d33] hover:bg-slate-800 text-slate-200 text-xs font-bold border border-slate-700/60 transition-all cursor-pointer shadow-2xs"
-            >
-              <ShoppingCart className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Cart {cartCount > 0 && `(${cartCount})`}</span>
-            </button>
-            <button
-              onClick={onLogout}
-              className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-2xl bg-[#0e1d33] hover:bg-rose-950/40 text-slate-300 hover:text-rose-400 text-xs font-bold border border-slate-700/60 transition-all cursor-pointer shadow-2xs"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign out</span>
-            </button>
+      {/* ── 4. Bottom Actions (Sign Out & Platform License) ── */}
+      <div 
+        className="shrink-0 border-t border-slate-800/80"
+        style={{ padding: '0.4cm', display: 'flex', flexDirection: 'column', gap: '0.3cm' }}
+      >
+        <button
+          onClick={() => {
+            if (isDrawer && onCloseMobile) onCloseMobile();
+            onLogout();
+          }}
+          className={`w-full flex items-center gap-3 rounded-2xl cursor-pointer transition-all p-3 text-left border border-slate-800/70 bg-[#0e1d33]/80 hover:bg-rose-950/40 hover:border-rose-800/50 text-slate-300 hover:text-rose-300 group ${
+            collapsed && !isDrawer ? 'justify-center' : ''
+          }`}
+          title={collapsed && !isDrawer ? 'Sign Out of Patient Portal' : undefined}
+        >
+          <div className="w-9 h-9 rounded-xl bg-slate-800/90 group-hover:bg-rose-900/40 border border-slate-700/60 group-hover:border-rose-700/50 flex items-center justify-center text-slate-400 group-hover:text-rose-400 shrink-0 transition-all">
+            <LogOut className="w-4 h-4" />
           </div>
-        ) : (
-          <div className="flex flex-col gap-2 items-center">
-            <button
-              onClick={onOpenCart}
-              className="w-8 h-8 rounded-xl bg-slate-800 text-slate-200 flex items-center justify-center hover:bg-slate-700"
-              title="Cart"
-            >
-              <ShoppingCart className="w-4 h-4 text-emerald-400" />
-            </button>
-            <button
-              onClick={onLogout}
-              className="w-8 h-8 rounded-xl bg-slate-800 text-slate-200 flex items-center justify-center hover:bg-rose-900"
-              title="Sign out"
-            >
-              <LogOut className="w-4 h-4 text-rose-400" />
-            </button>
-          </div>
-        )}
+
+          {(!collapsed || isDrawer) && (
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold leading-snug text-slate-200 group-hover:text-rose-200">Sign Out</p>
+              <p className="text-[10px] leading-snug text-slate-500 group-hover:text-rose-400/80">
+                End patient session
+              </p>
+            </div>
+          )}
+        </button>
 
         {(!collapsed || isDrawer) && (
-          <p className="text-[9px] text-slate-500 text-center leading-tight font-medium pt-1">
+          <p className="text-[10px] text-slate-500 text-center leading-tight font-medium pt-1">
             ZenithRx PWA v2.0 · NDA &amp; PSU Licensed Platform
           </p>
         )}
