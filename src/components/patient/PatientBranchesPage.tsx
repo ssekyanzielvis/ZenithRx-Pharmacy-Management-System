@@ -295,6 +295,12 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
           const isOut = branch.stockUnits === 0;
           const isLow = branch.stockUnits > 0 && branch.stockUnits <= 15;
           const etaMins = Math.max(8, Math.round(branch.distanceKm * 6));
+          const formatEta = (mins: number) => {
+            if (mins < 60) return `~${mins} mins`;
+            const hrs = Math.floor(mins / 60);
+            const rem = mins % 60;
+            return rem > 0 ? `~${hrs}h ${rem}m` : `~${hrs} hrs`;
+          };
 
           return (
             <div
@@ -307,7 +313,7 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
                 className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800/90"
                 style={{ paddingBottom: '0.6cm' }}
               >
-                <div className="flex items-start sm:items-center gap-5 min-w-0">
+                <div className="flex items-start sm:items-center gap-5 min-w-0 flex-1">
                   {/* Glowing Branch Avatar */}
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-950/80 dark:to-slate-900 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-800/60 shadow-md group-hover:scale-105 transition-transform">
                     <Building2 className="w-8 h-8 sm:w-10 sm:h-10" />
@@ -345,15 +351,24 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
                   </div>
                 </div>
 
-                {/* Right Side Distance Pill & ETA */}
-                <div className="flex sm:flex-row lg:flex-col items-center sm:items-center lg:items-end justify-between lg:justify-center shrink-0 bg-slate-50 dark:bg-slate-800/70 px-5 py-3 sm:py-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/70 gap-1.5">
-                  <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-black text-base sm:text-lg">
-                    <MapPin className="w-5 h-5 shrink-0" />
-                    <span>{branch.distanceKm} km away</span>
+                {/* Right Side Distance & Dispatch Intelligence Card */}
+                <div className="flex flex-col gap-2.5 shrink-0 bg-slate-50/90 dark:bg-slate-800/80 p-4 sm:p-5 rounded-2xl border border-slate-200/90 dark:border-slate-700/80 shadow-xs w-full sm:w-auto min-w-[280px]">
+                  <div className="flex items-center justify-between sm:justify-end gap-3">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">Dispatch Proximity</span>
+                    <div className="inline-flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/90 px-3 py-1 rounded-xl border border-emerald-300/80 dark:border-emerald-700/80 font-black text-xs sm:text-sm shadow-2xs">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>{branch.distanceKm} km away</span>
+                    </div>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">
-                    Est. delivery: ~{etaMins} mins via Express Boda
-                  </span>
+                  <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 border-t border-slate-200/70 dark:border-slate-700/70 text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                    <div className="flex items-center gap-1.5">
+                      <Truck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span>Est. delivery: <span className="text-slate-900 dark:text-slate-100 font-black">{formatEta(etaMins)}</span></span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-700/60 px-2 py-0.5 rounded-md">
+                      Express Boda
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -521,7 +536,7 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                         <Zap className="w-4 h-4 text-amber-500 shrink-0" />
-                        <span>Motorcycle Express (~{etaMins} mins)</span>
+                        <span>Motorcycle Express ({formatEta(etaMins)})</span>
                       </div>
                       <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                         <BookmarkCheck className="w-4 h-4 text-blue-500 shrink-0" />

@@ -20,6 +20,7 @@ import {
   Share2,
   Lock,
   ArrowRight,
+  ArrowLeft,
   LogOut,
   MapPin,
   ExternalLink,
@@ -320,7 +321,7 @@ export const PatientApp: React.FC = () => {
         tenantId: 'client-001',
         pharmacyName: cartItems[0]?.pharmacyName || 'Kampala City Pharmacy',
         patientName: patientUser?.fullName || 'Patient',
-        patientPhone: momoPhone,
+        patientPhone: momoPhone.startsWith('+256') ? momoPhone : `+256 ${momoPhone.replace(/^0/, '').trim()}`,
         deliveryAddress: patientUser?.address || 'Kololo, Kampala',
         deliveryDistrict: patientUser?.district || 'Kampala',
         patientCoordinates: { lat: 0.3341, lng: 32.5892 },
@@ -947,7 +948,8 @@ export const PatientApp: React.FC = () => {
                 className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs"
                 style={{ padding: '1cm', display: 'flex', flexDirection: 'column', gap: '0.6cm' }}
               >
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-2.5 sm:gap-3">
+                  {/* Search Input */}
                   <div className="relative flex-1 flex items-center">
                     <span className="absolute left-3.5 sm:left-4 z-10 flex items-center pointer-events-none text-slate-400">
                       <Search className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -961,37 +963,66 @@ export const PatientApp: React.FC = () => {
                       className="w-full py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium transition-all"
                     />
                   </div>
-                  <select
-                    value={selectedPharmacyFilter}
-                    onChange={(e) => setSelectedPharmacyFilter(e.target.value)}
-                    className="px-3.5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 sm:w-64 shrink-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                  >
-                    <option value="all">🏥 All Partner Pharmacies</option>
-                    {pharmacies.map((p) => (
-                      <option key={p.id} value={p.name}>{p.name}</option>
-                    ))}
-                  </select>
+
+                  {/* Category Filter Dropdown */}
+                  <div className="relative w-full md:w-56 shrink-0">
+                    <select
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      className="w-full appearance-none pl-4 pr-10 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs transition-all"
+                    >
+                      <option value="all">💊 All Categories</option>
+                      <option value="Antibiotics">Antibiotics</option>
+                      <option value="Diabetes">Diabetes</option>
+                      <option value="Cardiovascular">Cardiovascular</option>
+                      <option value="Respiratory">Respiratory</option>
+                      <option value="Analgesics">Analgesics</option>
+                      <option value="OTC & Supplements">OTC & Supplements</option>
+                      <option value="Gastrointestinal">Gastrointestinal</option>
+                      <option value="Dermatology">Dermatology</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+
+                  {/* Pharmacy Partner Filter Dropdown */}
+                  <div className="relative w-full md:w-60 shrink-0">
+                    <select
+                      value={selectedPharmacyFilter}
+                      onChange={(e) => setSelectedPharmacyFilter(e.target.value)}
+                      className="w-full appearance-none pl-4 pr-10 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-xs transition-all"
+                    >
+                      <option value="all">🏥 All Partner Pharmacies</option>
+                      {pharmacies.map((p) => (
+                        <option key={p.id} value={p.name}>{p.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
                 </div>
 
-                {/* Therapeutic Category Filter Pills with Generous Spacing */}
-                <div className="flex items-center justify-between gap-4 border-t border-slate-100 dark:border-slate-800/80 pt-5 sm:pt-6 flex-wrap sm:flex-nowrap">
-                  <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto flex-1 py-1 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
-                    {['all', 'Antibiotics', 'Diabetes', 'Cardiovascular', 'Respiratory', 'Analgesics'].map((cat) => (
+                {/* Sub-bar with Active Category Indicator & Results Count */}
+                <div className="flex items-center justify-between gap-4 border-t border-slate-100 dark:border-slate-800/80 pt-4 flex-wrap">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
+                    <span>Active Filtering:</span>
+                    <span className="px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800/60">
+                      {selectedCategory === 'all' ? 'All Medicines' : selectedCategory}
+                    </span>
+                    {selectedPharmacyFilter !== 'all' && (
+                      <span className="px-2.5 py-1 rounded-xl bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 font-bold border border-blue-200 dark:border-blue-800/60">
+                        {selectedPharmacyFilter}
+                      </span>
+                    )}
+                    {(selectedCategory !== 'all' || selectedPharmacyFilter !== 'all' || medSearch) && (
                       <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 active:scale-95 ${
-                          selectedCategory === cat
-                            ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/25 font-black'
-                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-slate-700'
-                        }`}
+                        onClick={() => { setSelectedCategory('all'); setSelectedPharmacyFilter('all'); setMedSearch(''); }}
+                        className="text-xs text-rose-600 dark:text-rose-400 hover:underline font-bold ml-1 cursor-pointer"
                       >
-                        {cat === 'all' ? 'All Medicines' : cat}
+                        Reset filters
                       </button>
-                    ))}
+                    )}
                   </div>
-                  <div className="px-3.5 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap shrink-0">
-                    <span className="font-black text-slate-900 dark:text-slate-100 text-xs sm:text-sm mr-1">{filteredMeds.length}</span> results
+                  <div className="px-3.5 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                    <span className="font-black text-slate-900 dark:text-slate-100 text-xs sm:text-sm mr-1">{filteredMeds.length}</span> results found
                   </div>
                 </div>
               </div>
@@ -2080,7 +2111,7 @@ export const PatientApp: React.FC = () => {
             </div>
 
             {/* Drawer Content */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-7 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 sm:p-7" style={{ paddingTop: '1cm', paddingBottom: '1cm' }}>
               {checkoutStep === 'cart' ? (
                 cartItems.length === 0 ? (
                   <div className="text-center py-16 space-y-3">
@@ -2091,40 +2122,66 @@ export const PatientApp: React.FC = () => {
                     <p className="text-xs text-slate-400 max-w-xs mx-auto">Search medicines in the verified formulary to add to your order.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3.5">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1cm' }}>
                     {cartItems.map((item) => (
                       <div
                         key={item.id}
-                        className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/90 dark:border-slate-700/80 flex items-center justify-between gap-4 shadow-xs"
+                        className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all"
                       >
-                        <div className="min-w-0 flex-1">
-                          <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 truncate">{item.drug.brandName}</h4>
-                          <span className="text-[11px] text-slate-500 dark:text-slate-400 block mt-0.5 truncate">{item.pharmacyName}</span>
-                          <span className="text-xs sm:text-sm font-black text-emerald-600 dark:text-emerald-400 mt-1 block">{formatUGX(item.unitPriceUgx)}</span>
+                        <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100/80 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                            <Pill className="w-5 h-5 sm:w-6 sm:h-6" />
+                          </div>
+
+                          <div className="min-w-0 flex-1 space-y-1">
+                            <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug truncate">
+                              {item.drug.brandName}
+                            </h4>
+                            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+                              <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span className="truncate">{item.pharmacyName}</span>
+                            </div>
+                            <div className="flex items-center gap-2 pt-1">
+                              <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400">
+                                {formatUGX(item.unitPriceUgx * item.quantity)}
+                              </span>
+                              {item.quantity > 1 && (
+                                <span className="text-[11px] text-slate-400 font-semibold">
+                                  ({formatUGX(item.unitPriceUgx)} each)
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xs">
-                          <button
-                            onClick={() => handleUpdateCartQty(item.id, -1)}
-                            className="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer active:scale-90 transition-all"
-                            title="Decrease quantity"
-                          >
-                            <Minus className="w-3.5 h-3.5" />
-                          </button>
-                          <span className="text-xs sm:text-sm font-black w-6 text-center text-slate-900 dark:text-slate-100">{item.quantity}</span>
-                          <button
-                            onClick={() => handleUpdateCartQty(item.id, 1)}
-                            className="w-7 h-7 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer active:scale-90 transition-all"
-                            title="Increase quantity"
-                          >
-                            <Plus className="w-3.5 h-3.5" />
-                          </button>
+                        {/* Right: Stepper & Remove */}
+                        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-700/50">
+                          <div className="flex items-center gap-1 bg-slate-100/90 dark:bg-slate-900/90 p-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-inner">
+                            <button
+                              onClick={() => handleUpdateCartQty(item.id, -1)}
+                              className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer active:scale-90 shadow-2xs transition-all"
+                              title="Decrease quantity"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="text-sm font-black w-8 text-center text-slate-900 dark:text-slate-100">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateCartQty(item.id, 1)}
+                              className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer active:scale-90 shadow-2xs transition-all"
+                              title="Increase quantity"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
                           <button
                             onClick={() => handleRemoveCartItem(item.id)}
-                            className="w-7 h-7 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-500 hover:text-rose-600 flex items-center justify-center cursor-pointer transition-all active:scale-90 ml-0.5"
+                            className="w-9 h-9 rounded-2xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200/80 dark:border-rose-800/60 text-rose-500 hover:text-rose-600 dark:text-rose-400 flex items-center justify-center cursor-pointer transition-all active:scale-90 shadow-2xs"
                             title="Remove from cart"
                           >
-                            <Trash2 className="w-3.5 h-3.5" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
@@ -2132,86 +2189,175 @@ export const PatientApp: React.FC = () => {
                   </div>
                 )
               ) : checkoutStep === 'payment' ? (
-                <form onSubmit={handleProcessCheckout} className="space-y-6" style={{ display: 'flex', flexDirection: 'column', gap: '0.7cm' }}>
-                  {/* Order Summary Box */}
-                  <div className="p-5 sm:p-6 rounded-3xl bg-emerald-50/90 dark:bg-emerald-950/50 border border-emerald-200/90 dark:border-emerald-800 space-y-2.5 shadow-2xs">
-                    <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                      <span>Items Total:</span>
+                <form
+                  onSubmit={handleProcessCheckout}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '0.8cm', paddingTop: '0.2cm', paddingBottom: '1cm' }}
+                >
+                  {/* High-End Order Summary Box */}
+                  <div
+                    className="p-5 sm:p-6 rounded-3xl bg-slate-50/95 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 shadow-xs"
+                    style={{ display: 'flex', flexDirection: 'column', gap: '0.45cm' }}
+                  >
+                    <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                      <span className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-xl bg-slate-200/70 dark:bg-slate-700/70 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
+                          <ShoppingCart className="w-3.5 h-3.5" />
+                        </div>
+                        <span>Items Total</span>
+                      </span>
                       <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(cartTotalUgx)}</span>
                     </div>
-                    <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
-                      <span>Express Rider Delivery:</span>
+
+                    <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                      <span className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <Truck className="w-3.5 h-3.5" />
+                        </div>
+                        <span>Express Rider Delivery</span>
+                      </span>
                       <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(deliveryFeeUgx)}</span>
                     </div>
-                    <div className="flex justify-between text-base sm:text-lg font-black text-emerald-800 dark:text-emerald-300 pt-3 border-t border-emerald-200/90 dark:border-emerald-800">
-                      <span>Total Amount:</span>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-black">{formatUGX(grandTotalUgx)}</span>
+
+                    {/* Grand Total Dedicated Highlight Card */}
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-200/90 dark:border-emerald-800/80 flex justify-between items-center shadow-xs">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                          <ShieldCheck className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">Total Amount</span>
+                      </div>
+                      <span className="text-base sm:text-xl font-black text-emerald-600 dark:text-emerald-400">
+                        {formatUGX(grandTotalUgx)}
+                      </span>
                     </div>
                   </div>
 
                   {/* Provider Selection */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mb-2.5">Select Mobile Money Provider *</label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-3">
+                    <label className="block text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                      Select Mobile Money Provider *
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {/* MTN MoMo Tile */}
                       <button
                         type="button"
                         onClick={() => setMomoProvider('MTN')}
-                        className={`p-4 rounded-2xl border text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                        className={`p-4 sm:p-5 rounded-3xl border-2 transition-all cursor-pointer text-left flex items-center justify-between gap-3 ${
                           momoProvider === 'MTN'
-                            ? 'bg-amber-400 text-amber-950 border-amber-500 shadow-md shadow-amber-400/30 ring-2 ring-amber-400/40'
-                            : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                            ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-lg shadow-amber-400/25 ring-2 ring-amber-400/50'
+                            : 'bg-white dark:bg-slate-800/90 border-slate-200/90 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:border-amber-300 dark:hover:border-amber-500/50 shadow-xs'
                         }`}
                       >
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-900" />
-                        <span>MTN MoMo (Uganda)</span>
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shrink-0 shadow-xs ${
+                              momoProvider === 'MTN'
+                                ? 'bg-amber-950 text-amber-300'
+                                : 'bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-400'
+                            }`}
+                          >
+                            MTN
+                          </div>
+                          <div>
+                            <span className="block text-sm font-black tracking-tight leading-snug">MTN MoMo</span>
+                            <span className={`text-[11px] font-medium block ${momoProvider === 'MTN' ? 'text-amber-900/80' : 'text-slate-400'}`}>
+                              Uganda • Instant Push
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                            momoProvider === 'MTN' ? 'border-amber-950 bg-amber-950 text-amber-300' : 'border-slate-300 dark:border-slate-600'
+                          }`}
+                        >
+                          {momoProvider === 'MTN' && <div className="w-2 h-2 rounded-full bg-amber-400" />}
+                        </div>
                       </button>
 
+                      {/* Airtel Money Tile */}
                       <button
                         type="button"
                         onClick={() => setMomoProvider('Airtel')}
-                        className={`p-4 rounded-2xl border text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                        className={`p-4 sm:p-5 rounded-3xl border-2 transition-all cursor-pointer text-left flex items-center justify-between gap-3 ${
                           momoProvider === 'Airtel'
-                            ? 'bg-rose-600 text-white border-rose-700 shadow-md shadow-rose-600/30 ring-2 ring-rose-500/40'
-                            : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                            ? 'bg-rose-600 border-rose-700 text-white shadow-lg shadow-rose-600/25 ring-2 ring-rose-500/50'
+                            : 'bg-white dark:bg-slate-800/90 border-slate-200/90 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:border-rose-300 dark:hover:border-rose-500/50 shadow-xs'
                         }`}
                       >
-                        <span className="w-2.5 h-2.5 rounded-full bg-white" />
-                        <span>Airtel Money (Uganda)</span>
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shrink-0 shadow-xs ${
+                              momoProvider === 'Airtel' ? 'bg-white text-rose-600' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-400'
+                            }`}
+                          >
+                            airtel
+                          </div>
+                          <div>
+                            <span className="block text-sm font-black tracking-tight leading-snug">Airtel Money</span>
+                            <span className={`text-[11px] font-medium block ${momoProvider === 'Airtel' ? 'text-rose-100' : 'text-slate-400'}`}>
+                              Uganda • Instant Push
+                            </span>
+                          </div>
+                        </div>
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                            momoProvider === 'Airtel' ? 'border-white bg-white' : 'border-slate-300 dark:border-slate-600'
+                          }`}
+                        >
+                          {momoProvider === 'Airtel' && <div className="w-2 h-2 rounded-full bg-rose-600" />}
+                        </div>
                       </button>
                     </div>
                   </div>
 
-                  {/* Phone Input */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">
+                  {/* Phone Input with Dedicated Left Country Code Addon & Auto-Formatting */}
+                  <div className="space-y-2.5">
+                    <label className="block text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">
                       Phone Number for USSD Prompt *
                     </label>
-                    <div className="relative flex items-center">
-                      <Smartphone className="w-5 h-5 absolute left-4 text-slate-400 pointer-events-none" />
+                    
+                    <div className="flex items-center rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-xs focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 transition-all overflow-hidden">
+                      {/* Left Prefix Addon */}
+                      <div className="px-4 py-4 bg-slate-50 dark:bg-slate-900/70 border-r border-slate-200 dark:border-slate-700 flex items-center gap-2.5 text-slate-700 dark:text-slate-300 shrink-0 select-none">
+                        <div className="w-7 h-7 rounded-xl bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <Smartphone className="w-4 h-4" />
+                        </div>
+                        <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">+256</span>
+                      </div>
+
+                      {/* Number Input Field */}
                       <input
-                        type="text"
+                        type="tel"
                         required
-                        value={momoPhone}
-                        onChange={(e) => setMomoPhone(e.target.value)}
-                        placeholder="+256 774 607782"
-                        className="w-full pl-12 pr-4 py-3.5 sm:py-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                        value={momoPhone.replace(/^\+?256\s*|^0/, '')}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/[^0-9\s]/g, '');
+                          setMomoPhone(raw);
+                        }}
+                        placeholder="772 987 654"
+                        className="flex-1 py-4 sm:py-4.5 px-4 bg-transparent border-0 text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 focus:outline-none placeholder:text-slate-400 placeholder:font-normal tracking-wider"
                       />
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium pl-1 pt-0.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                      <span>Instant USSD prompt will appear on this device to enter your secret PIN.</span>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="space-y-3 pt-2">
+                  <div className="space-y-3 pt-2" style={{ display: 'flex', flexDirection: 'column', gap: '0.4cm' }}>
                     <button
                       type="submit"
                       disabled={isProcessingPayment}
-                      className="w-full py-4 sm:py-4.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-98"
+                      className="w-full py-4.5 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50 active:scale-98"
                     >
                       {isProcessingPayment ? (
                         <span>Sending MoMo PIN Prompt to Phone...</span>
                       ) : (
                         <>
                           <span>Pay {formatUGX(grandTotalUgx)} via {momoProvider}</span>
-                          <ArrowRight className="w-4 h-4" />
+                          <ArrowRight className="w-5 h-5" />
                         </>
                       )}
                     </button>
@@ -2219,7 +2365,7 @@ export const PatientApp: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setCheckoutStep('cart')}
-                      className="w-full py-3 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full py-3.5 sm:py-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98 shadow-2xs"
                     >
                       <ArrowLeft className="w-4 h-4" />
                       <span>Back to Cart Items</span>
@@ -2227,51 +2373,157 @@ export const PatientApp: React.FC = () => {
                   </div>
                 </form>
               ) : (
-                <div className="text-center py-12 space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 mx-auto flex items-center justify-center">
-                    <CheckCircle2 className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-black text-slate-900 dark:text-slate-100">Order Confirmed!</h4>
-                    <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                      Your payment has been received. The pharmacy has been notified and is preparing your express dispatch.
+                <div
+                  className="text-center py-6 sm:py-8"
+                  style={{ display: 'flex', flexDirection: 'column', gap: '0.8cm', alignItems: 'center' }}
+                >
+                  {/* Celebratory Icon & Headings */}
+                  <div className="space-y-3 max-w-sm mx-auto">
+                    <div className="w-20 h-20 rounded-3xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-8 ring-emerald-50 dark:ring-emerald-950/40 animate-in zoom-in-75 duration-300">
+                      <CheckCircle2 className="w-10 h-10" />
+                    </div>
+
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight pt-2">
+                      Order Confirmed!
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs mx-auto">
+                      Your payment was received securely. The pharmacy is now assembling your medications for express dispatch.
                     </p>
                   </div>
-                  <button
-                    onClick={() => {
-                      setIsCartOpen(false);
-                      setActiveTab('orders');
-                    }}
-                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black shadow-md cursor-pointer"
+
+                  {/* Live Dispatch Preview Card */}
+                  <div
+                    className="w-full p-6 sm:p-7 rounded-3xl bg-slate-50/95 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 text-left shadow-xs"
+                    style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm' }}
                   >
-                    Track Live Delivery
-                  </button>
+                    <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-200/60 dark:border-slate-700/60">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-xl bg-slate-200/80 dark:bg-slate-700/80 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
+                          <Clock className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                          Order Dispatch Status
+                        </span>
+                      </div>
+
+                      <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/90 px-3.5 py-1.5 rounded-full border border-emerald-300/80 dark:border-emerald-700/80 flex items-center gap-2 shadow-xs shrink-0">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                        </span>
+                        <span>Out for Delivery</span>
+                      </span>
+                    </div>
+
+                    <div className="p-4 sm:p-4.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-4 shadow-xs">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                        <Truck className="w-6 h-6" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 truncate tracking-tight">
+                          Juma Kigozi (Boda Express #41)
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
+                          Estimated Arrival: <span className="text-emerald-600 dark:text-emerald-400 font-black">~25 mins</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Full-Width Action Buttons with 1cm Vertical Spacing */}
+                  <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm', paddingTop: '0.2cm', paddingBottom: '1cm' }}>
+                    <button
+                      onClick={() => {
+                        setIsCartOpen(false);
+                        setCheckoutStep('cart');
+                        setActiveTab('orders');
+                      }}
+                      className="w-full py-5 sm:py-5.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-between gap-3 cursor-pointer active:scale-98"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Truck className="w-5 h-5 text-emerald-100" />
+                        <span>Track Live Delivery</span>
+                      </div>
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setIsCartOpen(false);
+                        setCheckoutStep('cart');
+                      }}
+                      className="w-full py-4.5 sm:py-5 px-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2.5 active:scale-98 shadow-xs"
+                    >
+                      <ArrowLeft className="w-4 h-4 text-slate-400" />
+                      <span>Back to Formulary</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Drawer Footer with Generous Padding & Distinct Totals */}
+            {/* Drawer Footer with Generous Padding & Distinct Totals */}
             {checkoutStep === 'cart' && cartItems.length > 0 && (
-              <div className="p-6 sm:p-7 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 space-y-3.5 shadow-xl">
-                <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
-                  <span>Subtotal:</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{formatUGX(cartTotalUgx)}</span>
-                </div>
-                <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
-                  <span>Express Delivery:</span>
-                  <span className="font-bold text-slate-800 dark:text-slate-200">{formatUGX(deliveryFeeUgx)}</span>
-                </div>
-                <div className="flex justify-between text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 pt-3 border-t border-slate-200 dark:border-slate-700">
-                  <span>Grand Total:</span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-black">{formatUGX(grandTotalUgx)}</span>
-                </div>
-                <button
-                  onClick={() => setCheckoutStep('payment')}
-                  className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              <div
+                className="p-6 sm:p-7 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-2xl"
+                style={{ display: 'flex', flexDirection: 'column', gap: '0.8cm', paddingBottom: '1.2cm' }}
+              >
+                {/* Financial Summary Card */}
+                <div
+                  className="p-5 sm:p-6 rounded-3xl bg-slate-50/95 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 shadow-xs"
+                  style={{ display: 'flex', flexDirection: 'column', gap: '0.45cm' }}
                 >
-                  <span>Proceed to Mobile Money Checkout</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                  <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <span className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-xl bg-slate-200/70 dark:bg-slate-700/70 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Items Subtotal</span>
+                    </span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(cartTotalUgx)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
+                    <span className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                        <Truck className="w-3.5 h-3.5" />
+                      </div>
+                      <span>Express Rider Delivery</span>
+                    </span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(deliveryFeeUgx)}</span>
+                  </div>
+
+                  {/* Grand Total Dedicated Highlight Card */}
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-200/90 dark:border-emerald-800/80 flex justify-between items-center shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                        <ShieldCheck className="w-4 h-4" />
+                      </div>
+                      <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">Grand Total</span>
+                    </div>
+                    <span className="text-base sm:text-xl font-black text-emerald-600 dark:text-emerald-400">
+                      {formatUGX(grandTotalUgx)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Primary CTA Button */}
+                <div className="space-y-2.5">
+                  <button
+                    onClick={() => setCheckoutStep('payment')}
+                    className="w-full py-4.5 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-3 cursor-pointer active:scale-98"
+                  >
+                    <span>Proceed to Mobile Money Checkout</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 font-medium pt-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    <span>Instant MTN & Airtel Prompt • Encrypted Pharmacy Escrow</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -2536,18 +2788,23 @@ export const PatientApp: React.FC = () => {
         <aside aria-label="Clinical AI Assistant" className="fixed bottom-6 right-6 z-40">
           <button
             onClick={() => setActiveTab('copilot')}
-            className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-700 hover:from-teal-500 hover:to-emerald-500 text-white rounded-full shadow-2xl hover:shadow-teal-500/40 border border-teal-400/40 transition-all hover:scale-105 cursor-pointer"
+            className="flex items-center gap-3.5 px-5 py-3.5 sm:px-6 sm:py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-3xl shadow-2xl shadow-teal-900/40 border border-white/25 transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md"
             title="Ask Quantum RxAI Copilot"
           >
-            <div className="p-1.5 bg-white/20 rounded-full animate-pulse">
-              <Sparkles className="w-4 h-4 text-amber-200" />
+            <div className="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0 shadow-xs">
+              <Sparkles className="w-5 h-5 text-amber-200 animate-pulse" />
             </div>
-            <div className="text-left hidden sm:block">
-              <div className="text-xs font-black tracking-tight flex items-center gap-1.5">
+            <div className="text-left">
+              <div className="text-xs sm:text-sm font-black tracking-tight flex items-center gap-2">
                 <span>Stuck? Ask RxAI</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping" />
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-300" />
+                </span>
               </div>
-              <div className="text-[10px] text-teal-100 font-medium">24/7 Clinical Triage &amp; Q&amp;A</div>
+              <div className="text-[11px] text-teal-100 font-semibold tracking-normal mt-0.5 whitespace-nowrap">
+                24/7 Clinical Triage &amp; Q&amp;A
+              </div>
             </div>
           </button>
         </aside>

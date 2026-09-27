@@ -166,30 +166,45 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
     >
       {/* ── 1. Top Brand Header ── */}
       <div 
-        className="flex items-center gap-3.5 shrink-0 border-b border-slate-800/80"
-        style={{ padding: '0.45cm 0.45cm' }}
+        className={`flex items-center shrink-0 border-b border-slate-800/80 transition-all ${
+          collapsed && !isDrawer ? 'flex-col justify-center p-3 gap-2' : 'justify-between p-4 gap-3'
+        }`}
       >
-        <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-xs">
-          <Pill className="w-5 h-5 rotate-45" />
-        </div>
-        {(!collapsed || isDrawer) && (
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-400">ZenithRx</p>
-            <p className="text-white font-extrabold text-sm leading-tight">Patient Portal</p>
+        <div 
+          onClick={() => collapsed && !isDrawer && setCollapsed(false)}
+          className={`flex items-center gap-3.5 min-w-0 ${collapsed && !isDrawer ? 'cursor-pointer group' : ''}`}
+          title={collapsed ? 'Click to expand sidebar' : undefined}
+        >
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-xs group-hover:scale-105 transition-all">
+            <Pill className="w-5 h-5 rotate-45" />
           </div>
-        )}
-        {!isDrawer ? (
+          {(!collapsed || isDrawer) && (
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-400">ZenithRx</p>
+              <p className="text-white font-extrabold text-sm leading-tight">Patient Portal</p>
+            </div>
+          )}
+        </div>
+
+        {!isDrawer && (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-auto"
+            className={`rounded-xl flex items-center justify-center transition-all cursor-pointer ${
+              collapsed 
+                ? 'w-8 h-8 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/40 shadow-xs' 
+                : 'w-8 h-8 text-slate-400 hover:text-white hover:bg-white/10 shrink-0 ml-auto'
+            }`}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           </button>
-        ) : (
+        )}
+
+        {isDrawer && (
           <button
             onClick={onCloseMobile}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-auto"
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-auto"
           >
             ✕
           </button>
@@ -383,11 +398,21 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
     <>
       {/* Desktop Sidebar (Collapsible) */}
       <aside
-        className={`hidden md:block shrink-0 h-screen transition-all duration-300 ease-in-out ${
-          collapsed ? 'w-18' : 'w-64'
+        className={`hidden md:block relative shrink-0 h-screen transition-all duration-300 ease-in-out ${
+          collapsed ? 'w-20' : 'w-64'
         }`}
       >
         {renderNavContent(false)}
+
+        {/* Floating Quick Expand/Collapse Handle on Outer Right Edge */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3.5 top-6 z-40 w-7 h-7 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl border-2 border-[#07111e] flex items-center justify-center cursor-pointer transition-all hover:scale-110 active:scale-95"
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+        </button>
       </aside>
 
       {/* Mobile Drawer (Overlay) */}
