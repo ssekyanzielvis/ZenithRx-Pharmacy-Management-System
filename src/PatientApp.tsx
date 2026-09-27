@@ -89,10 +89,109 @@ export const PatientApp: React.FC = () => {
   const [isAICopilotOpen, setIsAICopilotOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
-  // Active Tab
-  const [activeTab, setActiveTab] = useState<
-    'search' | 'branches' | 'copilot' | 'prescriptions' | 'refills' | 'telehealth' | 'orders' | 'notifications' | 'healthLibrary' | 'adr' | 'support' | 'profile'
-  >('search');
+  // Active Tab & Navigation History Stack
+  type PatientTab =
+    | 'search'
+    | 'branches'
+    | 'copilot'
+    | 'prescriptions'
+    | 'refills'
+    | 'telehealth'
+    | 'orders'
+    | 'notifications'
+    | 'healthLibrary'
+    | 'adr'
+    | 'support'
+    | 'profile';
+
+  const [activeTab, setActiveTabState] = useState<PatientTab>('search');
+  const [tabHistory, setTabHistory] = useState<PatientTab[]>(['search']);
+
+  const getTabDisplayName = (tab?: PatientTab | string): string => {
+    switch (tab) {
+      case 'search': return 'Medicine Search';
+      case 'branches': return 'Partner Pharmacies';
+      case 'copilot': return 'RxAI Copilot';
+      case 'prescriptions': return 'My Prescriptions';
+      case 'refills': return 'Dose Adherence';
+      case 'telehealth': return 'Teleconsultation';
+      case 'orders': return 'Live Orders';
+      case 'notifications': return 'Notifications';
+      case 'healthLibrary': return 'Health Education';
+      case 'adr': return 'Report Reaction (ADR)';
+      case 'support': return 'Support Hub';
+      case 'profile': return 'Health Passport';
+      default: return 'Medicine Search';
+    }
+  };
+
+  const navigateTab = (newTab: PatientTab, addToHistory = true) => {
+    if (newTab === activeTab) return;
+    setActiveTabState(newTab);
+    if (addToHistory) {
+      setTabHistory((prev) => {
+        if (prev[prev.length - 1] === newTab) return prev;
+        return [...prev, newTab];
+      });
+      if (typeof window !== 'undefined' && window.history) {
+        window.history.pushState({ tab: newTab }, '', `#${newTab}`);
+      }
+    }
+  };
+
+  const setActiveTab = (tab: PatientTab) => {
+    navigateTab(tab, true);
+  };
+
+  const goBack = () => {
+    if (activeTab === 'branches' && selectedStockMedicine) {
+      setSelectedStockMedicine(null);
+      return;
+    }
+    if (tabHistory.length > 1) {
+      const updated = [...tabHistory];
+      updated.pop();
+      const prevTab = updated[updated.length - 1] || 'search';
+      setTabHistory(updated);
+      setActiveTabState(prevTab);
+    } else if (activeTab !== 'search') {
+      setActiveTabState('search');
+      setTabHistory(['search']);
+    }
+  };
+
+  const getPreviousTabName = (): string => {
+    if (activeTab === 'branches' && selectedStockMedicine) {
+      return 'All Pharmacies';
+    }
+    if (tabHistory.length > 1) {
+      const prevTab = tabHistory[tabHistory.length - 2];
+      return getTabDisplayName(prevTab);
+    }
+    return 'Medicine Search';
+  };
+
+  // Sync browser popstate (hardware back button / gesture)
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.tab) {
+        setActiveTabState(event.state.tab);
+        setTabHistory((prev) => {
+          if (prev.length > 1) {
+            const copy = [...prev];
+            copy.pop();
+            return copy;
+          }
+          return [event.state.tab];
+        });
+      } else {
+        setActiveTabState('search');
+        setTabHistory(['search']);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Listen to auth changes
   useEffect(() => {
@@ -643,6 +742,25 @@ export const PatientApp: React.FC = () => {
                 </h1>
               </div>
             </div>
+
+            {/* Contextual Header Back Button */}
+            {activeTab !== 'search' && (
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl sm:rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700/80 hover:border-emerald-500/50 shadow-sm transition-all duration-200 cursor-pointer group active:scale-95 shrink-0"
+                title={`Back to ${getPreviousTabName()}`}
+                aria-label={`Back to ${getPreviousTabName()}`}
+              >
+                <div className="w-6 h-6 rounded-lg bg-emerald-500/20 group-hover:bg-emerald-500 text-emerald-400 group-hover:text-white flex items-center justify-center transition-colors shadow-2xs">
+                  <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                </div>
+                <div className="flex flex-col items-start leading-none text-left hidden sm:flex">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-emerald-300">Back</span>
+                  <span className="text-xs font-black text-slate-100 truncate max-w-[130px] mt-0.5">{getPreviousTabName()}</span>
+                </div>
+                <span className="sm:hidden text-xs font-bold text-slate-200">Back</span>
+              </button>
+            )}
           </div>
 
           {/* 2. Center Section: Consolidated Clinical Services Dropdown Menu */}
@@ -938,6 +1056,32 @@ export const PatientApp: React.FC = () => {
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col focus:outline-none">
           {/* Default Clean Responsive Viewport for all screen sizes with expanded canvas for branches */}
           <div className={`flex-1 w-full ${activeTab === 'branches' ? 'max-w-[1600px]' : 'max-w-7xl'} mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-5 sm:space-y-8`}>
+
+            {/* ── Top-of-Page Contextual Back Navigation Banner ── */}
+            {activeTab !== 'search' && (
+              <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-200/80 dark:border-slate-800/80">
+                <button
+                  onClick={goBack}
+                  className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200/90 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-800 shadow-xs hover:shadow-md transition-all cursor-pointer font-bold text-xs sm:text-sm group active:scale-95"
+                >
+                  <div className="w-6 h-6 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:bg-emerald-500 group-hover:text-white text-slate-500 dark:text-slate-400 flex items-center justify-center transition-colors">
+                    <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                  </div>
+                  <span>Back to <strong className="font-black text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-300">{getPreviousTabName()}</strong></span>
+                </button>
+
+                <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 hidden sm:flex">
+                  <button
+                    onClick={() => setActiveTab('search')}
+                    className="hover:text-emerald-600 dark:hover:text-emerald-400 transition cursor-pointer"
+                  >
+                    Patient Care Portal
+                  </button>
+                  <span>/</span>
+                  <span className="text-slate-800 dark:text-slate-200 font-extrabold">{getTabDisplayName(activeTab)}</span>
+                </div>
+              </div>
+            )}
 
           {/* ── 1. Medicine Search & Multi-Pharmacy Formulary ── */}
           {activeTab === 'search' && (
