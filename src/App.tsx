@@ -375,6 +375,81 @@ export default function App() {
     );
   }
 
+  // ─── Pending Pharmacy Regulatory Approval Gate ─────────────────────────
+  if (
+    auth.user &&
+    !auth.user.isSuperAdmin &&
+    auth.user.pharmacyApprovalStatus &&
+    auth.user.pharmacyApprovalStatus !== 'Approved'
+  ) {
+    return (
+      <div className="min-h-screen bg-[#070F1C] flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-[#132032] border border-amber-500/40 rounded-3xl p-6 sm:p-9 shadow-2xl text-left space-y-6">
+          <div className="flex items-center gap-3 pb-4 border-b border-slate-800">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 shrink-0">
+              <span className="text-xl font-black">⏳</span>
+            </div>
+            <div>
+              <span className="bg-amber-400/10 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-400/30 uppercase tracking-widest">
+                Regulatory Review Pending
+              </span>
+              <h2 className="text-xl font-black text-white mt-0.5">
+                NDA Premise Verification in Progress
+              </h2>
+            </div>
+          </div>
+
+          <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
+            <p>
+              Your registered pharmacy entity{' '}
+              <strong className="text-white font-bold">{auth.user.tenantName}</strong> (License{' '}
+              <strong className="font-mono text-amber-300 font-bold">{auth.user.ndaLicenseNo || 'NDA Pending'}</strong>) has been successfully submitted and is under regulatory inspection by the{' '}
+              <strong className="text-white">Platform System Administrator</strong>.
+            </p>
+            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Supervising Pharmacist:</span>
+                <span className="font-bold text-white">{auth.user.fullName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">PSU Reg Number:</span>
+                <span className="font-mono text-emerald-400 font-bold">{auth.user.psuRegNo || 'PSU Pending'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Subscribed Tier:</span>
+                <span className="font-bold text-indigo-400">{auth.user.selectedTier || 'Professional'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Application Status:</span>
+                <span className="font-bold text-amber-400">{auth.user.pharmacyApprovalStatus}</span>
+              </div>
+            </div>
+            <p className="text-slate-400 text-[11px]">
+              National Drug Authority (NDA) statutory regulations require verified administrative licensing before live retail dispensing, prescription verification, or inventory management can begin.
+            </p>
+          </div>
+
+          <div className="pt-2 flex items-center justify-between gap-3">
+            <button
+              onClick={() => {
+                window.location.reload();
+              }}
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+            >
+              <span>Refresh Verification Status</span>
+            </button>
+            <button
+              onClick={auth.signOut}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ─── Subscription Gate ───────────────────────────────────────────────────
   if (auth.user.subscriptionStatus !== 'active' && !auth.user.isSuperAdmin) {
     return <SubscriptionPage auth={auth} />;

@@ -17,6 +17,11 @@ import {
   Plus,
   Phone,
   AlertTriangle,
+  BellRing,
+  Sparkles,
+  CheckCircle2,
+  X,
+  Smartphone,
 } from 'lucide-react';
 import { formatUGX } from '../services/formatters';
 
@@ -36,6 +41,7 @@ export const DeliveryLogisticsModule: React.FC<DeliveryLogisticsModuleProps> = (
   const [otpError, setOtpError] = useState('');
   const [otpSuccess, setOtpSuccess] = useState('');
   const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
+  const [incomingOrderAlert, setIncomingOrderAlert] = useState<DeliveryOrder | null>(null);
 
   // New Delivery Form State
   const [patientName, setPatientName] = useState('');
@@ -48,8 +54,70 @@ export const DeliveryLogisticsModule: React.FC<DeliveryLogisticsModuleProps> = (
   const [courierName, setCourierName] = useState('Moses Kigozi (Rider #4)');
   const [courierPhone, setCourierPhone] = useState('+256 700 889900');
 
+  const playNotificationChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.12); // A5
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.5);
+    } catch {
+      // Audio autoplay policy fallback
+    }
+  };
+
   useEffect(() => {
-    setDeliveries(getDeliveryOrders(tenantId));
+    const refreshOrders = (newArrival?: DeliveryOrder) => {
+      const orders = getDeliveryOrders(tenantId);
+      setDeliveries(orders);
+      if (newArrival) {
+        setIncomingOrderAlert(newArrival);
+        playNotificationChime();
+      }
+    };
+
+    refreshOrders();
+
+    const handleCustomOrder = (e: Event) => {
+      const custom = e as CustomEvent<DeliveryOrder>;
+      if (custom.detail) {
+        refreshOrders(custom.detail);
+      } else {
+        refreshOrders();
+      }
+    };
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (
+        e.key === 'zenithrx_delivery_orders_v1' ||
+        e.key === 'zenithrx_last_order_event_time' ||
+        e.key === 'zenithrx_patient_online_orders_v1'
+      ) {
+        const latest = getDeliveryOrders(tenantId);
+        setDeliveries(latest);
+        if (latest.length > 0) {
+          setIncomingOrderAlert(latest[0]);
+          playNotificationChime();
+        }
+      }
+    };
+
+    window.addEventListener('zenithrx_new_delivery_order', handleCustomOrder);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('zenithrx_new_delivery_order', handleCustomOrder);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [tenantId]);
 
   const handleCreateDelivery = (e: React.FormEvent) => {
@@ -108,6 +176,60 @@ export const DeliveryLogisticsModule: React.FC<DeliveryLogisticsModuleProps> = (
 
   return (
     <div className="space-y-6">
+      {/* Real-Time Incoming Order Banner */}
+      {incomingOrderAlert && (
+        <div className="relative overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white rounded-2xl p-5 shadow-lg animate-in fade-in slide-in-from-top duration-300 border-2 border-emerald-400">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 shadow-inner">
+                <BellRing className="w-6 h-6 text-white animate-bounce" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="bg-amber-400 text-slate-900 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-xs">
+                    New Patient Delivery Order
+                  </span>
+                  <span className="font-mono text-xs font-bold text-emerald-100">
+                    {incomingOrderAlert.orderNumber}
+                  </span>
+                  <span className="text-xs text-emerald-100 opacity-90">
+                    Just placed via Patient Web App
+                  </span>
+                </div>
+                <h3 className="text-lg font-black text-white">
+                  {incomingOrderAlert.patientName} ({incomingOrderAlert.patientPhone})
+                </h3>
+                <p className="text-xs text-emerald-50 max-w-2xl leading-relaxed">
+                  <strong className="text-white">Items:</strong> {incomingOrderAlert.itemsSummary} &bull;{' '}
+                  <strong className="text-white">Destination:</strong> {incomingOrderAlert.deliveryAddress} &bull;{' '}
+                  <strong className="text-white">Total:</strong> {formatUGX(incomingOrderAlert.totalOrderAmountUgx)} ({incomingOrderAlert.paymentMethod})
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-end md:self-center shrink-0">
+              <button
+                onClick={() => {
+                  setSelectedOrder(incomingOrderAlert);
+                  setSearchQuery(incomingOrderAlert.orderNumber);
+                }}
+                className="px-4 py-2 rounded-xl bg-white hover:bg-emerald-50 text-emerald-800 text-xs font-black shadow-md transition-all cursor-pointer transform hover:scale-102 flex items-center gap-1.5"
+              >
+                <Truck className="w-4 h-4 text-emerald-700" />
+                <span>Inspect &amp; Dispatch Rider</span>
+              </button>
+              <button
+                onClick={() => setIncomingOrderAlert(null)}
+                className="p-2 rounded-xl bg-black/20 hover:bg-black/30 text-white/80 hover:text-white transition-all cursor-pointer"
+                title="Dismiss Alert"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

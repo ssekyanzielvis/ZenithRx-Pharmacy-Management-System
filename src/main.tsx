@@ -12,8 +12,8 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
-// Register PWA service worker
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+// Register PWA service worker safely in production
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch((err) => {
       console.warn('PWA Service Worker registration failed:', err);

@@ -12,8 +12,8 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>
 );
 
-// Register PWA service worker for Patient App
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+// Register PWA service worker for Patient App safely in production
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch((err) => {
       console.warn('Patient PWA Service Worker registration failed:', err);

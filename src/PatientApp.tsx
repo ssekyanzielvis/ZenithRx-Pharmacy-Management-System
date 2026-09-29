@@ -62,7 +62,8 @@ import { patientAuthService, PatientProfile } from './services/patientAuthServic
 import { pharmacyDiscoveryService, PharmacyBranchDetails } from './services/pharmacyDiscoveryService';
 import { getMasterMedicines, MasterMedicineItem } from './services/medicineSafetyService';
 import { getHealthEducationArticles, HealthEducationArticle } from './services/healthEducationService';
-import { getDeliveryOrders, DeliveryOrder } from './services/deliveryLogisticsService';
+import { getDeliveryOrders, createDeliveryOrder, DeliveryOrder } from './services/deliveryLogisticsService';
+import { sendSystemNotification } from './services/notificationService';
 import { getAdherenceRecords, AdherenceRecord } from './services/adherenceRefillService';
 import { getTeleconsultationSessions, bookTeleconsultation, TeleconsultationSession } from './services/teleconsultationService';
 import { submitPrescriptionForOcrVerification } from './services/prescriptionOcrService';
@@ -413,33 +414,165 @@ export const PatientApp: React.FC = () => {
       setIsProcessingPayment(false);
       setCheckoutStep('success');
 
-      // Create new live order
-      const newOrder: DeliveryOrder = {
-        id: `ORD-UG-${Date.now().toString().slice(-4)}`,
-        orderNumber: `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      const formattedPhone = momoPhone.startsWith('+256')
+        ? momoPhone
+        : `+256 ${momoPhone.replace(/^0/, '').trim()}`;
+
+      const requiresColdChain = cartItems.some((i) =>
+        i.drug.storageRequirement?.toLowerCase().includes('cold') ||
+        i.drug.storageRequirement?.toLowerCase().includes('refrigerat') ||
+        i.drug.storageRequirement?.toLowerCase().includes('2°c') ||
+        i.drug.brandName.toLowerCase().includes('insulin') ||
+        i.drug.brandName.toLowerCase().includes('lantus') ||
+        i.drug.brandName.toLowerCase().includes('vaccine')
+      );
+
+      const chosenPharmacy = cartItems[0]?.pharmacyName || 'Kampala City Pharmacy';
+      const patientAddr = patientUser?.address || 'Kololo, Kampala';
+      const patientDist = patientUser?.district || 'Kampala';
+      const itemsText = cartItems.map((i) => `${i.quantity}x ${i.drug.brandName}`).join(', ');
+
+      // 1. Create delivery order in persistent delivery logistics database
+      const createdOrder = createDeliveryOrder({
         tenantId: 'client-001',
-        pharmacyName: cartItems[0]?.pharmacyName || 'Kampala City Pharmacy',
+        pharmacyName: chosenPharmacy,
         patientName: patientUser?.fullName || 'Patient',
-        patientPhone: momoPhone.startsWith('+256') ? momoPhone : `+256 ${momoPhone.replace(/^0/, '').trim()}`,
-        deliveryAddress: patientUser?.address || 'Kololo, Kampala',
-        deliveryDistrict: patientUser?.district || 'Kampala',
+        patientPhone: formattedPhone,
+        deliveryAddress: patientAddr,
+        deliveryDistrict: patientDist,
         patientCoordinates: { lat: 0.3341, lng: 32.5892 },
-        itemsSummary: cartItems.map((i) => `${i.quantity}x ${i.drug.brandName}`).join(', '),
+        itemsSummary: itemsText,
         totalOrderAmountUgx: grandTotalUgx,
         deliveryFeeUgx: deliveryFeeUgx,
         paymentMethod: `${momoProvider} Mobile Money`,
         paymentStatus: 'Paid Online',
         status: 'Out for Delivery',
-        isColdChainRequired: false,
-        assignedCourierName: 'Juma Kigozi (Boda Express #41)',
-        assignedCourierPhone: '+256 701 998877',
-        estimatedDeliveryTime: '25 mins',
-        deliveryOtpCode: Math.floor(1000 + Math.random() * 9000).toString(),
-        deliveryOtpConfirmed: false,
-        createdAt: new Date().toISOString(),
-      };
+        isColdChainRequired: requiresColdChain,
+        assignedCourierName: requiresColdChain ? 'Patrick Otim (Cold-Chain Specialist)' : 'Juma Kigozi (Boda Express #41)',
+        assignedCourierPhone: requiresColdChain ? '+256 788 123456' : '+256 701 998877',
+        courierVehiclePlate: requiresColdChain ? 'UEA 441P (Insulated Box Van)' : 'UDL 892K (Bajaj Boxer)',
+        estimatedDeliveryTime: new Date(Date.now() + 30 * 60000).toISOString(),
+        coldChainLogs: requiresColdChain
+          ? [
+              {
+                timestamp: new Date().toISOString(),
+                temperatureCelsius: 4.2,
+                isWithinSafeRange: true,
+                recordedByDeviceId: 'IOT-COOLBOX-09',
+              },
+            ]
+          : undefined,
+      });
 
-      setOrders((prev) => [newOrder, ...prev]);
+      // 2. Sync to patient online orders queue for PMS queue console
+      try {
+        const existingOnlineOrdersRaw = localStorage.getItem('zenithrx_patient_online_orders_v1');
+        const existingOnlineOrders = existingOnlineOrdersRaw ? JSON.parse(existingOnlineOrdersRaw) : [];
+        const newOnlineOrder = {
+          id: createdOrder.id,
+          order_number: createdOrder.orderNumber,
+          patient_name: createdOrder.patientName,
+          patient_phone: createdOrder.patientPhone,
+          items: cartItems.map((i) => ({
+            drug_name: i.drug.brandName,
+            dosage: i.drug.strength || 'Standard Dose',
+            quantity: i.quantity,
+            unit_price_ugx: i.unitPriceUgx,
+            total_ugx: i.unitPriceUgx * i.quantity,
+          })),
+          total_amount_ugx: grandTotalUgx,
+          payment_status: 'Paid' as const,
+          payment_method: momoProvider.toUpperCase().includes('AIRTEL') ? ('AIRTEL_MONEY' as const) : ('MTN_MOMO' as const),
+          payment_ref: `MOMO-TXN-${Date.now().toString().slice(-8)}`,
+          fulfillment_status: 'Processing' as const,
+          delivery_type: 'Delivery' as const,
+          delivery_address: createdOrder.deliveryAddress,
+          has_prescription: cartItems.some((i) => i.drug.isPrescriptionRequired),
+          prescription_status: cartItems.some((i) => i.drug.isPrescriptionRequired) ? 'Verified Online' : 'OTC Approved',
+          rider_name: createdOrder.assignedCourierName,
+          rider_phone: createdOrder.assignedCourierPhone,
+          estimated_delivery_at: createdOrder.estimatedDeliveryTime,
+          created_at: createdOrder.createdAt,
+        };
+        localStorage.setItem('zenithrx_patient_online_orders_v1', JSON.stringify([newOnlineOrder, ...existingOnlineOrders]));
+      } catch (err) {
+        console.error('Error syncing online orders queue:', err);
+      }
+
+      // 3. Reserve stock in inventory service
+      try {
+        cartItems.forEach((item) => {
+          advancedStockService.reserveStock({
+            drugId: item.drug.id,
+            pharmacyId: 'client-001',
+            quantity: item.quantity,
+            customerPhone: formattedPhone,
+          });
+        });
+      } catch (err) {
+        console.error('Stock reservation error:', err);
+      }
+
+      // 4. Send Urgent Live Staff Notification (Pharmacy Management System Inbox)
+      notificationCenterService.sendNotification({
+        tenantId: 'client-001',
+        pharmacyId: 'client-001',
+        recipientType: 'staff',
+        recipientName: 'Pharmacy Dispensing & Delivery Staff',
+        category: 'order_confirmed',
+        title: `🚨 Urgent Online Order #${createdOrder.orderNumber}`,
+        message: `Patient ${createdOrder.patientName} (${createdOrder.patientPhone}) paid ${formatUGX(grandTotalUgx)} via ${momoProvider} Mobile Money for ${createdOrder.itemsSummary}. Destination: ${createdOrder.deliveryAddress}. Courier ${createdOrder.assignedCourierName} assigned with OTP: ${createdOrder.deliveryOtpCode}.`,
+        priority: 'urgent',
+        actionType: 'track_order',
+        actionPayload: { orderId: createdOrder.id, orderNumber: createdOrder.orderNumber },
+        channels: { in_app: 'delivered', sms: 'delivered', push: 'sent' },
+      });
+
+      // 5. Send System Header Notification to PMS
+      sendSystemNotification({
+        tenantId: 'client-001',
+        title: `🚨 New Patient Delivery Order: ${createdOrder.orderNumber}`,
+        message: `Delivery dispatch required for ${createdOrder.patientName} (${formatUGX(grandTotalUgx)}) - ${createdOrder.itemsSummary}.`,
+        type: 'critical',
+        actionUrl: 'adminOrdersDelivery',
+        metadata: { orderId: createdOrder.id },
+      });
+
+      // 6. Send Patient In-App & SMS Confirmation Notification with OTP
+      notificationCenterService.sendNotification({
+        tenantId: 'client-001',
+        pharmacyId: 'client-001',
+        recipientType: 'patient',
+        recipientId: patientUser?.id,
+        recipientPhone: formattedPhone,
+        recipientName: createdOrder.patientName,
+        category: 'order_confirmed',
+        title: `Order Confirmed & Rider Dispatched (${createdOrder.orderNumber})`,
+        message: `Your payment of ${formatUGX(grandTotalUgx)} has been received by ${createdOrder.pharmacyName}. Express rider ${createdOrder.assignedCourierName} (${createdOrder.assignedCourierPhone}) is on the way. Provide 4-digit OTP ${createdOrder.deliveryOtpCode} upon arrival.`,
+        priority: 'high',
+        actionType: 'track_order',
+        actionPayload: { orderId: createdOrder.id, otp: createdOrder.deliveryOtpCode },
+        channels: { in_app: 'delivered', sms: 'delivered', whatsapp: 'delivered' },
+      });
+
+      // 7. Broadcast real-time custom event & update timestamp for cross-tab sync
+      window.dispatchEvent(
+        new CustomEvent('zenithrx_new_delivery_order', {
+          detail: createdOrder,
+        })
+      );
+      window.dispatchEvent(
+        new CustomEvent('zenithrx_notification_event', {
+          detail: { type: 'new_order', orderId: createdOrder.id },
+        })
+      );
+      try {
+        localStorage.setItem('zenithrx_last_order_event_time', Date.now().toString());
+      } catch (err) {
+        console.error('Error setting order event time:', err);
+      }
+
+      setOrders((prev) => [createdOrder, ...prev]);
       setCartItems([]);
     }, 2500);
   };

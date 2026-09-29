@@ -44,8 +44,22 @@ export const SystemNotificationBell: React.FC<SystemNotificationBellProps> = ({
 
   useEffect(() => {
     loadNotifications();
-    const interval = setInterval(loadNotifications, 10000);
-    return () => clearInterval(interval);
+    const interval = setInterval(loadNotifications, 5000);
+
+    const handleUpdate = () => {
+      loadNotifications();
+    };
+
+    window.addEventListener('zenithrx_new_delivery_order', handleUpdate);
+    window.addEventListener('zenithrx_notification_event', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('zenithrx_new_delivery_order', handleUpdate);
+      window.removeEventListener('zenithrx_notification_event', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
   }, [tenantId, userId]);
 
   // Click outside to close

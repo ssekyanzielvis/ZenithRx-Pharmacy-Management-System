@@ -94,6 +94,22 @@ export const NotificationCenterConsole: React.FC<NotificationCenterConsoleProps>
     loadNotifications();
   }, [selectedCategory, selectedRecipientType, selectedPriority, unreadOnly, searchQuery]);
 
+  useEffect(() => {
+    const handleUpdate = () => {
+      loadNotifications();
+    };
+
+    window.addEventListener('zenithrx_notification_event', handleUpdate);
+    window.addEventListener('zenithrx_new_delivery_order', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+
+    return () => {
+      window.removeEventListener('zenithrx_notification_event', handleUpdate);
+      window.removeEventListener('zenithrx_new_delivery_order', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
   const handleMarkAsRead = (id: string) => {
     notificationCenterService.markAsRead(id);
     loadNotifications();

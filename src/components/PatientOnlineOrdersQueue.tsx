@@ -190,14 +190,65 @@ const FULFILLMENT_NEXT: Record<string, string> = {
   Dispatched: 'Delivered',
 };
 
+const STORAGE_KEY_ONLINE_ORDERS = 'zenithrx_patient_online_orders_v1';
+
+const getInitialOnlineOrders = (): PatientOnlineOrder[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_ONLINE_ORDERS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+    localStorage.setItem(STORAGE_KEY_ONLINE_ORDERS, JSON.stringify(MOCK_ONLINE_ORDERS));
+    return MOCK_ONLINE_ORDERS;
+  } catch {
+    return MOCK_ONLINE_ORDERS;
+  }
+};
+
 // ─── Component ───────────────────────────────────────────────────────────────
 export const PatientOnlineOrdersQueue: React.FC = () => {
-  const [orders, setOrders] = useState<PatientOnlineOrder[]>(MOCK_ONLINE_ORDERS);
+  const [orders, setOrders] = useState<PatientOnlineOrder[]>(getInitialOnlineOrders);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  const loadOrdersFromStorage = () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_ONLINE_ORDERS);
+      if (raw) {
+        setOrders(JSON.parse(raw));
+      }
+    } catch (e) {
+      console.error('Error reloading orders', e);
+    }
+  };
+
+  useEffect(() => {
+    loadOrdersFromStorage();
+
+    const handleNewOrder = () => {
+      loadOrdersFromStorage();
+    };
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY_ONLINE_ORDERS || e.key === 'zenithrx_last_order_event_time') {
+        loadOrdersFromStorage();
+      }
+    };
+
+    window.addEventListener('zenithrx_new_delivery_order', handleNewOrder);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('zenithrx_new_delivery_order', handleNewOrder);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const filtered = orders.filter((o) => {
     const q = search.toLowerCase();
@@ -218,28 +269,41 @@ export const PatientOnlineOrdersQueue: React.FC = () => {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    setTimeout(() => setIsRefreshing(false), 1200);
+    loadOrdersFromStorage();
+    setTimeout(() => setIsRefreshing(false), 800);
   };
 
   const handleAdvanceStatus = (orderId: string) => {
     setUpdatingId(orderId);
     setTimeout(() => {
-      setOrders((prev) =>
-        prev.map((o) => {
+      setOrders((prev) => {
+        const updated = prev.map((o) => {
           if (o.id !== orderId) return o;
           const next = FULFILLMENT_NEXT[o.fulfillment_status];
           if (!next) return o;
           return { ...o, fulfillment_status: next as PatientOnlineOrder['fulfillment_status'] };
-        })
-      );
+        });
+        try {
+          localStorage.setItem(STORAGE_KEY_ONLINE_ORDERS, JSON.stringify(updated));
+        } catch (e) {
+          console.error('Error saving updated orders', e);
+        }
+        return updated;
+      });
       setUpdatingId(null);
     }, 800);
   };
 
   const handleCancelOrder = (orderId: string) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, fulfillment_status: 'Cancelled' } : o))
-    );
+    setOrders((prev) => {
+      const updated = prev.map((o) => (o.id === orderId ? { ...o, fulfillment_status: 'Cancelled' as const } : o));
+      try {
+        localStorage.setItem(STORAGE_KEY_ONLINE_ORDERS, JSON.stringify(updated));
+      } catch (e) {
+        console.error('Error cancelling order', e);
+      }
+      return updated;
+    });
   };
 
   return (
