@@ -142,21 +142,21 @@ export const BackupDisasterRecoveryConsole: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-800/40 rounded-2xl p-6 shadow-2xl text-white">
+      <div className="bg-gradient-to-r from-indigo-50/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 border border-indigo-100 dark:border-indigo-800/40 rounded-2xl p-6 shadow-sm dark:shadow-2xl text-slate-900 dark:text-white transition-colors">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-indigo-600/30 rounded-xl border border-indigo-400/30 text-indigo-400">
+              <div className="p-3 bg-indigo-100 dark:bg-indigo-600/30 rounded-xl border border-indigo-200 dark:border-indigo-400/30 text-indigo-600 dark:text-indigo-400">
                 <ShieldAlert className="w-8 h-8 animate-pulse" />
               </div>
               <div>
-                <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                   Backup & Disaster Recovery Command
-                  <span className="text-xs uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">
+                  <span className="text-xs uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 font-semibold">
                     Tier-1 Resilient
                   </span>
                 </h1>
-                <p className="text-sm text-indigo-200/80">
+                <p className="text-sm text-slate-600 dark:text-indigo-200/80">
                   Continuous WAL Streaming • AES-256-GCM Immutability • Multi-Region Hot Standby & Sandbox Restore Drills
                 </p>
               </div>
@@ -167,14 +167,14 @@ export const BackupDisasterRecoveryConsole: React.FC = () => {
             <button
               onClick={loadAllData}
               disabled={loading}
-              className="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-semibold text-slate-200 transition flex items-center gap-2"
+              className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-xs transition flex items-center gap-2 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               Refresh Telemetry
             </button>
             <button
               onClick={() => setShowBackupModal(true)}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md hover:shadow-indigo-600/30 transition flex items-center gap-2 cursor-pointer"
             >
               <Zap className="w-4 h-4" />
               Trigger On-Demand Backup
@@ -183,55 +183,55 @@ export const BackupDisasterRecoveryConsole: React.FC = () => {
         </div>
 
         {/* Real-time SLA & RPO/RTO Telemetry Metric Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-indigo-800/40">
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-indigo-900/40">
-            <div className="flex items-center justify-between text-xs text-indigo-300/80 mb-1">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-indigo-800/40">
+          <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-indigo-900/40 shadow-xs dark:shadow-none">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-indigo-300/80 mb-1">
               <span>Current Recovery Point (RPO)</span>
-              <Clock className="w-4 h-4 text-emerald-400" />
+              <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="text-xl font-black text-emerald-400 flex items-baseline gap-1.5">
+            <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 flex items-baseline gap-1.5">
               14s <span className="text-xs font-normal text-slate-400">/ Target ≤ 15m</span>
             </div>
-            <div className="text-[11px] text-emerald-400/90 font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] text-emerald-700 dark:text-emerald-400/90 font-medium flex items-center gap-1 mt-0.5">
               <CheckCircle className="w-3 h-3" /> 100% SLA Adherent (WAL stream)
             </div>
           </div>
 
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-indigo-900/40">
-            <div className="flex items-center justify-between text-xs text-indigo-300/80 mb-1">
+          <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-indigo-900/40 shadow-xs dark:shadow-none">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-indigo-300/80 mb-1">
               <span>Recovery Time SLA (RTO)</span>
-              <Activity className="w-4 h-4 text-cyan-400" />
+              <Activity className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
             </div>
-            <div className="text-xl font-black text-cyan-400 flex items-baseline gap-1.5">
+            <div className="text-xl font-black text-cyan-600 dark:text-cyan-400 flex items-baseline gap-1.5">
               14m <span className="text-xs font-normal text-slate-400">/ Target ≤ 60m</span>
             </div>
-            <div className="text-[11px] text-cyan-400/90 font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] text-cyan-700 dark:text-cyan-400/90 font-medium flex items-center gap-1 mt-0.5">
               <CheckCircle className="w-3 h-3" /> Last verified sandbox drill
             </div>
           </div>
 
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-indigo-900/40">
-            <div className="flex items-center justify-between text-xs text-indigo-300/80 mb-1">
+          <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-indigo-900/40 shadow-xs dark:shadow-none">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-indigo-300/80 mb-1">
               <span>Protected Vault Volume</span>
-              <HardDrive className="w-4 h-4 text-purple-400" />
+              <HardDrive className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="text-xl font-black text-purple-300 flex items-baseline gap-1.5">
+            <div className="text-xl font-black text-purple-700 dark:text-purple-300 flex items-baseline gap-1.5">
               21.13 GB
             </div>
-            <div className="text-[11px] text-purple-300/80 font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] text-purple-600 dark:text-purple-300/80 font-medium flex items-center gap-1 mt-0.5">
               <Lock className="w-3 h-3" /> AES-256-GCM Envelope KMS
             </div>
           </div>
 
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-indigo-900/40">
-            <div className="flex items-center justify-between text-xs text-indigo-300/80 mb-1">
+          <div className="bg-white dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-indigo-900/40 shadow-xs dark:shadow-none">
+            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-indigo-300/80 mb-1">
               <span>Multi-Region Replication</span>
-              <Globe className="w-4 h-4 text-blue-400" />
+              <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="text-xl font-black text-blue-300 flex items-baseline gap-1.5">
+            <div className="text-xl font-black text-blue-700 dark:text-blue-300 flex items-baseline gap-1.5">
               4 / 4 Nodes
             </div>
-            <div className="text-[11px] text-emerald-400 font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 mt-0.5">
               <CheckCircle2 className="w-3 h-3" /> Hot Standby Sync Active
             </div>
           </div>

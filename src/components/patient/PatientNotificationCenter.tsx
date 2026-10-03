@@ -270,46 +270,46 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
         <div className="lg:col-span-5 xl:col-span-4 flex flex-col" style={{ gap: '1cm' }}>
           {/* Card 1: Multi-Channel Delivery Guarantee */}
           <div
-            className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 text-white rounded-3xl shadow-md border border-slate-800"
+            className="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 text-slate-900 dark:text-white rounded-3xl shadow-sm dark:shadow-md border border-slate-200 dark:border-slate-800 transition-colors duration-200"
             style={{ padding: '1cm', display: 'flex', flexDirection: 'column', gap: '0.6cm' }}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
-                <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+              <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200 dark:border-emerald-500/30">
+                <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               </div>
-              <h4 className="text-base font-black text-white tracking-tight">Multi-Channel Delivery</h4>
+              <h4 className="text-base font-black text-slate-900 dark:text-white tracking-tight">Multi-Channel Delivery</h4>
             </div>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
               ZenithRx guarantees instant failover across 3 notification rails so you never miss an urgent clinical notice or courier arrival.
             </p>
 
             <div className="space-y-3.5 text-xs sm:text-sm" style={{ paddingTop: '0.2cm' }}>
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 shadow-xs hover:bg-white/15 transition-all">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/10 backdrop-blur-xs border border-slate-200 dark:border-white/10 shadow-xs hover:bg-slate-100 dark:hover:bg-white/15 transition-all">
                 <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shrink-0 ring-4 ring-emerald-400/20" />
-                  <span className="font-bold text-slate-100">In-App Realtime</span>
+                  <span className="w-3 h-3 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shrink-0 ring-4 ring-emerald-500/20 dark:ring-emerald-400/20" />
+                  <span className="font-bold text-slate-800 dark:text-slate-100">In-App Realtime</span>
                 </div>
-                <span className="text-[11px] font-black text-emerald-300 bg-emerald-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-emerald-500/40 shadow-xs">
+                <span className="text-[11px] font-black text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-emerald-300 dark:border-emerald-500/40 shadow-xs">
                   ACTIVE
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 shadow-xs hover:bg-white/15 transition-all">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/10 backdrop-blur-xs border border-slate-200 dark:border-white/10 shadow-xs hover:bg-slate-100 dark:hover:bg-white/15 transition-all">
                 <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-blue-400 shrink-0 ring-4 ring-blue-400/20" />
-                  <span className="font-bold text-slate-100">Telecom SMS (OTP)</span>
+                  <span className="w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-400 shrink-0 ring-4 ring-blue-500/20 dark:ring-blue-400/20" />
+                  <span className="font-bold text-slate-800 dark:text-slate-100">Telecom SMS (OTP)</span>
                 </div>
-                <span className="text-[11px] font-black text-blue-300 bg-blue-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-blue-500/40 shadow-xs">
+                <span className="text-[11px] font-black text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-blue-300 dark:border-blue-500/40 shadow-xs">
                   ENABLED
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 shadow-xs hover:bg-white/15 transition-all">
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/10 backdrop-blur-xs border border-slate-200 dark:border-white/10 shadow-xs hover:bg-slate-100 dark:hover:bg-white/15 transition-all">
                 <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-teal-400 shrink-0 ring-4 ring-teal-400/20" />
-                  <span className="font-bold text-slate-100">WhatsApp Receipts</span>
+                  <span className="w-3 h-3 rounded-full bg-teal-500 dark:bg-teal-400 shrink-0 ring-4 ring-teal-500/20 dark:ring-teal-400/20" />
+                  <span className="font-bold text-slate-800 dark:text-slate-100">WhatsApp Receipts</span>
                 </div>
-                <span className="text-[11px] font-black text-teal-300 bg-teal-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-teal-500/40 shadow-xs">
+                <span className="text-[11px] font-black text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-teal-300 dark:border-teal-500/40 shadow-xs">
                   CONNECTED
                 </span>
               </div>

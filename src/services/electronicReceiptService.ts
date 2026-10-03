@@ -224,10 +224,10 @@ export const createDigitalReceiptFromPOS = (
 
   const lineItems: DigitalReceiptLineItem[] = tx.items.map(item => ({
     drugId: item.drugId,
-    drugName: item.drugName,
-    genericName: item.drugName.split(' ')[0],
+    drugName: item.brandName || item.genericName,
+    genericName: item.genericName || item.brandName.split(' ')[0],
     batchNumber: item.batchNumber || 'BN-2026-AUT',
-    expiryDate: item.expiryDate || '2028-06-30',
+    expiryDate: item.batchExpiryDate || '2028-06-30',
     quantity: item.quantity,
     unitPriceUgx: item.unitSellingPriceUgx,
     discountUgx: item.discountAmountUgx || 0,
@@ -236,8 +236,17 @@ export const createDigitalReceiptFromPOS = (
   }));
 
   const grossSubtotal = lineItems.reduce((acc, curr) => acc + (curr.unitPriceUgx * curr.quantity), 0);
-  const totalDiscount = tx.totalDiscountUgx || (grossSubtotal - tx.netTotalUgx);
+  const totalDiscount = (tx.lineDiscountsUgx || 0) + (tx.orderDiscountUgx || 0);
   const discountPct = grossSubtotal > 0 ? Number(((totalDiscount / grossSubtotal) * 100).toFixed(2)) : 0;
+
+  const saleTypeMap: 'otc_sale' | 'prescription_sale' | 'credit_sale' | 'insurance_sale' =
+    tx.saleType === 'prescription_sale'
+      ? 'prescription_sale'
+      : tx.paymentMethod === 'Credit'
+      ? 'credit_sale'
+      : tx.paymentMethod === 'Insurance Scheme'
+      ? 'insurance_sale'
+      : 'otc_sale';
 
   const newReceipt: DigitalReceiptData = {
     id: `rcp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -245,7 +254,7 @@ export const createDigitalReceiptFromPOS = (
     receiptNumber,
     fiscalEfrisNumber,
     transactionId: tx.id,
-    saleType: tx.saleType,
+    saleType: saleTypeMap,
     pharmacyName: branchProfile.pharmacyName,
     branchName: branchProfile.branchName,
     branchAddress: branchProfile.branchAddress,
@@ -266,7 +275,7 @@ export const createDigitalReceiptFromPOS = (
     discountPercentage: discountPct,
     discountReason: tx.discountReason,
     netSubtotalUgx: tx.netTotalUgx,
-    taxAmountUgx: tx.taxAmountUgx || 0,
+    taxAmountUgx: tx.taxVatUgx || 0,
     grandTotalUgx: tx.netTotalUgx,
     paymentMethod: tx.paymentMethod,
     paymentSplits: tx.paymentSplits?.map(s => ({
@@ -275,8 +284,8 @@ export const createDigitalReceiptFromPOS = (
       reference: s.reference
     })),
     cashTenderedUgx: tx.cashTenderedUgx,
-    changeGivenUgx: tx.changeGivenUgx,
-    paymentReferenceCode: tx.paymentReferenceCode || tx.paymentMethodRef,
+    changeGivenUgx: tx.cashChangeUgx,
+    paymentReferenceCode: tx.momoReference || tx.cardAuthCode || '',
     paymentStatus: tx.status === 'refunded' ? 'REFUNDED' : tx.status === 'voided' ? 'VOIDED' : 'PAID',
     cashierId: cashierProfile.cashierId,
     cashierName: tx.pharmacistName || cashierProfile.cashierName,

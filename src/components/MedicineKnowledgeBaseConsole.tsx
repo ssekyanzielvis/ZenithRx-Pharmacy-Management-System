@@ -110,25 +110,25 @@ export const MedicineKnowledgeBaseConsole: React.FC = () => {
     <div className="space-y-6">
       
       {/* Top Banner: Establishing the Dual Architecture */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-900/50 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none" />
+      <div className="bg-gradient-to-r from-indigo-50/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 border border-indigo-100 dark:border-indigo-900/50 rounded-3xl p-6 text-slate-900 dark:text-white shadow-sm dark:shadow-xl relative overflow-hidden transition-colors">
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-500/5 dark:from-blue-500/10 via-transparent to-transparent pointer-events-none" />
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="bg-indigo-100 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-400/40 text-indigo-800 dark:text-indigo-300 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 Pharmacological Knowledge System
               </span>
-              <span className="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5">
-                <Stethoscope className="w-3 h-3" /> Evidence-Based Clinical Practice
+              <span className="bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-400/40 text-emerald-800 dark:text-emerald-300 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5">
+                <Stethoscope className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Evidence-Based Clinical Practice
               </span>
             </div>
             
-            <h2 className="text-2xl font-black tracking-tight text-white">
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
               Medicine Knowledge Base &amp; Clinical Decision Engine
             </h2>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
               Maintains a strict architectural distinction between <strong>Static Pharmacological Reference Information</strong> (standard uses, dosing tables, contraindications, side effects, storage, warnings) and <strong>Dynamic Patient Clinical Decision-Making</strong> (contextual organ function titration, allergy screening, and personalized risk vs benefit stratification).
             </p>
           </div>
@@ -139,14 +139,14 @@ export const MedicineKnowledgeBaseConsole: React.FC = () => {
               onClick={() => { setActiveMode('REFERENCE_MONOGRAPHS'); }}
               className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl text-xs font-black transition cursor-pointer text-left border ${
                 activeMode === 'REFERENCE_MONOGRAPHS'
-                  ? 'bg-indigo-600 text-white border-indigo-400 shadow-lg ring-2 ring-indigo-400/30'
-                  : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
+                  ? 'bg-indigo-600 text-white border-indigo-400 shadow-md ring-2 ring-indigo-400/30'
+                  : 'bg-white hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10 shadow-xs dark:shadow-none'
               }`}
             >
-              <BookOpen className="w-4 h-4 text-indigo-300" />
+              <BookOpen className="w-4 h-4 text-indigo-600 dark:text-indigo-300" />
               <div>
                 <div>1. Reference Information</div>
-                <div className="text-[10px] font-normal text-indigo-200">Static monographs &amp; guides</div>
+                <div className="text-[10px] font-normal text-indigo-600 dark:text-indigo-200">Static monographs &amp; guides</div>
               </div>
             </button>
 
@@ -154,14 +154,14 @@ export const MedicineKnowledgeBaseConsole: React.FC = () => {
               onClick={() => { setActiveMode('CLINICAL_DECISION_MAKING'); }}
               className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl text-xs font-black transition cursor-pointer text-left border ${
                 activeMode === 'CLINICAL_DECISION_MAKING'
-                  ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg ring-2 ring-emerald-400/30'
-                  : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
+                  ? 'bg-emerald-600 text-white border-emerald-400 shadow-md ring-2 ring-emerald-400/30'
+                  : 'bg-white hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10 shadow-xs dark:shadow-none'
               }`}
             >
-              <Stethoscope className="w-4 h-4 text-emerald-300" />
+              <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-300" />
               <div>
                 <div>2. Clinical Decision-Making</div>
-                <div className="text-[10px] font-normal text-emerald-200">Patient-contextual evaluation</div>
+                <div className="text-[10px] font-normal text-emerald-600 dark:text-emerald-200">Patient-contextual evaluation</div>
               </div>
             </button>
           </div>

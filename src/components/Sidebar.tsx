@@ -624,8 +624,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       )}
 
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-40 h-screen bg-white dark:bg-[#0D1A2A] border-r border-slate-200/90 dark:border-slate-700/70 transition-all duration-300 flex flex-col justify-between select-none shadow-xl lg:shadow-xs ${
-          isOpen ? 'translate-x-0 w-72 max-w-[85vw]' : '-translate-x-full lg:translate-x-0 lg:w-16'
+        className={`fixed lg:static top-0 left-0 z-40 lg:z-30 min-h-full h-screen lg:h-auto self-stretch bg-white dark:bg-[#0D1A2A] border-r border-slate-200/90 dark:border-slate-700/70 transition-all duration-300 flex flex-col justify-between select-none shadow-xl lg:shadow-none shrink-0 ${
+          isOpen ? 'translate-x-0 w-72 max-w-[85vw] lg:max-w-none' : '-translate-x-full lg:translate-x-0 lg:w-16'
         }`}
       >
         {/* Sidebar Header Title & Collapse Toggle */}
@@ -670,7 +670,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Sidebar Navigation Body */}
-      <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
+      <div className="flex-1 overflow-y-auto lg:overflow-visible px-2.5 py-3 space-y-4">
         
         {/* Admin / Operational Context Switcher */}
         {isAdminContext ? (
@@ -828,7 +828,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Sidebar Footer */}
-      <div className="p-3 border-t border-slate-200 dark:border-slate-700/70 bg-slate-50/90 dark:bg-[#0A1520]/90 text-[11px] text-slate-600 dark:text-slate-400 space-y-2">
+      <div className="p-3 border-t border-slate-200 dark:border-slate-700/70 bg-slate-50/90 dark:bg-[#0A1520]/90 text-[11px] text-slate-600 dark:text-slate-400 space-y-2 mt-auto">
         {user && onSignOut && (
           <button
             onClick={onSignOut}

@@ -216,7 +216,7 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
       case 'No':
       default:
         return (
-          <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-500 text-[11px] font-semibold">
+          <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-500 text-[11px] font-semibold border border-slate-200 dark:border-slate-700">
             No
           </span>
         );
@@ -226,21 +226,21 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors duration-200">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-xl text-sky-400">
+          <div className="p-3 bg-sky-100 dark:bg-sky-500/10 border border-sky-300 dark:border-sky-500/20 rounded-xl text-sky-600 dark:text-sky-400">
             <Users className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 Admin &amp; Delegated Collaborator Management
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> technical.md §11.22.3 Compliant
               </span>
             </div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Manage clinical dispensers, inventory managers, cashiers, delegated admin collaborators, and review the official role matrix for {tenantName}.
             </p>
           </div>
@@ -248,13 +248,13 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
 
         <div className="flex items-center gap-2">
           {/* Sub-tab Switcher */}
-          <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => setActiveSubTab('collaborators')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                 activeSubTab === 'collaborators'
                   ? 'bg-sky-600 text-white shadow'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Collaborators ({collaborators.length})
@@ -264,7 +264,7 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
                 activeSubTab === 'matrix'
                   ? 'bg-sky-600 text-white shadow'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Table className="w-3.5 h-3.5" />
@@ -274,7 +274,7 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
 
           <button
             onClick={loadData}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition"
             title="Refresh list"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -289,7 +289,7 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
@@ -299,11 +299,11 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
 
       {/* Subtab 1: Collaborators List */}
       {activeSubTab === 'collaborators' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-xl transition-colors duration-200">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-slate-950/80 border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <tr className="bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                   <th className="py-3 px-4">Staff Member</th>
                   <th className="py-3 px-4">System Role</th>
                   <th className="py-3 px-4">Assigned Scope</th>
@@ -314,47 +314,47 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                 {collaborators.map((c) => (
-                  <tr key={c.id} className="hover:bg-slate-800/40 transition">
+                  <tr key={c.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
                     <td className="py-3.5 px-4">
-                      <span className="font-bold text-white block">{c.fullName}</span>
-                      <span className="text-xs text-slate-400">ID: {c.id} • Active {c.lastActive}</span>
+                      <span className="font-bold text-slate-900 dark:text-white block">{c.fullName}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">ID: {c.id} • Active {c.lastActive}</span>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-sky-500/10 text-sky-300 border border-sky-500/20 whitespace-nowrap">
+                      <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-sky-100 dark:bg-sky-500/10 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/20 whitespace-nowrap">
                         {c.role}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-xs font-mono text-slate-300">
+                    <td className="py-3.5 px-4 text-xs font-mono text-slate-700 dark:text-slate-300">
                       {c.tenantScope || c.tenantId}
                     </td>
                     <td className="py-3.5 px-4">
                       {c.psuRegistrationNo ? (
-                        <span className="text-xs text-emerald-400 font-mono flex items-center gap-1">
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1">
                           <Award className="w-3.5 h-3.5" /> {c.psuRegistrationNo}
                         </span>
                       ) : c.ndaLicenseNo ? (
-                        <span className="text-xs text-purple-400 font-mono flex items-center gap-1">
+                        <span className="text-xs text-purple-600 dark:text-purple-400 font-mono flex items-center gap-1">
                           <Shield className="w-3.5 h-3.5" /> {c.ndaLicenseNo}
                         </span>
                       ) : (
                         <span className="text-xs text-slate-500 font-mono">Standard Staff</span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-xs text-slate-400">
-                      <div className="flex items-center gap-1.5 text-slate-300">
-                        <Mail className="w-3.5 h-3.5 text-slate-500" /> {c.email}
+                    <td className="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-400">
+                      <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-300">
+                        <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" /> {c.email}
                       </div>
                       {c.phone && (
-                        <div className="flex items-center gap-1.5 text-slate-400 mt-0.5">
-                          <Phone className="w-3.5 h-3.5 text-slate-500" /> {c.phone}
+                        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 mt-0.5">
+                          <Phone className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" /> {c.phone}
                         </div>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-xs text-slate-400">
+                    <td className="py-3.5 px-4 text-xs text-slate-600 dark:text-slate-400">
                       {c.expiresAt ? (
-                        <span className="flex items-center gap-1 text-amber-400 font-mono">
+                        <span className="flex items-center gap-1 text-amber-700 dark:text-amber-400 font-mono">
                           <Clock className="w-3.5 h-3.5" /> {c.expiresAt}
                         </span>
                       ) : (
@@ -364,10 +364,10 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                     <td className="py-3.5 px-4">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                         c.status === 'Active'
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                          ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/20'
                           : c.status === 'Invited'
-                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                          : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                          ? 'bg-amber-100 dark:bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-500/20'
+                          : 'bg-rose-100 dark:bg-rose-500/10 text-rose-800 dark:text-rose-400 border border-rose-300 dark:border-rose-500/20'
                       }`}>
                         {c.status}
                       </span>
@@ -377,8 +377,8 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                         onClick={() => handleToggleStatus(c)}
                         className={`px-3 py-1 text-xs font-semibold rounded-lg transition ${
                           c.status === 'Active'
-                            ? 'bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/20'
-                            : 'bg-emerald-500/10 hover:bg-emerald-500 text-emerald-300 hover:text-white border border-emerald-500/20'
+                            ? 'bg-rose-100 hover:bg-rose-600 text-rose-800 hover:text-white dark:bg-rose-500/10 dark:hover:bg-rose-500 dark:text-rose-300 dark:hover:text-white border border-rose-300 dark:border-rose-500/20'
+                            : 'bg-emerald-100 hover:bg-emerald-600 text-emerald-800 hover:text-white dark:bg-emerald-500/10 dark:hover:bg-emerald-500 dark:text-emerald-300 dark:hover:text-white border border-emerald-300 dark:border-emerald-500/20'
                         }`}
                       >
                         {c.status === 'Active' ? 'Revoke / Suspend' : 'Activate'}
@@ -394,30 +394,30 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
 
       {/* Subtab 2: Complete 11.22.3 Admin and Collaborator Role Matrix Table */}
       {activeSubTab === 'matrix' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl space-y-4 p-6">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm dark:shadow-xl space-y-4 p-6 transition-colors duration-200">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Shield className="w-5 h-5 text-sky-400" />
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Shield className="w-5 h-5 text-sky-600 dark:text-sky-400" />
                 Technical.md §11.22.3 Admin &amp; Collaborator Role Matrix
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                 Privilege model supporting full admin control, multi-tenant isolation, and delegated collaborator access with revocable scopes.
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-slate-400">Legend:</span>
-              <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-semibold">Full</span>
-              <span className="px-2 py-0.5 bg-sky-500/20 text-sky-300 rounded font-semibold">Configurable</span>
-              <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded font-semibold">Limited</span>
-              <span className="px-2 py-0.5 bg-slate-800 text-slate-500 rounded font-semibold">No</span>
+              <span className="text-slate-600 dark:text-slate-400">Legend:</span>
+              <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/30 rounded font-semibold">Full</span>
+              <span className="px-2 py-0.5 bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/30 rounded font-semibold">Configurable</span>
+              <span className="px-2 py-0.5 bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30 rounded font-semibold">Limited</span>
+              <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-500 border border-slate-200 dark:border-slate-700 rounded font-semibold">No</span>
             </div>
           </div>
 
-          <div className="overflow-x-auto border border-slate-800 rounded-xl">
+          <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-950 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                <tr className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
                   <th className="py-3 px-3">Role</th>
                   <th className="py-3 px-3">Tenant Scope</th>
                   <th className="py-3 px-3">User Mgmt</th>
@@ -432,13 +432,13 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                   <th className="py-3 px-3">System Settings</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300 font-medium">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-700 dark:text-slate-300 font-medium">
                 {TECHNICAL_MD_11_22_3_ROLE_MATRIX.map((entry) => (
-                  <tr key={entry.role} className="hover:bg-slate-800/50 transition">
-                    <td className="py-3 px-3 font-bold text-white whitespace-nowrap">
+                  <tr key={entry.role} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition">
+                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">
                       {entry.role}
                     </td>
-                    <td className="py-3 px-3 font-mono text-slate-400 whitespace-nowrap">
+                    <td className="py-3 px-3 font-mono text-slate-600 dark:text-slate-400 whitespace-nowrap">
                       {entry.tenantScope}
                     </td>
                     <td className="py-3 px-3">{renderPrivilegeBadge(entry.userMgmt)}</td>
@@ -458,15 +458,15 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
           </div>
 
           {/* Collaborator Governance Rules Box */}
-          <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-            <span className="text-xs font-bold text-white uppercase tracking-wider block">
+          <div className="p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl space-y-2">
+            <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block">
               Collaborator Governance Rules (§11.22.3)
             </span>
-            <ul className="text-xs text-slate-400 space-y-1.5 list-disc list-inside">
-              <li><strong className="text-slate-200">Grant Authority:</strong> A collaborator is granted by a super admin or tenant admin with explicit authority to do so.</li>
-              <li><strong className="text-slate-200">Explicit &amp; Revocable Scope:</strong> Collaborator scope must be explicit and revocable at any time.</li>
-              <li><strong className="text-slate-200">Sensitive Actions:</strong> High-risk operations (dispense overrides, stock write-offs) enforce dual-authorization workflows.</li>
-              <li><strong className="text-slate-200">Time-Bound Access:</strong> Delegated admin access is logged to the NDA audit trail and supports time-bound expiration dates.</li>
+            <ul className="text-xs text-slate-600 dark:text-slate-400 space-y-1.5 list-disc list-inside">
+              <li><strong className="text-slate-800 dark:text-slate-200">Grant Authority:</strong> A collaborator is granted by a super admin or tenant admin with explicit authority to do so.</li>
+              <li><strong className="text-slate-800 dark:text-slate-200">Explicit &amp; Revocable Scope:</strong> Collaborator scope must be explicit and revocable at any time.</li>
+              <li><strong className="text-slate-800 dark:text-slate-200">Sensitive Actions:</strong> High-risk operations (dispense overrides, stock write-offs) enforce dual-authorization workflows.</li>
+              <li><strong className="text-slate-800 dark:text-slate-200">Time-Bound Access:</strong> Delegated admin access is logged to the NDA audit trail and supports time-bound expiration dates.</li>
             </ul>
           </div>
         </div>
@@ -474,21 +474,21 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
 
       {/* Invite Modal */}
       {isInviteOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="p-5 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-sky-500/10 border border-sky-500/20 rounded-lg text-sky-400">
+                <div className="p-2 bg-sky-100 dark:bg-sky-500/10 border border-sky-300 dark:border-sky-500/20 rounded-lg text-sky-600 dark:text-sky-400">
                   <UserPlus className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Invite Delegated Collaborator</h3>
-                  <p className="text-xs text-slate-400">Grant scoped, time-bound system privileges (§11.22.3)</p>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Invite Delegated Collaborator</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Grant scoped, time-bound system privileges (§11.22.3)</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsInviteOpen(false)}
-                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"
+                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -496,48 +496,48 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
 
             <form onSubmit={handleInviteSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1">Full Name *</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Pharm. Brenda Namubiru"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">Email Address *</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Email Address *</label>
                   <input
                     type="email"
                     required
                     placeholder="brenda@mulagocare.ug"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">Phone Number</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Phone Number</label>
                   <input
                     type="tel"
                     placeholder="+256 772 000000"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">11.22.3 System Role *</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">11.22.3 System Role *</label>
                   <select
                     value={role}
                     onChange={(e) => handleRoleChange(e.target.value as SystemRole)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
                   >
                     <option value="Super Admin">Super Admin (All Tenants)</option>
                     <option value="Admin Collaborator">Admin Collaborator (Configurable)</option>
@@ -551,53 +551,53 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">Explicit Assigned Scope *</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Explicit Assigned Scope *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Own tenant (Mulago Care)"
                     value={tenantScope}
                     onChange={(e) => setTenantScope(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-sky-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">PSU / NDA License No.</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">PSU / NDA License No.</label>
                   <input
                     type="text"
                     placeholder="PSU/REG/2024/..."
                     value={psuNo}
                     onChange={(e) => setPsuNo(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-sky-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-sky-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1">Access Expiration (Time-Bound)</label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Access Expiration (Time-Bound)</label>
                   <input
                     type="date"
                     value={expiresAt}
                     onChange={(e) => setExpiresAt(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-sky-500"
+                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white font-mono focus:outline-none focus:border-sky-500"
                   />
                 </div>
               </div>
 
               {/* Granular Permissions */}
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2.5">
-                <span className="text-xs font-bold text-white uppercase tracking-wider block">
+              <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2.5">
+                <span className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider block">
                   Fine-Grained Permissions
                 </span>
-                <div className="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                <div className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-slate-300">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={permissions.canDispense}
                       onChange={(e) => setPermissions({ ...permissions, canDispense: e.target.checked })}
-                      className="rounded border-slate-700 text-sky-500"
+                      className="rounded border-slate-300 dark:border-slate-700 text-sky-500"
                     />
                     Prescription Dispensing
                   </label>
@@ -606,7 +606,7 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                       type="checkbox"
                       checked={permissions.canQuarantine}
                       onChange={(e) => setPermissions({ ...permissions, canQuarantine: e.target.checked })}
-                      className="rounded border-slate-700 text-sky-500"
+                      className="rounded border-slate-300 dark:border-slate-700 text-sky-500"
                     />
                     Stock Quarantine Control
                   </label>
@@ -615,7 +615,7 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                       type="checkbox"
                       checked={permissions.canOverrideStock}
                       onChange={(e) => setPermissions({ ...permissions, canOverrideStock: e.target.checked })}
-                      className="rounded border-slate-700 text-sky-500"
+                      className="rounded border-slate-300 dark:border-slate-700 text-sky-500"
                     />
                     Clinical Dispense Overrides
                   </label>
@@ -624,18 +624,18 @@ export const CollaboratorManagement: React.FC<CollaboratorManagementProps> = ({
                       type="checkbox"
                       checked={permissions.canViewFinancials}
                       onChange={(e) => setPermissions({ ...permissions, canViewFinancials: e.target.checked })}
-                      className="rounded border-slate-700 text-sky-500"
+                      className="rounded border-slate-300 dark:border-slate-700 text-sky-500"
                     />
                     Financials &amp; Cash-Up
                   </label>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-800 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsInviteOpen(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl transition"
                 >
                   Cancel
                 </button>

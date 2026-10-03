@@ -200,52 +200,52 @@ export const AssistivePrescriptionAIDesk: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Safety Doctrine Hero Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-900/50 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none" />
+      <div className="bg-gradient-to-r from-indigo-50/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 border border-indigo-100 dark:border-indigo-900/50 rounded-3xl p-6 text-slate-900 dark:text-white shadow-sm dark:shadow-xl relative overflow-hidden transition-colors">
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/5 dark:from-indigo-500/20 via-transparent to-transparent pointer-events-none" />
         
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="bg-indigo-100 dark:bg-indigo-500/20 border border-indigo-200 dark:border-indigo-400/40 text-indigo-800 dark:text-indigo-300 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 Assistive AI / OCR Clinical Safety Doctrine
               </span>
-              <span className="bg-rose-500/20 border border-rose-400/40 text-rose-300 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5">
-                <Lock className="w-3 h-3" /> Auto-Approval Strictly Prohibited
+              <span className="bg-rose-100 dark:bg-rose-500/20 border border-rose-200 dark:border-rose-400/40 text-rose-800 dark:text-rose-300 text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full flex items-center gap-1.5">
+                <Lock className="w-3 h-3 text-rose-600 dark:text-rose-400" /> Auto-Approval Strictly Prohibited
               </span>
             </div>
-            <h2 className="text-2xl font-black tracking-tight text-white">
+            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
               AI Vision &amp; Prescription Verification Desk
             </h2>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
               Optical Character Recognition (OCR) deciphers handwriting, matches active stock formulations, and parses dosing regimens. System safety algorithms flag interactions, duplications, and dosage deviations. <strong>A licensed human pharmacist retains exclusive authority to approve or reject.</strong>
             </p>
           </div>
 
           {/* 3-Tier Rule Cards */}
-          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 bg-white/5 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 shrink-0">
-            <div className="bg-indigo-900/40 p-3 rounded-xl border border-indigo-500/30 text-center">
-              <div className="text-[10px] font-black text-indigo-300 uppercase tracking-wide">1. AI Model</div>
-              <div className="text-sm font-black text-indigo-100 flex items-center justify-center gap-1 mt-0.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Suggests
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 bg-white dark:bg-white/5 backdrop-blur-md p-3.5 rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs dark:shadow-none shrink-0">
+            <div className="bg-indigo-50 dark:bg-indigo-900/40 p-3 rounded-xl border border-indigo-200 dark:border-indigo-500/30 text-center">
+              <div className="text-[10px] font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-wide">1. AI Model</div>
+              <div className="text-sm font-black text-indigo-900 dark:text-indigo-100 flex items-center justify-center gap-1 mt-0.5">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> Suggests
               </div>
-              <p className="text-[9px] text-indigo-200/70 mt-1">OCR &amp; Handwriting decipher</p>
+              <p className="text-[9px] text-indigo-600/80 dark:text-indigo-200/70 mt-1">OCR &amp; Handwriting decipher</p>
             </div>
 
-            <div className="bg-amber-900/40 p-3 rounded-xl border border-amber-500/30 text-center">
-              <div className="text-[10px] font-black text-amber-300 uppercase tracking-wide">2. Safety Rules</div>
-              <div className="text-sm font-black text-amber-100 flex items-center justify-center gap-1 mt-0.5">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" /> Flags
+            <div className="bg-amber-50 dark:bg-amber-900/40 p-3 rounded-xl border border-amber-200 dark:border-amber-500/30 text-center">
+              <div className="text-[10px] font-black text-amber-700 dark:text-amber-300 uppercase tracking-wide">2. Safety Rules</div>
+              <div className="text-sm font-black text-amber-900 dark:text-amber-100 flex items-center justify-center gap-1 mt-0.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> Flags
               </div>
-              <p className="text-[9px] text-amber-200/70 mt-1">Duplicates, DDI &amp; Dosing</p>
+              <p className="text-[9px] text-amber-600/80 dark:text-amber-200/70 mt-1">Duplicates, DDI &amp; Dosing</p>
             </div>
 
-            <div className="bg-emerald-900/40 p-3 rounded-xl border border-emerald-500/30 text-center">
-              <div className="text-[10px] font-black text-emerald-300 uppercase tracking-wide">3. Pharmacist</div>
-              <div className="text-sm font-black text-emerald-100 flex items-center justify-center gap-1 mt-0.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Decides
+            <div className="bg-emerald-50 dark:bg-emerald-900/40 p-3 rounded-xl border border-emerald-200 dark:border-emerald-500/30 text-center">
+              <div className="text-[10px] font-black text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">3. Pharmacist</div>
+              <div className="text-sm font-black text-emerald-900 dark:text-emerald-100 flex items-center justify-center gap-1 mt-0.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Decides
               </div>
-              <p className="text-[9px] text-emerald-200/70 mt-1">Mandatory clinical sign-off</p>
+              <p className="text-[9px] text-emerald-600/80 dark:text-emerald-200/70 mt-1">Mandatory clinical sign-off</p>
             </div>
           </div>
         </div>

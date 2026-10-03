@@ -582,6 +582,30 @@ export const advancedStockService = {
     return newRes;
   },
 
+  reserveStock(params: {
+    drugId: string;
+    pharmacyId?: string;
+    pharmacyName?: string;
+    quantity: number;
+    customerPhone?: string;
+    patientId?: string;
+    patientName?: string;
+    brandName?: string;
+    unitPriceUgx?: number;
+  }): StockReservation {
+    return this.createReservation({
+      pharmacyId: params.pharmacyId || 'client-001',
+      pharmacyName: params.pharmacyName || 'Kampala City Pharmacy',
+      patientId: params.patientId || 'patient-guest',
+      patientName: params.patientName || 'Online Order Patient',
+      patientPhone: params.customerPhone || '+256 700 000 000',
+      drugId: params.drugId,
+      brandName: params.brandName || 'Prescribed Medicine',
+      quantityReserved: params.quantity || 1,
+      unitPriceUgx: params.unitPriceUgx || 15000,
+    });
+  },
+
   getReservations(params?: {
     patientPhoneOrId?: string;
     pharmacyId?: string;

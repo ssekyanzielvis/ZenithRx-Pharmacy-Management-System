@@ -334,25 +334,25 @@ export const DispensingRegister: React.FC<DispensingRegisterProps> = ({
   return (
     <div className="space-y-6">
       {/* ── Header Cockpit ──────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-700/80 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute -right-12 -top-12 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="bg-gradient-to-r from-rose-50/70 via-indigo-50/50 to-slate-50 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-6 text-slate-900 dark:text-white shadow-sm dark:shadow-xl relative overflow-hidden transition-colors">
+        <div className="absolute -right-12 -top-12 w-64 h-64 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400">
+            <div className="flex items-center gap-3 mb-2 flex-wrap">
+              <div className="p-2.5 bg-red-100 dark:bg-red-500/20 border border-red-200 dark:border-red-500/30 rounded-xl text-red-600 dark:text-red-400">
                 <ShieldAlert className="w-6 h-6" />
               </div>
-              <span className="px-3 py-1 bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1.5">
+              <span className="px-3 py-1 bg-red-100 dark:bg-red-500/20 border border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-300 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5" /> NDA Class A & Schedule I-IV Narcotics Safe
               </span>
-              <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-full flex items-center gap-1.5">
+              <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold rounded-full flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" /> Immutable SHA-256 Chained Ledger
               </span>
             </div>
-            <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-white flex items-center gap-2">
+            <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
               Controlled & Classified Medicine Governance
             </h1>
-            <p className="text-slate-300 text-sm mt-1 max-w-2xl">
+            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1 max-w-2xl">
               Strict compliance register under the National Drug Authority (NDA) Uganda Pharmacy & Poisons Act.
               Sequential poison book auditing, running balance verification, and double-blind safe reconciliation.
             </p>
@@ -361,19 +361,19 @@ export const DispensingRegister: React.FC<DispensingRegisterProps> = ({
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setIsControlledDispenseModalOpen(true)}
-              className="px-4 py-2.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white text-sm font-bold rounded-xl shadow-lg hover:shadow-red-600/30 flex items-center gap-2 transition-all"
+              className="px-4 py-2.5 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white text-sm font-bold rounded-xl shadow-md hover:shadow-red-600/30 flex items-center gap-2 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" /> Dispense Controlled Drug
             </button>
             <button
               onClick={() => setIsReconciliationModalOpen(true)}
-              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-md flex items-center gap-2 transition-all"
+              className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl shadow-md flex items-center gap-2 transition-all cursor-pointer"
             >
               <Boxes className="w-4 h-4" /> Initiate Safe Reconciliation
             </button>
             <button
               onClick={handleDownloadNdaForm5}
-              className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm font-semibold rounded-xl flex items-center gap-2 transition-all"
+              className="px-3.5 py-2.5 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl flex items-center gap-2 shadow-xs transition-all cursor-pointer"
             >
               <Download className="w-4 h-4" /> NDA Form 5 Return
             </button>
@@ -381,41 +381,41 @@ export const DispensingRegister: React.FC<DispensingRegisterProps> = ({
         </div>
 
         {/* Top KPI Metric Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-700/60">
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700/60">
+          <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3.5 shadow-xs dark:shadow-none">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
               <span>Safe Stock Units</span>
-              <Key className="w-4 h-4 text-amber-400" />
+              <Key className="w-4 h-4 text-amber-500 dark:text-amber-400" />
             </div>
-            <div className="text-2xl font-black text-white mt-1">{totalControlledStockHeld.toLocaleString()}</div>
-            <div className="text-[11px] text-amber-300 font-semibold mt-0.5">Double-Lock Vaults</div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{totalControlledStockHeld.toLocaleString()}</div>
+            <div className="text-[11px] text-amber-600 dark:text-amber-300 font-semibold mt-0.5">Double-Lock Vaults</div>
           </div>
 
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+          <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3.5 shadow-xs dark:shadow-none">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
               <span>Sequential Records</span>
-              <Hash className="w-4 h-4 text-blue-400" />
+              <Hash className="w-4 h-4 text-blue-500 dark:text-blue-400" />
             </div>
-            <div className="text-2xl font-black text-white mt-1">{totalSequentialEntries}</div>
-            <div className="text-[11px] text-blue-300 font-semibold mt-0.5">Monotonic Append-Only</div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{totalSequentialEntries}</div>
+            <div className="text-[11px] text-blue-600 dark:text-blue-300 font-semibold mt-0.5">Monotonic Append-Only</div>
           </div>
 
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+          <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3.5 shadow-xs dark:shadow-none">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
               <span>Under Investigation</span>
-              <AlertTriangle className="w-4 h-4 text-red-400" />
+              <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400" />
             </div>
-            <div className="text-2xl font-black text-red-400 mt-1">{activeDeficitInvestigations}</div>
-            <div className="text-[11px] text-red-300 font-semibold mt-0.5">Active Variance Audits</div>
+            <div className="text-2xl font-black text-red-600 dark:text-red-400 mt-1">{activeDeficitInvestigations}</div>
+            <div className="text-[11px] text-red-600 dark:text-red-300 font-semibold mt-0.5">Active Variance Audits</div>
           </div>
 
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+          <div className="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3.5 shadow-xs dark:shadow-none">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
               <span>Dispensed Qty (YTD)</span>
-              <UserCheck className="w-4 h-4 text-emerald-400" />
+              <UserCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             </div>
-            <div className="text-2xl font-black text-emerald-400 mt-1">{totalDispensedControlled.toLocaleString()}</div>
-            <div className="text-[11px] text-emerald-300 font-semibold mt-0.5">100% Rx Verified</div>
+            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{totalDispensedControlled.toLocaleString()}</div>
+            <div className="text-[11px] text-emerald-600 dark:text-emerald-300 font-semibold mt-0.5">100% Rx Verified</div>
           </div>
         </div>
       </div>

@@ -163,21 +163,21 @@ export const PrescriptionSubstitutionConsole: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-slate-900 border border-sky-800/40 rounded-2xl p-6 shadow-2xl text-white">
+      <div className="bg-white dark:bg-gradient-to-r dark:from-slate-900 dark:via-sky-950 dark:to-slate-900 border border-slate-200 dark:border-sky-800/40 rounded-2xl p-6 shadow-sm dark:shadow-2xl text-slate-900 dark:text-white transition-colors duration-200">
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-sky-600/30 rounded-xl border border-sky-400/30 text-sky-400">
+              <div className="p-3 bg-sky-100 dark:bg-sky-600/30 rounded-xl border border-sky-300 dark:border-sky-400/30 text-sky-600 dark:text-sky-400">
                 <Repeat className="w-8 h-8 animate-pulse" />
               </div>
               <div>
-                <h1 className="text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                   Clinical Prescription Substitution &amp; Interchange
-                  <span className="text-xs uppercase px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-400 border border-sky-500/30 font-semibold">
+                  <span className="text-xs uppercase px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-400 border border-sky-300 dark:border-sky-500/30 font-semibold">
                     Bioequivalent &amp; Cost Control
                   </span>
                 </h1>
-                <p className="text-sm text-sky-200/80">
+                <p className="text-sm text-slate-600 dark:text-sky-200/80">
                   Prescribed vs Substitute Comparison • Patient Consent • Prescriber Authorization (NTI Rules) • Statutory Labeling
                 </p>
               </div>
@@ -188,7 +188,7 @@ export const PrescriptionSubstitutionConsole: React.FC = () => {
             <button
               onClick={loadSubstitutions}
               disabled={loading}
-              className="px-3.5 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-semibold text-slate-200 transition flex items-center gap-2"
+              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 transition flex items-center gap-2"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               Refresh
@@ -197,55 +197,55 @@ export const PrescriptionSubstitutionConsole: React.FC = () => {
         </div>
 
         {/* Real-time Telemetry Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-sky-800/40">
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-sky-900/40">
-            <div className="flex items-center justify-between text-xs text-sky-300/80 mb-1">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-sky-800/40">
+          <div className="bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-sky-900/40">
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-sky-300/80 mb-1">
               <span>Substitutions Processed</span>
-              <Repeat className="w-4 h-4 text-emerald-400" />
+              <Repeat className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="text-xl font-black text-emerald-400 flex items-baseline gap-1.5">
+            <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 flex items-baseline gap-1.5">
               {substitutions.length} Interchanges
             </div>
-            <div className="text-[11px] text-emerald-400/90 font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] text-emerald-700 dark:text-emerald-400/90 font-medium flex items-center gap-1 mt-0.5">
               <CheckCircle className="w-3 h-3" /> 100% Verified by Pharmacist
             </div>
           </div>
 
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-sky-900/40">
-            <div className="flex items-center justify-between text-xs text-sky-300/80 mb-1">
+          <div className="bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-sky-900/40">
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-sky-300/80 mb-1">
               <span>Patient Cost Savings</span>
-              <TrendingDown className="w-4 h-4 text-cyan-400" />
+              <TrendingDown className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
             </div>
-            <div className="text-xl font-black text-cyan-400 flex items-baseline gap-1.5">
-              UGX 4.85M <span className="text-xs font-normal text-slate-400">(Saved)</span>
+            <div className="text-xl font-black text-cyan-600 dark:text-cyan-400 flex items-baseline gap-1.5">
+              UGX 4.85M <span className="text-xs font-normal text-slate-500 dark:text-slate-400">(Saved)</span>
             </div>
-            <div className="text-[11px] text-cyan-400/90 font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] text-cyan-700 dark:text-cyan-400/90 font-medium flex items-center gap-1 mt-0.5">
               <DollarSign className="w-3 h-3" /> Avg. 57.1% cost reduction
             </div>
           </div>
 
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-sky-900/40">
-            <div className="flex items-center justify-between text-xs text-sky-300/80 mb-1">
+          <div className="bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-sky-900/40">
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-sky-300/80 mb-1">
               <span>Patient Consent Rate</span>
-              <UserCheck className="w-4 h-4 text-amber-400" />
+              <UserCheck className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
-            <div className="text-xl font-black text-amber-300 flex items-baseline gap-1.5">
+            <div className="text-xl font-black text-amber-600 dark:text-amber-300 flex items-baseline gap-1.5">
               100% Consented
             </div>
-            <div className="text-[11px] text-amber-300/80 font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] text-amber-700 dark:text-amber-300/80 font-medium flex items-center gap-1 mt-0.5">
               <ShieldCheck className="w-3 h-3" /> Signed &amp; Counseled at POS
             </div>
           </div>
 
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-sky-900/40">
-            <div className="flex items-center justify-between text-xs text-sky-300/80 mb-1">
+          <div className="bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200 dark:border-sky-900/40">
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-sky-300/80 mb-1">
               <span>NTI Prescriber Sign-offs</span>
-              <Stethoscope className="w-4 h-4 text-purple-400" />
+              <Stethoscope className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             </div>
-            <div className="text-xl font-black text-purple-300 flex items-baseline gap-1.5">
+            <div className="text-xl font-black text-purple-600 dark:text-purple-300 flex items-baseline gap-1.5">
               100% Compliant
             </div>
-            <div className="text-[11px] text-purple-300/80 font-medium flex items-center gap-1 mt-0.5">
+            <div className="text-[11px] text-purple-700 dark:text-purple-300/80 font-medium flex items-center gap-1 mt-0.5">
               <Lock className="w-3 h-3" /> Mandatory NTI Safety Locks
             </div>
           </div>

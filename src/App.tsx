@@ -36,9 +36,62 @@ import { LandingPage } from './components/LandingPage';
 import { SubscriptionPage } from './components/auth/SubscriptionPage';
 
 // ─── Components ───────────────────────────────────────────────────────────────
+import { ArrowLeft, LayoutDashboard } from 'lucide-react';
 import { Header }                from './components/Header';
 import { Sidebar }               from './components/Sidebar';
+import { MainRoleDashboard }     from './components/MainRoleDashboard';
 import { PromoBannerView }       from './components/PromoBannerView';
+
+const getTabLabel = (tab: ModuleTab): string => {
+  switch (tab) {
+    case 'overview': return 'Main Dashboard';
+    case 'pos': return 'Point of Sale';
+    case 'prescriptions': return 'Prescriptions & Dispensing';
+    case 'dispensingRegister': return 'NDA Dispensing Register';
+    case 'prescriptionSubstitutions': return 'Generic Substitutions';
+    case 'pharmacistInterventions': return 'Pharmacist Interventions';
+    case 'adrReporting': return 'ADR & Pharmacovigilance';
+    case 'inventory': return 'Stock Inventory';
+    case 'batchManagement': return 'Batch Management & FEFO';
+    case 'expiry': return 'Expiry Alerts';
+    case 'reordering': return 'Automated Reordering';
+    case 'stockReconciliation': return 'Stock Reconciliation';
+    case 'returnsManagement': return 'Returns Management';
+    case 'medicineRecall': return 'Medicine Recall & Quarantine';
+    case 'storageAndTransfers': return 'Storage & Stock Transfers';
+    case 'supplierManagement': return 'Supplier Directory';
+    case 'customers': return 'Customer Profiles';
+    case 'onlineOrders': return 'Online Orders Queue';
+    case 'procureToPay': return 'Procure-to-Pay (P2P)';
+    case 'invoiceReconciliation': return 'Invoice 3-Way Reconciliation';
+    case 'financialAccounting': return 'Financial Accounting & P&L';
+    case 'reports': return 'Sales & Revenue Reports';
+    case 'insurance': return 'Insurance Schemes';
+    case 'collaborators': return 'Staff & Collaborators';
+    case 'ownerDashboard': return 'Owner Executive Cockpit';
+    case 'adminControlPlane': return 'Superuser Control Plane';
+    case 'adminMatrix': return 'Tenant Feature Matrix';
+    case 'adminUsers': return 'Branch Staff Accounts';
+    case 'adminBilling': return 'Package & Billing Control';
+    case 'adminRegister': return 'Register Pharmacy Tenant';
+    case 'adminPharmacyRegistry': return 'Subscribed Pharmacies';
+    case 'adminCapacity': return 'System Capacity & Upgrades';
+    case 'adminMessagingHub': return 'Multi-Tenant Messaging Hub';
+    case 'adminRevenueLedger': return 'Revenue & SaaS Ledger';
+    case 'adminQuantumWorkbench': return 'Quantum Systems Workbench';
+    case 'securityHardening': return 'Security & SIEM Radar';
+    case 'backupDisasterRecovery': return 'Backup & Disaster Recovery';
+    case 'dataPrivacy': return 'Data Privacy & PHI';
+    case 'audit': return 'System Audit Logs';
+    case 'adminConsultation': return 'Teleconsultation Hub';
+    case 'adminAdherenceRefill': return 'Adherence Refill Tracker';
+    case 'adminOrdersDelivery': return 'Delivery Logistics Hub';
+    case 'pharmacyServices': return 'Pharmacy Services';
+    case 'customerSupport': return 'Customer Support Desk';
+    case 'adminNotifications': return 'Notification Center';
+    default: return String(tab);
+  }
+};
 import { PrescriptionProcessing }from './components/PrescriptionProcessing';
 import { StockInventory }        from './components/StockInventory';
 import { ExpiryAlerts }          from './components/ExpiryAlerts';
@@ -146,6 +199,7 @@ export default function App() {
   };
 
   const [activeTab, setActiveTab]         = useState<ModuleTab>(getInitialTab);
+  const [navigationHistory, setNavigationHistory] = useState<ModuleTab[]>([]);
   const [showLanding, setShowLanding]     = useState<boolean>(!window.location.hash.includes('app'));
   const [showPromoFlyer, setShowPromoFlyer] = useState<boolean>(false);
   const [dataLoading, setDataLoading]     = useState(false);
@@ -154,10 +208,31 @@ export default function App() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
 
   const handleTabChange = (tab: ModuleTab) => {
+    if (tab !== activeTab) {
+      setNavigationHistory((prev) => [...prev, activeTab]);
+    }
     setActiveTab(tab);
     setShowPromoFlyer(false);
     if (window.history && window.history.pushState) {
       window.history.pushState(null, '', `/${tab}`);
+    }
+  };
+
+  const handleGoBack = () => {
+    if (navigationHistory.length > 0) {
+      const prevTab = navigationHistory[navigationHistory.length - 1];
+      setNavigationHistory((prev) => prev.slice(0, prev.length - 1));
+      setActiveTab(prevTab);
+      setShowPromoFlyer(false);
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, '', `/${prevTab}`);
+      }
+    } else {
+      setActiveTab('overview');
+      setShowPromoFlyer(false);
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, '', '/overview');
+      }
     }
   };
 
@@ -485,12 +560,11 @@ export default function App() {
         setSidebarOpen={setSidebarOpen}
         user={auth.user}
         onSignOut={auth.signOut}
-        onSwitchRoleDemo={auth.switchRoleDemo}
       />
 
-      {/* Main Layout Container with Left Sidebar (Only visible when operating active system modules) */}
-      <div className="flex flex-1 relative min-h-0">
-        {activeTab !== 'overview' && !showPromoFlyer && (
+      {/* Main Layout Container with Left Sidebar */}
+      <div className="flex flex-1 relative min-h-[calc(100vh-57px)]">
+        {!showPromoFlyer && (
           <Sidebar
             activeTab={activeTab}
             setActiveTab={handleTabChange}
@@ -517,12 +591,66 @@ export default function App() {
           />
         ) : (
           <div>
+            {/* Back Button Navigation Bar on every subpage/module */}
+            {activeTab !== 'overview' && (
+              <div className="mb-5 flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#0D1A2A] border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 px-4 shadow-xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <button
+                    onClick={handleGoBack}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 dark:hover:text-emerald-400 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all cursor-pointer shadow-xs group shrink-0"
+                    title="Return to previous page"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform text-emerald-600 dark:text-emerald-400" />
+                    <span>Back to Previous Page</span>
+                    {navigationHistory.length > 0 && (
+                      <span className="hidden md:inline text-[11px] text-slate-400 dark:text-slate-500 font-normal">
+                        ({getTabLabel(navigationHistory[navigationHistory.length - 1])})
+                      </span>
+                    )}
+                  </button>
+
+                  <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block" />
+
+                  {/* Breadcrumbs */}
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 truncate">
+                    <button
+                      onClick={() => handleTabChange('overview')}
+                      className="hover:text-emerald-600 dark:hover:text-emerald-400 font-medium transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <LayoutDashboard className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                      <span className="hidden sm:inline">Dashboard</span>
+                    </button>
+                    <span>/</span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100 truncate">
+                      {getTabLabel(activeTab)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => handleTabChange('overview')}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    title="Return to Main Dashboard"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span className="hidden sm:inline">Main Dashboard</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'overview' && (
-              <PromoBannerView
-                onSelectFeature={handleSelectFeatureFromPoster}
-                openBarcodeScanner={() => setIsBarcodeOpen(true)}
+              <MainRoleDashboard
+                user={auth.user}
                 activeClient={activeClient}
-                setActiveClient={setActiveClient}
+                clients={INITIAL_CLIENT_SUBSCRIPTIONS}
+                onNavigateTab={handleTabChange}
+                lowStockCount={lowStockCount}
+                expiringCount={expiringCount}
+                pendingRxCount={pendingRxCount}
+                onOpenBarcodeScanner={() => setIsBarcodeOpen(true)}
+                onOpenAiCounseling={() => setIsAiModalOpen(true)}
                 onOpenFeedbackModal={() => setIsFeedbackModalOpen(true)}
               />
             )}

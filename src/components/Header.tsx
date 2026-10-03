@@ -42,7 +42,6 @@ interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
   user?: AuthUser | null;
   onSignOut?: () => void;
-  onSwitchRoleDemo?: (role: UserRoleRank | 'Super Admin') => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -63,10 +62,8 @@ export const Header: React.FC<HeaderProps> = ({
   setSidebarOpen,
   user,
   onSignOut,
-  onSwitchRoleDemo,
 }) => {
   const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
 
   const isLandingPage = activeTab === 'overview' || showPromoFlyer;
 
@@ -344,82 +341,23 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden xl:inline">Platform Overview</span>
             </button>
 
-            {/* User Profile & Role Switcher / PoLP Inspector */}
+            {/* User Profile & Authenticated Role Indicator */}
             {user && (
               <div className="relative flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
                 <div className="hidden lg:flex flex-col text-right leading-none">
                   <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-[130px]">
                     {user.fullName}
                   </span>
-                  
-                  {onSwitchRoleDemo ? (
-                    <button
-                      onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                      className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border mt-0.5 flex items-center gap-1 cursor-pointer transition-all ${getRoleBadgeStyle(
-                        user.rankRole
-                      )}`}
-                      title="Click to test different staff roles under Principle of Least Privilege (PoLP)"
-                    >
-                      <UserCheck className="w-2.5 h-2.5" />
-                      <span className="truncate max-w-[110px]">{user.rankRole}</span>
-                      <ChevronDown className="w-2.5 h-2.5" />
-                    </button>
-                  ) : (
-                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold truncate max-w-[130px]">
-                      {user.rankRole}
-                    </span>
-                  )}
+                  <span
+                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border mt-0.5 flex items-center gap-1 select-none ${getRoleBadgeStyle(
+                      user.rankRole
+                    )}`}
+                    title={`Assigned Role: ${user.rankRole}`}
+                  >
+                    <UserCheck className="w-2.5 h-2.5" />
+                    <span className="truncate max-w-[110px]">{user.rankRole}</span>
+                  </span>
                 </div>
-
-                {/* Role Switcher Menu */}
-                {roleDropdownOpen && onSwitchRoleDemo && (
-                  <div className="absolute top-full right-0 mt-2 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 space-y-1">
-                    <div className="px-3 py-1.5 border-b border-slate-100 dark:border-slate-800">
-                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        Principle of Least Privilege (PoLP) Tester
-                      </p>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                        Switch persona to inspect privilege boundaries:
-                      </p>
-                    </div>
-
-                    {[
-                      { role: 'Supervising Pharmacist' as UserRoleRank, desc: 'Full clinical, staff accounts, reorders, financial reports' },
-                      { role: 'Assistant Pharmacist' as UserRoleRank, desc: 'Dispensing & insurance, no staff or financial margin access' },
-                      { role: 'Pharmacy Technician' as UserRoleRank, desc: 'Dispensing & stock management only' },
-                      { role: 'POS Cashier / Dispenser' as UserRoleRank, desc: 'Strictly POS retail checkout only' },
-                      { role: 'Store & Inventory Manager' as UserRoleRank, desc: 'Stock inventory & purchase orders only' },
-                      { role: 'Finance & Claims Officer' as UserRoleRank, desc: 'Financial reports & insurance schemes only' },
-                      { role: 'Intern Pharmacist' as UserRoleRank, desc: 'Supervised dispensing and AI counseling' },
-                      { role: 'Super Admin' as const, desc: 'Quantum Networks Systems Engineering Ring 0 clearance' },
-                    ].map((item) => (
-                      <button
-                        key={item.role}
-                        onClick={() => {
-                          onSwitchRoleDemo(item.role);
-                          setRoleDropdownOpen(false);
-                        }}
-                        className={`w-full text-left p-2 rounded-xl text-xs flex flex-col transition-all cursor-pointer ${
-                          user.rankRole === item.role
-                            ? 'bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 font-bold text-emerald-900 dark:text-emerald-200'
-                            : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs">{item.role}</span>
-                          {user.rankRole === item.role && (
-                            <span className="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded-full">
-                              Active
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-normal leading-tight mt-0.5">
-                          {item.desc}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
 
                 {onSignOut && (
                   <button

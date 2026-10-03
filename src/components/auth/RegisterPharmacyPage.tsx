@@ -100,17 +100,19 @@ export const RegisterPharmacyPage: React.FC<RegisterPharmacyPageProps> = ({
   // If email verification is pending, render the dedicated EmailVerificationScreen
   if (auth.pendingEmailVerification) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#070F1C] flex items-center justify-center p-4 transition-colors duration-200">
-        <EmailVerificationScreen
-          email={auth.pendingEmailVerification}
-          pharmacyName={pharmacyName || 'Your Registered Pharmacy'}
-          auth={auth}
-          onVerifiedSuccess={() => {
-            auth.setPendingEmailVerification(null);
-          }}
-          onBackToLogin={onSwitchToLogin}
-        />
-      </div>
+      <EmailVerificationScreen
+        email={auth.pendingEmailVerification}
+        pharmacyName={pharmacyName || 'Your Registered Pharmacy'}
+        auth={auth}
+        onVerifiedSuccess={() => {
+          auth.setPendingEmailVerification(null);
+        }}
+        onBackToLogin={onSwitchToLogin}
+        onChangeEmail={() => {
+          auth.setPendingEmailVerification(null);
+          setCurrentStep(2);
+        }}
+      />
     );
   }
 

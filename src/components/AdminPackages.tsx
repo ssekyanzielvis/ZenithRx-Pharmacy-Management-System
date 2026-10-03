@@ -632,21 +632,21 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
       )}
 
       {/* Quantum Networks Engineering Personnel Identity Bar */}
-      <div className="bg-gradient-to-r from-[#071322] via-[#0B1E36] to-[#0A1829] border border-cyan-500/40 p-4 rounded-3xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-white">
+      <div className="bg-white dark:bg-gradient-to-r dark:from-[#071322] dark:via-[#0B1E36] dark:to-[#0A1829] border border-slate-200 dark:border-cyan-500/40 p-4 rounded-3xl shadow-xs dark:shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-900 dark:text-white transition-colors duration-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+          <div className="w-10 h-10 rounded-xl bg-cyan-50 dark:bg-cyan-500/20 border border-cyan-200 dark:border-cyan-500/40 flex items-center justify-center text-cyan-600 dark:text-cyan-400 shrink-0">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black tracking-widest text-cyan-400 uppercase">
+              <span className="text-[10px] font-black tracking-widest text-cyan-700 dark:text-cyan-400 uppercase">
                 QUANTUM NETWORKS LTD • PRINCIPAL SYSTEMS ARCHITECT
               </span>
-              <span className="bg-emerald-500/20 text-emerald-300 text-[9px] px-2 py-0.2 rounded-full font-bold font-mono">
+              <span className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[9px] px-2 py-0.2 rounded-full font-bold font-mono">
                 ROOT VERIFIED
               </span>
             </div>
-            <h3 className="text-sm font-bold text-white">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
               {QUANTUM_NETWORKS_LEAD_ENGINEER.fullName} ({QUANTUM_NETWORKS_LEAD_ENGINEER.employeeId})
             </h3>
           </div>
@@ -655,10 +655,10 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab('quantumWorkbench')}
-            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'quantumWorkbench'
-                ? 'bg-cyan-500 text-slate-950 font-black shadow-md shadow-cyan-500/30'
-                : 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-500/20'
+                ? 'bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 font-black shadow-md shadow-cyan-500/30'
+                : 'bg-cyan-50 dark:bg-cyan-500/10 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30 hover:bg-cyan-100 dark:hover:bg-cyan-500/20'
             }`}
           >
             <Zap className="w-3.5 h-3.5" /> Systems Workbench
@@ -669,7 +669,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               terminateQuantumEngineerSession();
               setIsQuantumAuthorized(false);
             }}
-            className="px-3 py-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 border border-red-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-1.5 bg-rose-50 dark:bg-red-950/60 hover:bg-rose-100 dark:hover:bg-red-900 text-rose-700 dark:text-red-300 border border-rose-200 dark:border-red-500/40 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
             title="Lock Console & End Engineering Session"
           >
             <Lock className="w-3.5 h-3.5" /> Lock Console
@@ -677,83 +677,84 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
         </div>
       </div>
 
-      {/* Main Admin Dashboard Header */}
-      <div className="bg-gradient-to-r from-[#0B1E36] via-[#102C50] to-[#0D223E] rounded-3xl p-6 text-white shadow-xl border border-[#1E3B63] relative overflow-hidden">
-        <div className="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
-          <Shield className="w-80 h-80 text-cyan-300" />
+      {/* Main Admin Dashboard Header & Cards - Only visible on the Dashboard overview, not inside individual subtabs */}
+      {!subTab && (
+        <div className="bg-white dark:bg-gradient-to-r dark:from-[#0B1E36] dark:via-[#102C50] dark:to-[#0D223E] rounded-3xl p-6 text-slate-900 dark:text-white shadow-xs dark:shadow-xl border border-slate-200 dark:border-[#1E3B63] relative overflow-hidden transition-colors duration-200">
+          <div className="absolute -right-10 -bottom-10 opacity-5 dark:opacity-10 pointer-events-none">
+          <Shield className="w-80 h-80 text-cyan-600 dark:text-cyan-300" />
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div>
-            <div className="flex items-center gap-2.5 mb-2">
-              <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-widest flex items-center gap-1">
-                <Shield className="w-3 h-3 text-cyan-400" />
+            <div className="flex items-center gap-2.5 mb-2 flex-wrap">
+              <span className="bg-cyan-50 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/30 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-widest flex items-center gap-1">
+                <Shield className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
                 QUANTUM NETWORKS SYSTEM ARCHITECTURE CONSOLE
               </span>
-              <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full font-semibold">
+              <span className="bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-transparent text-[10px] px-2 py-0.5 rounded-full font-semibold">
                 Multi-Tenant Engine v3.2
               </span>
             </div>
-            <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Platform Governance &amp; Package Customizer
             </h2>
-            <p className="text-xs text-slate-300 max-w-2xl mt-1 leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-300 max-w-2xl mt-1 leading-relaxed">
               Global system control suite engineered by Quantum Networks Ltd to govern multi-tenant security, subscription quotas, and NDA Cap 206 compliance.
             </p>
           </div>
 
           {/* Key Admin KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
-              <p className="text-[10px] uppercase font-bold text-sky-200">Subscribed Pharmacies</p>
-              <p className="text-xl font-black text-white mt-0.5">{clients.length} Clients</p>
+            <div className="bg-slate-50 dark:bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-slate-200 dark:border-white/10 text-center">
+              <p className="text-[10px] uppercase font-bold text-slate-500 dark:text-sky-200">Subscribed Pharmacies</p>
+              <p className="text-xl font-black text-slate-900 dark:text-white mt-0.5">{clients.length} Clients</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
-              <p className="text-[10px] uppercase font-bold text-emerald-200">Monthly Revenue</p>
-              <p className="text-xl font-black text-emerald-300 mt-0.5">
+            <div className="bg-slate-50 dark:bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-slate-200 dark:border-white/10 text-center">
+              <p className="text-[10px] uppercase font-bold text-emerald-700 dark:text-emerald-200">Monthly Revenue</p>
+              <p className="text-xl font-black text-emerald-700 dark:text-emerald-300 mt-0.5">
                 UGX {totalMonthlyRevenueUGX.toLocaleString()}
               </p>
             </div>
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center col-span-2 sm:col-span-1">
-              <p className="text-[10px] uppercase font-bold text-cyan-200">User Seats Quota</p>
-              <p className="text-xl font-black text-cyan-300 mt-0.5">{totalMaxUsersCombined} Users</p>
+            <div className="bg-slate-50 dark:bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-slate-200 dark:border-white/10 text-center col-span-2 sm:col-span-1">
+              <p className="text-[10px] uppercase font-bold text-cyan-700 dark:text-cyan-200">User Seats Quota</p>
+              <p className="text-xl font-black text-cyan-700 dark:text-cyan-300 mt-0.5">{totalMaxUsersCombined} Users</p>
             </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
-                <p className="text-[10px] uppercase font-bold text-violet-200">Staff Accounts</p>
-                <p className="text-xl font-black text-violet-300 mt-0.5">{totalUsersCombined}</p>
+            <div className="bg-slate-50 dark:bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-slate-200 dark:border-white/10 text-center">
+              <p className="text-[10px] uppercase font-bold text-violet-700 dark:text-violet-200">Staff Accounts</p>
+              <p className="text-xl font-black text-violet-700 dark:text-violet-300 mt-0.5">{totalUsersCombined}</p>
+            </div>
+            <div className="bg-slate-50 dark:bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-slate-200 dark:border-white/10 text-center sm:col-span-2 lg:col-span-1">
+              <p className="text-[10px] uppercase font-bold text-amber-700 dark:text-amber-200">Exports</p>
+              <div className="mt-2 flex flex-wrap gap-2 justify-center">
+                <button
+                  onClick={handleExportSelectedClientCsv}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-950 text-[10px] font-black hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shadow-xs"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  Selected Client CSV
+                </button>
+                <button
+                  onClick={handleExportAllClientsCsv}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 dark:bg-sky-400 text-white dark:text-slate-950 text-[10px] font-black hover:bg-sky-500 dark:hover:bg-sky-300 transition-colors shadow-xs"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  All Clients CSV
+                </button>
+                <button
+                  onClick={handleExportAllUsersCsv}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 dark:bg-violet-400 text-white text-[10px] font-black hover:bg-violet-500 dark:hover:bg-violet-300 transition-colors shadow-xs"
+                >
+                  <FileDown className="w-3.5 h-3.5" />
+                  All Staff CSV
+                </button>
               </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center sm:col-span-2 lg:col-span-1">
-                <p className="text-[10px] uppercase font-bold text-amber-200">Exports</p>
-                <div className="mt-2 flex flex-wrap gap-2 justify-center">
-                  <button
-                    onClick={handleExportSelectedClientCsv}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-slate-950 text-[10px] font-black hover:bg-slate-100 transition-colors"
-                  >
-                    <FileDown className="w-3.5 h-3.5" />
-                    Selected Client CSV
-                  </button>
-                  <button
-                    onClick={handleExportAllClientsCsv}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-400 text-slate-950 text-[10px] font-black hover:bg-sky-300 transition-colors"
-                  >
-                    <FileDown className="w-3.5 h-3.5" />
-                    All Clients CSV
-                  </button>
-                  <button
-                    onClick={handleExportAllUsersCsv}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-400 text-white text-[10px] font-black hover:bg-violet-300 transition-colors"
-                  >
-                    <FileDown className="w-3.5 h-3.5" />
-                    All Staff CSV
-                  </button>
-                </div>
-              </div>
+            </div>
           </div>
         </div>
 
         {/* Navigation Cards Grid inside Console */}
-        <div className="mt-6 pt-5 border-t border-slate-700/60">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+        <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-700/60">
+          <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
             Administrative Modules &amp; Control Areas
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
@@ -764,31 +765,31 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'controlPlane'
                   ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-950/40 ring-2 ring-blue-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'controlPlane' ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'controlPlane' ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400'}`}>
                     <Shield className="w-4 h-4" />
                   </div>
                   <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${
-                    activeTab === 'controlPlane' ? 'bg-white/20 text-white border-white/30' : 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                    activeTab === 'controlPlane' ? 'bg-white/20 text-white border-white/30' : 'bg-blue-50 dark:bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-500/30'
                   }`}>
                     §11.17
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'controlPlane' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'controlPlane' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-white'}`}>
                     Superuser Control Plane
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'controlPlane' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'controlPlane' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Dual-control 4-eyes queue, global compliance policies &amp; security incident response.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'controlPlane' ? 'text-white font-extrabold' : 'text-blue-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'controlPlane' ? 'text-white font-extrabold' : 'text-blue-600 dark:text-blue-400'}>
                   {activeTab === 'controlPlane' ? '● Currently Active' : 'Open Console →'}
                 </span>
               </div>
@@ -800,31 +801,31 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'matrix'
                   ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-950/40 ring-2 ring-blue-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'matrix' ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'matrix' ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400'}`}>
                     <Sliders className="w-4 h-4" />
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    activeTab === 'matrix' ? 'bg-white/20 text-white border-white/30' : 'bg-slate-700 text-slate-300 border-slate-600'
+                    activeTab === 'matrix' ? 'bg-white/20 text-white border-white/30' : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-600'
                   }`}>
                     Feature Gates
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'matrix' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'matrix' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-white'}`}>
                     Tenant Feature Matrix
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'matrix' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'matrix' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Toggle POS, Clinical AI, Expiry, and multi-shelf modules per client branch.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'matrix' ? 'text-white font-extrabold' : 'text-blue-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'matrix' ? 'text-white font-extrabold' : 'text-blue-600 dark:text-blue-400'}>
                   {activeTab === 'matrix' ? '● Currently Active' : 'Open Matrix →'}
                 </span>
               </div>
@@ -836,31 +837,31 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'userAccounts'
                   ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-950/40 ring-2 ring-blue-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'userAccounts' ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'userAccounts' ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400'}`}>
                     <UserCog className="w-4 h-4" />
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    activeTab === 'userAccounts' ? 'bg-white/20 text-white border-white/30' : 'bg-blue-600/30 text-blue-200 border-blue-400/30'
+                    activeTab === 'userAccounts' ? 'bg-white/20 text-white border-white/30' : 'bg-blue-50 dark:bg-blue-600/30 text-blue-800 dark:text-blue-200 border-blue-200 dark:border-blue-400/30'
                   }`}>
                     {currentSelectedClient.users?.length || 0} Users
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'userAccounts' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'userAccounts' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-white'}`}>
                     Branch Staff Accounts
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'userAccounts' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'userAccounts' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Manage user seats, role ranks, credentials, and granular permission rights.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'userAccounts' ? 'text-white font-extrabold' : 'text-blue-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'userAccounts' ? 'text-white font-extrabold' : 'text-blue-600 dark:text-blue-400'}>
                   {activeTab === 'userAccounts' ? '● Currently Active' : 'Manage Staff →'}
                 </span>
               </div>
@@ -872,29 +873,29 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'showcase'
                   ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-950/40 ring-2 ring-blue-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'showcase' ? 'bg-white/20 text-white' : 'bg-blue-500/10 text-blue-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'showcase' ? 'bg-white/20 text-white' : 'bg-blue-100 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400'}`}>
                     <Gift className="w-4 h-4" />
                   </div>
-                  <span className="bg-amber-500 text-slate-950 text-[9px] px-1.5 py-0.5 rounded-full font-black">
+                  <span className="bg-amber-400 text-slate-950 text-[9px] px-1.5 py-0.5 rounded-full font-black">
                     -20% OFF
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'showcase' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'showcase' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-white'}`}>
                     Package &amp; Billing Control
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'showcase' ? 'text-blue-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'showcase' ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Configure UGX subscription rates, package tier offerings, and discount coupons.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'showcase' ? 'text-white font-extrabold' : 'text-blue-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'showcase' ? 'text-white font-extrabold' : 'text-blue-600 dark:text-blue-400'}>
                   {activeTab === 'showcase' ? '● Currently Active' : 'View Billing →'}
                 </span>
               </div>
@@ -905,32 +906,32 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               onClick={() => setActiveTab('addClient')}
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'addClient'
-                  ? 'bg-green-600 text-white border-green-400 shadow-lg shadow-green-950/40 ring-2 ring-green-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-950/40 ring-2 ring-emerald-400/40'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'addClient' ? 'bg-white/20 text-white' : 'bg-green-500/10 text-green-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'addClient' ? 'bg-white/20 text-white' : 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'}`}>
                     <PlusCircle className="w-4 h-4" />
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    activeTab === 'addClient' ? 'bg-white/20 text-white border-white/30' : 'bg-green-500/20 text-green-300 border-green-500/30'
+                    activeTab === 'addClient' ? 'bg-white/20 text-white border-white/30' : 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
                   }`}>
                     NDA Registry
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'addClient' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'addClient' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-white'}`}>
                     Register Pharmacy Tenant
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'addClient' ? 'text-green-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'addClient' ? 'text-emerald-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Onboard new pharmacy client branches linked to official Uganda NDA license records.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'addClient' ? 'text-white font-extrabold' : 'text-green-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'addClient' ? 'text-white font-extrabold' : 'text-emerald-600 dark:text-emerald-400'}>
                   {activeTab === 'addClient' ? '● Currently Active' : 'Register Branch →'}
                 </span>
               </div>
@@ -942,31 +943,31 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'pharmacyRegistry'
                   ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-950/40 ring-2 ring-emerald-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'pharmacyRegistry' ? 'bg-white/20 text-white' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'pharmacyRegistry' ? 'bg-white/20 text-white' : 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'}`}>
                     <Building2 className="w-4 h-4" />
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    activeTab === 'pharmacyRegistry' ? 'bg-white/20 text-white border-white/30' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                    activeTab === 'pharmacyRegistry' ? 'bg-white/20 text-white border-white/30' : 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
                   }`}>
                     {clients.length} Subscribed
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'pharmacyRegistry' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'pharmacyRegistry' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-white'}`}>
                     Subscribed Pharmacies
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'pharmacyRegistry' ? 'text-emerald-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'pharmacyRegistry' ? 'text-emerald-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Exclusive super admin registry, NDA compliance status, and quick direct phone dispatch.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'pharmacyRegistry' ? 'text-white font-extrabold' : 'text-emerald-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'pharmacyRegistry' ? 'text-white font-extrabold' : 'text-emerald-600 dark:text-emerald-400'}>
                   {activeTab === 'pharmacyRegistry' ? '● Currently Active' : 'View Registry →'}
                 </span>
               </div>
@@ -978,31 +979,31 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'capacityMonitor'
                   ? 'bg-amber-600 text-white border-amber-400 shadow-lg shadow-amber-950/40 ring-2 ring-amber-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'capacityMonitor' ? 'bg-white/20 text-white' : 'bg-amber-500/10 text-amber-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'capacityMonitor' ? 'bg-white/20 text-white' : 'bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400'}`}>
                     <TrendingUp className="w-4 h-4" />
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    activeTab === 'capacityMonitor' ? 'bg-white/20 text-white border-white/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                    activeTab === 'capacityMonitor' ? 'bg-white/20 text-white border-white/30' : 'bg-amber-50 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
                   }`}>
                     Telemetry
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'capacityMonitor' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'capacityMonitor' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-white'}`}>
                     System Capacity &amp; Upgrades
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'capacityMonitor' ? 'text-amber-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'capacityMonitor' ? 'text-amber-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Real-time usage rankings, advance warning thresholds &amp; 4-channel upgrade dispatch.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'capacityMonitor' ? 'text-white font-extrabold' : 'text-amber-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'capacityMonitor' ? 'text-white font-extrabold' : 'text-amber-600 dark:text-amber-400'}>
                   {activeTab === 'capacityMonitor' ? '● Currently Active' : 'Monitor Capacity →'}
                 </span>
               </div>
@@ -1014,31 +1015,31 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'messagingHub'
                   ? 'bg-indigo-600 text-white border-indigo-400 shadow-lg shadow-indigo-950/40 ring-2 ring-indigo-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'messagingHub' ? 'bg-white/20 text-white' : 'bg-indigo-500/10 text-indigo-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'messagingHub' ? 'bg-white/20 text-white' : 'bg-indigo-100 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400'}`}>
                     <MessageSquare className="w-4 h-4" />
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    activeTab === 'messagingHub' ? 'bg-white/20 text-white border-white/30' : 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+                    activeTab === 'messagingHub' ? 'bg-white/20 text-white border-white/30' : 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30'
                   }`}>
                     2-Way Chat
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'messagingHub' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'messagingHub' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-white'}`}>
                     Messaging Hub
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'messagingHub' ? 'text-indigo-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'messagingHub' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Direct threaded communication with pharmacies, template responses &amp; audit trails.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'messagingHub' ? 'text-white font-extrabold' : 'text-indigo-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'messagingHub' ? 'text-white font-extrabold' : 'text-indigo-600 dark:text-indigo-400'}>
                   {activeTab === 'messagingHub' ? '● Currently Active' : 'Open Messages →'}
                 </span>
               </div>
@@ -1050,32 +1051,68 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
                 activeTab === 'revenueLedger'
                   ? 'bg-emerald-600 text-white border-emerald-400 shadow-lg shadow-emerald-950/40 ring-2 ring-emerald-400/40'
-                  : 'bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-600'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
               }`}
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1">
-                  <div className={`p-2 rounded-xl ${activeTab === 'revenueLedger' ? 'bg-white/20 text-white' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                  <div className={`p-2 rounded-xl ${activeTab === 'revenueLedger' ? 'bg-white/20 text-white' : 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'}`}>
                     <DollarSign className="w-4 h-4" />
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    activeTab === 'revenueLedger' ? 'bg-white/20 text-white border-white/30' : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                    activeTab === 'revenueLedger' ? 'bg-white/20 text-white border-white/30' : 'bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
                   }`}>
                     Accounting
                   </span>
                 </div>
                 <div>
-                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'revenueLedger' ? 'text-white' : 'text-slate-100 group-hover:text-white'}`}>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'revenueLedger' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-white'}`}>
                     Revenue &amp; SaaS Ledger
                   </h4>
-                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'revenueLedger' ? 'text-emerald-100' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'revenueLedger' ? 'text-emerald-100' : 'text-slate-500 dark:text-slate-400'}`}>
                     Double-entry bookkeeping, 18% URA VAT allocation &amp; 100% system-mediated payment enforcement.
                   </p>
                 </div>
               </div>
-              <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-bold">
-                <span className={activeTab === 'revenueLedger' ? 'text-white font-extrabold' : 'text-emerald-400'}>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'revenueLedger' ? 'text-white font-extrabold' : 'text-emerald-600 dark:text-emerald-400'}>
                   {activeTab === 'revenueLedger' ? '● Currently Active' : 'Open SaaS Ledger →'}
+                </span>
+              </div>
+            </button>
+
+            {/* Card 10: Quantum Engineering Workbench */}
+            <button
+              onClick={() => setActiveTab('quantumWorkbench')}
+              className={`text-left p-4 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                activeTab === 'quantumWorkbench'
+                  ? 'bg-cyan-600 text-white border-cyan-400 shadow-lg shadow-cyan-950/40 ring-2 ring-cyan-400/40'
+                  : 'bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+              }`}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <div className={`p-2 rounded-xl ${activeTab === 'quantumWorkbench' ? 'bg-white/20 text-white' : 'bg-cyan-100 dark:bg-cyan-500/10 text-cyan-700 dark:text-cyan-400'}`}>
+                    <Zap className="w-4 h-4" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    activeTab === 'quantumWorkbench' ? 'bg-white/20 text-white border-white/30' : 'bg-cyan-50 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-500/30'
+                  }`}>
+                    Systems Core
+                  </span>
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold leading-snug ${activeTab === 'quantumWorkbench' ? 'text-white' : 'text-slate-900 dark:text-slate-100 group-hover:text-cyan-600 dark:group-hover:text-white'}`}>
+                    Systems Workbench
+                  </h4>
+                  <p className={`text-[11px] mt-1 leading-relaxed ${activeTab === 'quantumWorkbench' ? 'text-cyan-100' : 'text-slate-500 dark:text-slate-400'}`}>
+                    Multi-tenant runtime telemetry, DB schema diagnostics, and zero-trust governance.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 pt-2 border-t border-slate-200 dark:border-white/10 flex items-center justify-between text-[10px] font-bold">
+                <span className={activeTab === 'quantumWorkbench' ? 'text-white font-extrabold' : 'text-cyan-600 dark:text-cyan-400'}>
+                  {activeTab === 'quantumWorkbench' ? '● Currently Active' : 'Open Workbench →'}
                 </span>
               </div>
             </button>
@@ -1083,6 +1120,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
           </div>
         </div>
       </div>
+      )}
 
       {/* TAB: QUANTUM NETWORKS ENGINEERING WORKBENCH */}
       {activeTab === 'quantumWorkbench' && (
@@ -1969,6 +2007,34 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
               </div>
             </div>
 
+            {/* Quick Stat Summary Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Active Accounts</p>
+                <p className="mt-1 text-2xl font-black text-slate-900">
+                  {(currentSelectedClient.users || []).filter((u) => u.status === 'Active').length}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Suspended</p>
+                <p className="mt-1 text-2xl font-black text-rose-700">
+                  {(currentSelectedClient.users || []).filter((u) => u.status === 'Suspended').length}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Pending Invites</p>
+                <p className="mt-1 text-2xl font-black text-amber-700">
+                  {(currentSelectedClient.users || []).filter((u) => u.status === 'Pending Invite').length}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Admin Collaborators</p>
+                <p className="mt-1 text-2xl font-black text-purple-700">
+                  {(currentSelectedClient.users || []).filter((u) => u.accessRights?.canManageStaffAccounts).length}
+                </p>
+              </div>
+            </div>
+
             {/* Staff List Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
@@ -2000,25 +2066,6 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
                               {usr.fullName.charAt(0)}
                             </div>
                             <div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Active Accounts</p>
-                              <p className="mt-1 text-2xl font-black text-slate-900">{activeUserCount}</p>
-                            </div>
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Suspended</p>
-                              <p className="mt-1 text-2xl font-black text-rose-700">{suspendedUserCount}</p>
-                            </div>
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Pending Invites</p>
-                              <p className="mt-1 text-2xl font-black text-amber-700">{pendingInviteCount}</p>
-                            </div>
-                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Admin Collaborators</p>
-                              <p className="mt-1 text-2xl font-black text-purple-700">{collaboratorCount}</p>
-                            </div>
-                          </div>
                               <p className="font-extrabold text-slate-900">{usr.fullName}</p>
                               <p className="text-[10px] text-slate-500 font-mono">{usr.email}</p>
                               {usr.staffRegNo && (

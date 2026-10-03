@@ -105,21 +105,21 @@ export const SubscriptionRevenueLedger: React.FC<SubscriptionRevenueLedgerProps>
   return (
     <div className="space-y-6">
       {/* Top Banner & Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-[#081526] via-[#0E243F] to-[#0A1A2E] p-6 rounded-3xl border border-cyan-500/30 text-white shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-gradient-to-r dark:from-[#081526] dark:via-[#0E243F] dark:to-[#0A1A2E] p-6 rounded-3xl border border-slate-200 dark:border-cyan-500/30 text-slate-900 dark:text-white shadow-xs dark:shadow-xl transition-colors duration-200">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="bg-cyan-500 text-slate-950 font-black text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="bg-cyan-50 dark:bg-cyan-500 text-cyan-800 dark:text-slate-950 font-black text-[10px] uppercase tracking-widest px-2.5 py-0.5 rounded-full border border-cyan-200 dark:border-transparent">
               QUANTUM NETWORKS FINANCIAL LEDGER
             </span>
-            <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-500/40">
-              <ShieldCheck className="w-3 h-3" />
+            <span className="bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-200 dark:border-emerald-500/40">
+              <ShieldCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
               100% System-Mediated Books
             </span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2" style={{ fontFamily: "'Outfit', sans-serif" }}>
             SaaS Subscription Revenue &amp; Bookkeeping
           </h2>
-          <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
             Every subscription payment made by client pharmacies is tracked, accounted for, and reconciled through the system. Enforces URA 18% VAT allocation, double-entry General Ledger bookkeeping, and instant fiscal receipt generation.
           </p>
         </div>

@@ -64,11 +64,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     return (
       <EmailVerificationScreen
         email={auth.pendingEmailVerification}
+        pharmacyName={auth.user?.tenantName || 'Your Registered Pharmacy'}
         auth={auth}
         onVerifiedSuccess={() => {
           auth.setPendingEmailVerification(null);
         }}
         onBackToLogin={() => auth.setPendingEmailVerification(null)}
+        onChangeEmail={() => auth.setPendingEmailVerification(null)}
       />
     );
   }
@@ -118,7 +120,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
         ? 'owner@kampalapharmacy.ug'
         : role === 'Supervising Pharmacist'
         ? 'pharmacist@zenithrx.ug'
-        : role === 'POS Cashier / Dispenser' || role === 'Dispenser / Cashier'
+        : role === 'POS Cashier / Dispenser'
         ? 'cashier@zenithrx.ug'
         : 'inventory@zenithrx.ug'
     );

@@ -97,29 +97,29 @@ export const QuantumEngineeringWorkbench: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner: Quantum Networks Engineering Lead Profile */}
-      <div className="bg-gradient-to-r from-[#071322] via-[#0B1E36] to-[#0A1829] rounded-3xl p-6 text-white border-2 border-cyan-500/30 shadow-2xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
-          <Terminal className="w-80 h-80 text-cyan-400" />
+      <div className="bg-white dark:bg-gradient-to-r dark:from-[#071322] dark:via-[#0B1E36] dark:to-[#0A1829] rounded-3xl p-6 text-slate-900 dark:text-white border border-slate-200 dark:border-2 dark:border-cyan-500/30 shadow-xs dark:shadow-2xl relative overflow-hidden transition-colors duration-200">
+        <div className="absolute right-0 top-0 opacity-5 dark:opacity-10 pointer-events-none">
+          <Terminal className="w-80 h-80 text-cyan-600 dark:text-cyan-400" />
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-widest flex items-center gap-1.5">
-                <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="bg-cyan-50 dark:bg-cyan-500/20 text-cyan-800 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-widest flex items-center gap-1.5">
+                <Cpu className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
                 QUANTUM NETWORKS LTD • CORE PLATFORM ENGINEERING
               </span>
-              <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold font-mono">
+              <span className="bg-emerald-50 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-semibold font-mono">
                 RING 0 ROOT CLEARANCE
               </span>
             </div>
 
-            <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Systems Engineering &amp; Architectural Workbench
             </h2>
             
-            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
-              Chief Administrator Console operated by <strong className="text-cyan-300">{QUANTUM_NETWORKS_LEAD_ENGINEER.fullName}</strong>. Designed &amp; programmed exclusively by <strong>Quantum Networks Ltd</strong> for real-time multi-tenant runtime telemetry, database schema versioning, and zero-trust security governance.
+            <p className="text-xs text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
+              Chief Administrator Console operated by <strong className="text-cyan-700 dark:text-cyan-300">{QUANTUM_NETWORKS_LEAD_ENGINEER.fullName}</strong>. Designed &amp; programmed exclusively by <strong>Quantum Networks Ltd</strong> for real-time multi-tenant runtime telemetry, database schema versioning, and zero-trust security governance.
             </p>
           </div>
 
@@ -127,20 +127,20 @@ export const QuantumEngineeringWorkbench: React.FC = () => {
             <button
               onClick={handleRunSecurityAuditSweep}
               disabled={runningDiagnostic}
-              className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold rounded-xl shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-4 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 dark:from-cyan-500 dark:to-blue-600 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${runningDiagnostic ? 'animate-spin' : ''}`} />
               <span>{runningDiagnostic ? 'Scanning Database RLS...' : 'Execute Security Diagnostic Sweep'}</span>
             </button>
-            <span className="text-[10px] text-cyan-400 font-mono text-center">
+            <span className="text-[10px] text-cyan-700 dark:text-cyan-400 font-mono text-center">
               Engineer ID: {QUANTUM_NETWORKS_LEAD_ENGINEER.employeeId}
             </span>
           </div>
         </div>
 
         {diagnosticResult && (
-          <div className="mt-4 p-3 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="mt-4 p-3 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200 dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs flex items-center gap-2 animate-fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>{diagnosticResult}</span>
           </div>
         )}

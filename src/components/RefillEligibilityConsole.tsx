@@ -186,21 +186,21 @@ export const RefillEligibilityConsole: React.FC<RefillEligibilityConsoleProps> =
     <div className="space-y-6">
       
       {/* ─── Top Clinical Banner ───────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-800/60 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-gradient-to-r from-indigo-50/80 via-blue-50/50 to-slate-50 dark:from-slate-900 dark:via-indigo-950 dark:to-slate-900 border border-indigo-100 dark:border-indigo-800/60 rounded-3xl p-6 text-slate-900 dark:text-white shadow-sm dark:shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <span className="bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-indigo-400/30 flex items-center gap-1">
-              <Calculator className="w-3.5 h-3.5" /> Posology Depletion Engine
+            <span className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-800 dark:text-indigo-300 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-400/30 flex items-center gap-1">
+              <Calculator className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> Posology Depletion Engine
             </span>
-            <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Registered Pharmacist Signoff Required
+            <span className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-400/30 flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Registered Pharmacist Signoff Required
             </span>
-            <span className="bg-amber-500/20 text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-400/30">
+            <span className="bg-amber-100 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-400/30">
               System Date: {SYSTEM_CURRENT_DATE}
             </span>
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white">Refill Eligibility &amp; Medication Depletion</h1>
-          <p className="text-xs text-indigo-200/80 mt-1 max-w-2xl">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Refill Eligibility &amp; Medication Depletion</h1>
+          <p className="text-xs text-slate-600 dark:text-indigo-200/80 mt-1 max-w-2xl">
             Calculates exact runout dates from <strong>Original Quantity ÷ (Dose × Frequency)</strong> and displays live countdowns like <em>"Refill due in 3 days"</em> for pharmacist verification before automated outreach.
           </p>
         </div>
@@ -208,7 +208,7 @@ export const RefillEligibilityConsole: React.FC<RefillEligibilityConsoleProps> =
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setShowCalcTester(!showCalcTester)}
-            className="px-4 py-2 bg-indigo-600/80 hover:bg-indigo-600 text-white font-bold text-xs rounded-xl border border-indigo-400/30 flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <Calculator className="w-4 h-4" />
             <span>{showCalcTester ? 'Close Formula Sandbox' : 'Open Posology Sandbox'}</span>

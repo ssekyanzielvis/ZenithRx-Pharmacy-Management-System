@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { useTheme } from '../context/ThemeContext';
 import {
   ThreeWayMatchSession,
   ThreeWayMatchLineDetail,
@@ -62,6 +63,9 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
   tenantId = 'client-001',
   currentUser = { name: 'Kigozi Jonathan', role: 'Finance & Accounts Officer' },
 }) => {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+
   const [sessions, setSessions] = useState<ThreeWayMatchSession[]>(() => getAllMatchSessions(tenantId));
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(sessions[0]?.id || null);
   const [activeTab, setActiveTab] = useState<'sessions' | 'disputes' | 'settings'>('sessions');
@@ -196,15 +200,17 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
   const styles = {
     container: {
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+      background: isDark ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' : '#F4F7FB',
       minHeight: '100vh',
-      color: '#e2e8f0',
+      color: isDark ? '#e2e8f0' : '#0f172a',
+      transition: 'background 0.2s, color 0.2s',
     } as React.CSSProperties,
     header: {
-      background: 'rgba(15, 23, 42, 0.95)',
+      background: isDark ? 'rgba(15, 23, 42, 0.95)' : '#ffffff',
       backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(100, 116, 139, 0.2)',
+      borderBottom: isDark ? '1px solid rgba(100, 116, 139, 0.2)' : '1px solid #e2e8f0',
       padding: '20px 28px',
+      transition: 'background 0.2s, border-color 0.2s',
     } as React.CSSProperties,
     headerTitle: {
       display: 'flex',
@@ -213,7 +219,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       fontSize: 22,
       fontWeight: 800,
       letterSpacing: '-0.03em',
-      background: 'linear-gradient(135deg, #38bdf8, #818cf8)',
+      background: isDark ? 'linear-gradient(135deg, #38bdf8, #818cf8)' : 'linear-gradient(135deg, #0284c7, #4f46e5)',
       WebkitBackgroundClip: 'text',
       WebkitTextFillColor: 'transparent',
     } as React.CSSProperties,
@@ -229,9 +235,23 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
         fontSize: 13,
         fontWeight: active ? 700 : 500,
         cursor: 'pointer',
-        background: active ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
-        color: active ? '#38bdf8' : '#94a3b8',
-        border: active ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid transparent',
+        background: active
+          ? isDark
+            ? 'rgba(56, 189, 248, 0.15)'
+            : 'rgba(2, 132, 199, 0.1)'
+          : 'transparent',
+        color: active
+          ? isDark
+            ? '#38bdf8'
+            : '#0284c7'
+          : isDark
+          ? '#94a3b8'
+          : '#64748b',
+        border: active
+          ? isDark
+            ? '1px solid rgba(56, 189, 248, 0.3)'
+            : '1px solid rgba(2, 132, 199, 0.3)'
+          : '1px solid transparent',
         transition: 'all 0.2s',
       } as React.CSSProperties),
     content: {
@@ -241,9 +261,11 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       height: 'calc(100vh - 130px)',
     } as React.CSSProperties,
     sidebar: {
-      borderRight: '1px solid rgba(100, 116, 139, 0.15)',
+      borderRight: isDark ? '1px solid rgba(100, 116, 139, 0.15)' : '1px solid #e2e8f0',
+      background: isDark ? 'transparent' : '#ffffff',
       overflowY: 'auto' as const,
       padding: 16,
+      transition: 'background 0.2s, border-color 0.2s',
     } as React.CSSProperties,
     sessionCard: (isActive: boolean) =>
       ({
@@ -251,21 +273,36 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
         borderRadius: 10,
         cursor: 'pointer',
         marginBottom: 8,
-        background: isActive ? 'rgba(56, 189, 248, 0.08)' : 'rgba(30, 41, 59, 0.5)',
-        border: isActive ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid rgba(100, 116, 139, 0.15)',
+        background: isActive
+          ? isDark
+            ? 'rgba(56, 189, 248, 0.08)'
+            : 'rgba(2, 132, 199, 0.08)'
+          : isDark
+          ? 'rgba(30, 41, 59, 0.5)'
+          : '#f8fafc',
+        border: isActive
+          ? isDark
+            ? '1px solid rgba(56, 189, 248, 0.3)'
+            : '1px solid rgba(2, 132, 199, 0.3)'
+          : isDark
+          ? '1px solid rgba(100, 116, 139, 0.15)'
+          : '1px solid #e2e8f0',
         transition: 'all 0.2s',
       } as React.CSSProperties),
     main: {
       overflowY: 'auto' as const,
       padding: 24,
+      background: isDark ? 'transparent' : '#F4F7FB',
     } as React.CSSProperties,
     card: {
-      background: 'rgba(30, 41, 59, 0.6)',
-      backdropFilter: 'blur(12px)',
-      border: '1px solid rgba(100, 116, 139, 0.15)',
+      background: isDark ? 'rgba(30, 41, 59, 0.6)' : '#ffffff',
+      backdropFilter: isDark ? 'blur(12px)' : 'none',
+      border: isDark ? '1px solid rgba(100, 116, 139, 0.15)' : '1px solid #e2e8f0',
       borderRadius: 12,
       padding: 20,
       marginBottom: 20,
+      boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.05)',
+      transition: 'background 0.2s, border-color 0.2s',
     } as React.CSSProperties,
     cardHeader: {
       display: 'flex',
@@ -279,7 +316,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       gap: 8,
       fontSize: 15,
       fontWeight: 700,
-      color: '#f1f5f9',
+      color: isDark ? '#f1f5f9' : '#0f172a',
     } as React.CSSProperties,
     comparisonGrid: {
       display: 'grid',
@@ -290,11 +327,29 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       ({
         background:
           type === 'po'
-            ? 'rgba(56, 189, 248, 0.06)'
+            ? isDark
+              ? 'rgba(56, 189, 248, 0.06)'
+              : '#f0f9ff'
             : type === 'grn'
-            ? 'rgba(16, 185, 129, 0.06)'
-            : 'rgba(245, 158, 11, 0.06)',
-        border: `1px solid ${type === 'po' ? 'rgba(56, 189, 248, 0.2)' : type === 'grn' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`,
+            ? isDark
+              ? 'rgba(16, 185, 129, 0.06)'
+              : '#f0fdf4'
+            : isDark
+            ? 'rgba(245, 158, 11, 0.06)'
+            : '#fffbeb',
+        border: `1px solid ${
+          type === 'po'
+            ? isDark
+              ? 'rgba(56, 189, 248, 0.2)'
+              : '#bae6fd'
+            : type === 'grn'
+            ? isDark
+              ? 'rgba(16, 185, 129, 0.2)'
+              : '#bbf7d0'
+            : isDark
+            ? 'rgba(245, 158, 11, 0.2)'
+            : '#fde68a'
+        }`,
         borderRadius: 10,
         padding: 16,
       } as React.CSSProperties),
@@ -313,18 +368,32 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
     statValue: {
       fontSize: 20,
       fontWeight: 800,
-      color: '#f1f5f9',
+      color: isDark ? '#f1f5f9' : '#0f172a',
       letterSpacing: '-0.02em',
     } as React.CSSProperties,
     statLabel: {
       fontSize: 11,
-      color: '#94a3b8',
+      color: isDark ? '#94a3b8' : '#64748b',
       marginTop: 2,
     } as React.CSSProperties,
     lineRow: (isFlagged: boolean) =>
       ({
-        background: isFlagged ? 'rgba(239, 68, 68, 0.06)' : 'rgba(30, 41, 59, 0.3)',
-        border: `1px solid ${isFlagged ? 'rgba(239, 68, 68, 0.25)' : 'rgba(100, 116, 139, 0.1)'}`,
+        background: isFlagged
+          ? isDark
+            ? 'rgba(239, 68, 68, 0.06)'
+            : '#fef2f2'
+          : isDark
+          ? 'rgba(30, 41, 59, 0.3)'
+          : '#ffffff',
+        border: `1px solid ${
+          isFlagged
+            ? isDark
+              ? 'rgba(239, 68, 68, 0.25)'
+              : '#fca5a5'
+            : isDark
+            ? 'rgba(100, 116, 139, 0.1)'
+            : '#e2e8f0'
+        }`,
         borderRadius: 10,
         padding: 14,
         marginBottom: 8,
@@ -340,8 +409,32 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
         borderRadius: 6,
         fontSize: 12,
         fontWeight: 700,
-        color: value === 0 ? '#10b981' : value > 0 ? '#ef4444' : '#f59e0b',
-        background: value === 0 ? 'rgba(16, 185, 129, 0.1)' : value > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+        color: value === 0 ? (isDark ? '#10b981' : '#059669') : value > 0 ? (isDark ? '#ef4444' : '#dc2626') : (isDark ? '#f59e0b' : '#d97706'),
+        background:
+          value === 0
+            ? isDark
+              ? 'rgba(16, 185, 129, 0.1)'
+              : '#ecfdf5'
+            : value > 0
+            ? isDark
+              ? 'rgba(239, 68, 68, 0.1)'
+              : '#fef2f2'
+            : isDark
+            ? 'rgba(245, 158, 11, 0.1)'
+            : '#fffbeb',
+        border: `1px solid ${
+          value === 0
+            ? isDark
+              ? 'rgba(16, 185, 129, 0.2)'
+              : '#a7f3d0'
+            : value > 0
+            ? isDark
+              ? 'rgba(239, 68, 68, 0.2)'
+              : '#fecaca'
+            : isDark
+            ? 'rgba(245, 158, 11, 0.2)'
+            : '#fde68a'
+        }`,
       } as React.CSSProperties),
     button: (variant: 'primary' | 'danger' | 'ghost' | 'success') =>
       ({
@@ -353,7 +446,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
         fontSize: 13,
         fontWeight: 600,
         cursor: 'pointer',
-        border: 'none',
+        border: variant === 'ghost' ? (isDark ? '1px solid rgba(100, 116, 139, 0.2)' : '1px solid #e2e8f0') : 'none',
         transition: 'all 0.2s',
         background:
           variant === 'primary'
@@ -362,8 +455,10 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             ? 'linear-gradient(135deg, #ef4444, #dc2626)'
             : variant === 'success'
             ? 'linear-gradient(135deg, #10b981, #059669)'
-            : 'rgba(100, 116, 139, 0.2)',
-        color: variant === 'ghost' ? '#94a3b8' : '#fff',
+            : isDark
+            ? 'rgba(100, 116, 139, 0.2)'
+            : '#f1f5f9',
+        color: variant === 'ghost' ? (isDark ? '#94a3b8' : '#334155') : '#fff',
       } as React.CSSProperties),
     modal: {
       position: 'fixed' as const,
@@ -376,12 +471,14 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       backdropFilter: 'blur(8px)',
     } as React.CSSProperties,
     modalContent: {
-      background: '#1e293b',
-      border: '1px solid rgba(100, 116, 139, 0.3)',
+      background: isDark ? '#1e293b' : '#ffffff',
+      border: isDark ? '1px solid rgba(100, 116, 139, 0.3)' : '1px solid #e2e8f0',
       borderRadius: 16,
       padding: 28,
       maxWidth: 520,
       width: '100%',
+      color: isDark ? '#e2e8f0' : '#0f172a',
+      boxShadow: isDark ? '0 25px 50px -12px rgba(0, 0, 0, 0.5)' : '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
     } as React.CSSProperties,
   };
 
@@ -390,7 +487,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
     <div style={styles.sidebar}>
       <div style={{ marginBottom: 16 }}>
         <div style={{ position: 'relative' }}>
-          <Search size={14} style={{ position: 'absolute', left: 10, top: 10, color: '#64748b' }} />
+          <Search size={14} style={{ position: 'absolute', left: 10, top: 10, color: isDark ? '#64748b' : '#94a3b8' }} />
           <input
             type="text"
             placeholder="Search sessions..."
@@ -400,9 +497,9 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
               width: '100%',
               padding: '8px 8px 8px 32px',
               borderRadius: 8,
-              border: '1px solid rgba(100,116,139,0.2)',
-              background: 'rgba(15,23,42,0.5)',
-              color: '#e2e8f0',
+              border: isDark ? '1px solid rgba(100,116,139,0.2)' : '1px solid #cbd5e1',
+              background: isDark ? 'rgba(15,23,42,0.5)' : '#f8fafc',
+              color: isDark ? '#e2e8f0' : '#0f172a',
               fontSize: 13,
               outline: 'none',
               boxSizing: 'border-box',
@@ -426,22 +523,22 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             onClick={() => setSelectedSessionId(session.id)}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#38bdf8' }}>{session.matchSessionReference}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: isDark ? '#38bdf8' : '#0284c7' }}>{session.matchSessionReference}</div>
               {getVerdictBadge(session.sessionVerdict)}
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9', marginBottom: 4 }}>{session.supplierName}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 6 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a', marginBottom: 4 }}>{session.supplierName}</div>
+            <div style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 6 }}>
               PO: {session.poNumber} • GRN: {session.grnNumber}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: 12, color: '#94a3b8' }}>
+              <span style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b' }}>
                 {session.linesExactMatched}/{session.totalLineItems} exact
               </span>
               <span
                 style={{
                   fontSize: 13,
                   fontWeight: 700,
-                  color: session.netFinancialVarianceUgx === 0 ? '#10b981' : '#ef4444',
+                  color: session.netFinancialVarianceUgx === 0 ? (isDark ? '#10b981' : '#059669') : (isDark ? '#ef4444' : '#dc2626'),
                 }}
               >
                 {session.netFinancialVarianceUgx === 0
@@ -463,7 +560,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       <div style={styles.card}>
         <div style={styles.cardHeader}>
           <div style={styles.cardTitle}>
-            <Scale size={18} style={{ color: '#38bdf8' }} />
+            <Scale size={18} style={{ color: isDark ? '#38bdf8' : '#0284c7' }} />
             3-Way Document Comparison
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -479,30 +576,30 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
         <div style={styles.comparisonGrid}>
           {/* Purchase Order Column */}
           <div style={styles.comparisonColumn('po')}>
-            <div style={styles.colHeader('#38bdf8')}>
+            <div style={styles.colHeader(isDark ? '#38bdf8' : '#0284c7')}>
               <FileText size={14} /> Purchase Order
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{s.poNumber}</div>
+            <div style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 4 }}>{s.poNumber}</div>
             <div style={styles.statValue}>{formatUGX(s.poTotalAuthorizedUgx)}</div>
             <div style={styles.statLabel}>Authorized Amount</div>
           </div>
 
           {/* GRN Column */}
           <div style={styles.comparisonColumn('grn')}>
-            <div style={styles.colHeader('#10b981')}>
+            <div style={styles.colHeader(isDark ? '#10b981' : '#059669')}>
               <Truck size={14} /> Goods Received
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{s.grnNumber}</div>
+            <div style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 4 }}>{s.grnNumber}</div>
             <div style={styles.statValue}>{formatUGX(s.grnTotalAcceptedUgx)}</div>
             <div style={styles.statLabel}>Accepted Value</div>
           </div>
 
           {/* Invoice Column */}
           <div style={styles.comparisonColumn('invoice')}>
-            <div style={styles.colHeader('#f59e0b')}>
+            <div style={styles.colHeader(isDark ? '#f59e0b' : '#d97706')}>
               <Receipt size={14} /> Supplier Invoice
             </div>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{s.invoiceNumber}</div>
+            <div style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 4 }}>{s.invoiceNumber}</div>
             <div style={styles.statValue}>{formatUGX(s.invoiceTotalBilledUgx)}</div>
             <div style={styles.statLabel}>Billed Amount</div>
           </div>
@@ -516,17 +613,29 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             borderRadius: 10,
             background:
               s.netFinancialVarianceUgx === 0
-                ? 'rgba(16, 185, 129, 0.08)'
-                : 'rgba(239, 68, 68, 0.08)',
-            border: `1px solid ${s.netFinancialVarianceUgx === 0 ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
+                ? isDark
+                  ? 'rgba(16, 185, 129, 0.08)'
+                  : '#f0fdf4'
+                : isDark
+                ? 'rgba(239, 68, 68, 0.08)'
+                : '#fef2f2',
+            border: `1px solid ${
+              s.netFinancialVarianceUgx === 0
+                ? isDark
+                  ? 'rgba(16, 185, 129, 0.25)'
+                  : '#bbf7d0'
+                : isDark
+                ? 'rgba(239, 68, 68, 0.25)'
+                : '#fecaca'
+            }`,
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
           }}
         >
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#f1f5f9', marginBottom: 2 }}>Net Financial Variance</div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: isDark ? '#f1f5f9' : '#0f172a', marginBottom: 2 }}>Net Financial Variance</div>
+            <div style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b' }}>
               Qty Variance (PO→GRN): {s.poVsGrnQtyVarianceTotal >= 0 ? '+' : ''}{s.poVsGrnQtyVarianceTotal} units •
               Qty Variance (GRN→Inv): {s.grnVsInvoiceQtyVarianceTotal >= 0 ? '+' : ''}{s.grnVsInvoiceQtyVarianceTotal} units
             </div>
@@ -535,7 +644,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             style={{
               fontSize: 22,
               fontWeight: 800,
-              color: s.netFinancialVarianceUgx === 0 ? '#10b981' : '#ef4444',
+              color: s.netFinancialVarianceUgx === 0 ? (isDark ? '#10b981' : '#059669') : (isDark ? '#ef4444' : '#dc2626'),
               letterSpacing: '-0.02em',
             }}
           >
@@ -554,13 +663,13 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       <div style={styles.card}>
         <div style={styles.cardHeader}>
           <div style={styles.cardTitle}>
-            <Package size={18} style={{ color: '#818cf8' }} />
+            <Package size={18} style={{ color: isDark ? '#818cf8' : '#6366f1' }} />
             Line-by-Line Matching Matrix ({selectedSession.totalLineItems} items)
           </div>
           <div style={{ display: 'flex', gap: 12, fontSize: 12 }}>
-            <span style={{ color: '#10b981' }}>✅ {selectedSession.linesExactMatched} Exact</span>
-            <span style={{ color: '#f59e0b' }}>✓ {selectedSession.linesWithinTolerance} Tolerance</span>
-            <span style={{ color: '#ef4444' }}>⚠ {selectedSession.linesQtyMismatch + selectedSession.linesPriceMismatch} Flagged</span>
+            <span style={{ color: isDark ? '#10b981' : '#059669' }}>✅ {selectedSession.linesExactMatched} Exact</span>
+            <span style={{ color: isDark ? '#f59e0b' : '#d97706' }}>✓ {selectedSession.linesWithinTolerance} Tolerance</span>
+            <span style={{ color: isDark ? '#ef4444' : '#dc2626' }}>⚠ {selectedSession.linesQtyMismatch + selectedSession.linesPriceMismatch} Flagged</span>
           </div>
         </div>
 
@@ -572,19 +681,19 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             gap: 8,
             padding: '10px 14px',
             borderRadius: 8,
-            background: 'rgba(15, 23, 42, 0.5)',
+            background: isDark ? 'rgba(15, 23, 42, 0.5)' : '#f1f5f9',
             marginBottom: 8,
             fontSize: 11,
             fontWeight: 700,
-            color: '#94a3b8',
+            color: isDark ? '#94a3b8' : '#475569',
             textTransform: 'uppercase' as const,
             letterSpacing: '0.05em',
           }}
         >
           <div>Medicine</div>
-          <div style={{ textAlign: 'center', color: '#38bdf8' }}>PO Ordered</div>
-          <div style={{ textAlign: 'center', color: '#10b981' }}>GRN Received</div>
-          <div style={{ textAlign: 'center', color: '#f59e0b' }}>Invoice Billed</div>
+          <div style={{ textAlign: 'center', color: isDark ? '#38bdf8' : '#0284c7' }}>PO Ordered</div>
+          <div style={{ textAlign: 'center', color: isDark ? '#10b981' : '#059669' }}>GRN Received</div>
+          <div style={{ textAlign: 'center', color: isDark ? '#f59e0b' : '#d97706' }}>Invoice Billed</div>
           <div style={{ textAlign: 'center' }}>Value Variance</div>
           <div style={{ textAlign: 'center' }}>Verdict</div>
         </div>
@@ -607,29 +716,29 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
                 >
                   {/* Medicine Name */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {isExpanded ? <ChevronDown size={14} color="#64748b" /> : <ChevronRight size={14} color="#64748b" />}
+                    {isExpanded ? <ChevronDown size={14} color={isDark ? '#64748b' : '#94a3b8'} /> : <ChevronRight size={14} color={isDark ? '#64748b' : '#94a3b8'} />}
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9' }}>{line.genericName}</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>{line.brandName || 'Generic'} • {line.unitOfMeasure}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a' }}>{line.genericName}</div>
+                      <div style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b' }}>{line.brandName || 'Generic'} • {line.unitOfMeasure}</div>
                     </div>
                   </div>
 
                   {/* PO Quantity */}
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#38bdf8' }}>{line.poOrderedQuantity}</div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>@ {formatUGX(line.poUnitCostUgx)}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: isDark ? '#38bdf8' : '#0284c7' }}>{line.poOrderedQuantity}</div>
+                    <div style={{ fontSize: 10, color: isDark ? '#64748b' : '#94a3b8' }}>@ {formatUGX(line.poUnitCostUgx)}</div>
                   </div>
 
                   {/* GRN Quantity */}
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#10b981' }}>{line.grnDeliveredQuantity}</div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>Batch: {line.grnBatchNumber || 'N/A'}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: isDark ? '#10b981' : '#059669' }}>{line.grnDeliveredQuantity}</div>
+                    <div style={{ fontSize: 10, color: isDark ? '#64748b' : '#94a3b8' }}>Batch: {line.grnBatchNumber || 'N/A'}</div>
                   </div>
 
                   {/* Invoice Quantity */}
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#f59e0b' }}>{line.invoiceBilledQuantity}</div>
-                    <div style={{ fontSize: 10, color: '#64748b' }}>@ {formatUGX(line.invoiceUnitCostUgx)}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: isDark ? '#f59e0b' : '#d97706' }}>{line.invoiceBilledQuantity}</div>
+                    <div style={{ fontSize: 10, color: isDark ? '#64748b' : '#94a3b8' }}>@ {formatUGX(line.invoiceUnitCostUgx)}</div>
                   </div>
 
                   {/* Value Variance */}
@@ -654,28 +763,28 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
                     marginBottom: 10,
                     padding: 16,
                     borderRadius: 8,
-                    background: 'rgba(15, 23, 42, 0.4)',
-                    border: '1px solid rgba(100, 116, 139, 0.1)',
+                    background: isDark ? 'rgba(15, 23, 42, 0.4)' : '#f8fafc',
+                    border: isDark ? '1px solid rgba(100, 116, 139, 0.1)' : '1px solid #e2e8f0',
                     fontSize: 12,
                     lineHeight: 1.8,
                   }}
                 >
-                  <div style={{ fontWeight: 700, color: '#f1f5f9', marginBottom: 8 }}>Variance Analysis</div>
+                  <div style={{ fontWeight: 700, color: isDark ? '#f1f5f9' : '#0f172a', marginBottom: 8 }}>Variance Analysis</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
                     <div>
-                      <span style={{ color: '#64748b' }}>PO → GRN Qty: </span>
+                      <span style={{ color: isDark ? '#64748b' : '#64748b' }}>PO → GRN Qty: </span>
                       <span style={{ ...styles.varianceChip(line.qtyVariancePoVsGrn), marginLeft: 4 }}>
                         {line.qtyVariancePoVsGrn >= 0 ? '+' : ''}{line.qtyVariancePoVsGrn} units
                       </span>
                     </div>
                     <div>
-                      <span style={{ color: '#64748b' }}>GRN → Invoice Qty: </span>
+                      <span style={{ color: isDark ? '#64748b' : '#64748b' }}>GRN → Invoice Qty: </span>
                       <span style={{ ...styles.varianceChip(line.qtyVarianceGrnVsInvoice), marginLeft: 4 }}>
                         {line.qtyVarianceGrnVsInvoice >= 0 ? '+' : ''}{line.qtyVarianceGrnVsInvoice} units
                       </span>
                     </div>
                     <div>
-                      <span style={{ color: '#64748b' }}>Unit Price Variance: </span>
+                      <span style={{ color: isDark ? '#64748b' : '#64748b' }}>Unit Price Variance: </span>
                       <span style={{ ...styles.varianceChip(line.priceVariancePoVsInvoiceUgx), marginLeft: 4 }}>
                         {line.priceVariancePoVsInvoiceUgx >= 0 ? '+' : ''}{formatUGX(line.priceVariancePoVsInvoiceUgx)}
                       </span>
@@ -685,15 +794,35 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
                     style={{
                       padding: 10,
                       borderRadius: 6,
-                      background: line.isFlagged ? 'rgba(239, 68, 68, 0.05)' : 'rgba(16, 185, 129, 0.05)',
-                      border: `1px solid ${line.isFlagged ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)'}`,
-                      color: '#cbd5e1',
+                      background: line.isFlagged
+                        ? isDark
+                          ? 'rgba(239, 68, 68, 0.05)'
+                          : '#fef2f2'
+                        : isDark
+                        ? 'rgba(16, 185, 129, 0.05)'
+                        : '#ecfdf5',
+                      border: `1px solid ${
+                        line.isFlagged
+                          ? isDark
+                            ? 'rgba(239, 68, 68, 0.15)'
+                            : '#fca5a5'
+                          : isDark
+                          ? 'rgba(16, 185, 129, 0.15)'
+                          : '#a7f3d0'
+                      }`,
+                      color: line.isFlagged
+                        ? isDark
+                          ? '#fca5a5'
+                          : '#991b1b'
+                        : isDark
+                        ? '#cbd5e1'
+                        : '#065f46',
                     }}
                   >
                     {line.varianceExplanation}
                   </div>
                   {line.flagReason && (
-                    <div style={{ marginTop: 8, color: '#ef4444', fontWeight: 600 }}>
+                    <div style={{ marginTop: 8, color: isDark ? '#ef4444' : '#dc2626', fontWeight: 600 }}>
                       🚩 Flag: {line.flagReason}
                     </div>
                   )}
@@ -730,22 +859,40 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             borderRadius: 10,
             background:
               isApproved
-                ? 'rgba(16, 185, 129, 0.06)'
+                ? isDark
+                  ? 'rgba(16, 185, 129, 0.06)'
+                  : '#f0fdf4'
                 : isBlocked
-                ? 'rgba(239, 68, 68, 0.06)'
-                : 'rgba(245, 158, 11, 0.06)',
-            border: `1px solid ${isApproved ? 'rgba(16, 185, 129, 0.2)' : isBlocked ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`,
+                ? isDark
+                  ? 'rgba(239, 68, 68, 0.06)'
+                  : '#fef2f2'
+                : isDark
+                ? 'rgba(245, 158, 11, 0.06)'
+                : '#fffbeb',
+            border: `1px solid ${
+              isApproved
+                ? isDark
+                  ? 'rgba(16, 185, 129, 0.2)'
+                  : '#bbf7d0'
+                : isBlocked
+                ? isDark
+                  ? 'rgba(239, 68, 68, 0.2)'
+                  : '#fecaca'
+                : isDark
+                ? 'rgba(245, 158, 11, 0.2)'
+                : '#fde68a'
+            }`,
             marginBottom: 16,
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#f1f5f9', marginBottom: 6 }}>{s.verdictSummary}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a', marginBottom: 6 }}>{s.verdictSummary}</div>
           {s.financialRiskAssessment && (
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>
+            <div style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 4 }}>
               <strong>Risk:</strong> {s.financialRiskAssessment}
             </div>
           )}
           {s.recommendedAction && (
-            <div style={{ fontSize: 12, color: '#cbd5e1', fontWeight: 600 }}>
+            <div style={{ fontSize: 12, color: isDark ? '#cbd5e1' : '#334155', fontWeight: 600 }}>
               <strong>Action:</strong> {s.recommendedAction}
             </div>
           )}
@@ -754,19 +901,19 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
         {/* Workflow Info */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Executed By</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{s.executedByName}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>{s.executedByRole}</div>
+            <div style={{ fontSize: 11, color: isDark ? '#64748b' : '#64748b', marginBottom: 2 }}>Executed By</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a' }}>{s.executedByName}</div>
+            <div style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b' }}>{s.executedByRole}</div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Reviewed By</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{s.reviewedByName || '—'}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>{s.reviewedByRole || 'Pending'}</div>
+            <div style={{ fontSize: 11, color: isDark ? '#64748b' : '#64748b', marginBottom: 2 }}>Reviewed By</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a' }}>{s.reviewedByName || '—'}</div>
+            <div style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b' }}>{s.reviewedByRole || 'Pending'}</div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Approved By</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9' }}>{s.approvedByName || '—'}</div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>{s.approvedByRole || 'Pending'}</div>
+            <div style={{ fontSize: 11, color: isDark ? '#64748b' : '#64748b', marginBottom: 2 }}>Approved By</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: isDark ? '#f1f5f9' : '#0f172a' }}>{s.approvedByName || '—'}</div>
+            <div style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b' }}>{s.approvedByRole || 'Pending'}</div>
           </div>
         </div>
 
@@ -775,10 +922,10 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             style={{
               padding: 10,
               borderRadius: 8,
-              background: 'rgba(6, 182, 212, 0.06)',
-              border: '1px solid rgba(6, 182, 212, 0.2)',
+              background: isDark ? 'rgba(6, 182, 212, 0.06)' : '#ecfeff',
+              border: isDark ? '1px solid rgba(6, 182, 212, 0.2)' : '1px solid #a5f3fc',
               fontSize: 12,
-              color: '#67e8f9',
+              color: isDark ? '#67e8f9' : '#0e7490',
               marginBottom: 16,
             }}
           >
@@ -819,10 +966,10 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       return (
         <div style={styles.card}>
           <div style={styles.cardTitle}>
-            <MessageSquare size={18} style={{ color: '#8b5cf6' }} />
+            <MessageSquare size={18} style={{ color: isDark ? '#8b5cf6' : '#7c3aed' }} />
             {activeTab === 'disputes' ? 'All Disputes' : 'Session Disputes'}
           </div>
-          <div style={{ padding: 20, textAlign: 'center', color: '#64748b', fontSize: 13 }}>
+          <div style={{ padding: 20, textAlign: 'center', color: isDark ? '#64748b' : '#94a3b8', fontSize: 13 }}>
             No disputes raised for {activeTab === 'disputes' ? 'this pharmacy' : 'this match session'}.
           </div>
         </div>
@@ -833,7 +980,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
       <div style={styles.card}>
         <div style={styles.cardHeader}>
           <div style={styles.cardTitle}>
-            <MessageSquare size={18} style={{ color: '#8b5cf6' }} />
+            <MessageSquare size={18} style={{ color: isDark ? '#8b5cf6' : '#7c3aed' }} />
             {activeTab === 'disputes' ? `All Disputes (${displayDisputes.length})` : `Session Disputes (${displayDisputes.length})`}
           </div>
         </div>
@@ -844,24 +991,24 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             style={{
               padding: 14,
               borderRadius: 10,
-              background: 'rgba(139, 92, 246, 0.04)',
-              border: '1px solid rgba(139, 92, 246, 0.15)',
+              background: isDark ? 'rgba(139, 92, 246, 0.04)' : '#f5f3ff',
+              border: isDark ? '1px solid rgba(139, 92, 246, 0.15)' : '1px solid #ddd6fe',
               marginBottom: 8,
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#a78bfa' }}>{d.disputeReference}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: isDark ? '#a78bfa' : '#6d28d9' }}>{d.disputeReference}</div>
+                <div style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b' }}>
                   {d.supplierName} • {d.invoiceNumber}
                 </div>
               </div>
               {getVerdictBadge(d.status)}
             </div>
-            <div style={{ fontSize: 12, color: '#cbd5e1', marginBottom: 8, lineHeight: 1.6 }}>{d.disputeNarrative}</div>
+            <div style={{ fontSize: 12, color: isDark ? '#cbd5e1' : '#334155', marginBottom: 8, lineHeight: 1.6 }}>{d.disputeNarrative}</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: 12, color: '#94a3b8' }}>
-                Disputed: <strong style={{ color: '#ef4444' }}>{formatUGX(d.totalDisputedAmountUgx)}</strong> •
+              <div style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b' }}>
+                Disputed: <strong style={{ color: isDark ? '#ef4444' : '#dc2626' }}>{formatUGX(d.totalDisputedAmountUgx)}</strong> •
                 Lines: {d.disputedLineCount} •
                 Raised by: {d.raisedByName}
               </div>
@@ -874,7 +1021,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
                 </button>
               )}
               {d.creditNoteNumber && (
-                <span style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>
+                <span style={{ fontSize: 12, color: isDark ? '#10b981' : '#059669', fontWeight: 600 }}>
                   Credit Note: {d.creditNoteNumber} ({formatUGX(d.creditNoteAmountUgx || 0)})
                 </span>
               )}
@@ -890,10 +1037,10 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
     <div style={{ padding: 24 }}>
       <div style={styles.card}>
         <div style={styles.cardTitle}>
-          <Settings size={18} style={{ color: '#f59e0b' }} />
+          <Settings size={18} style={{ color: isDark ? '#f59e0b' : '#d97706' }} />
           <span style={{ marginLeft: 4 }}>Matching Tolerance Configuration</span>
         </div>
-        <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 20 }}>
+        <p style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 20 }}>
           Configure the thresholds that determine whether variances are accepted automatically,
           flagged for review, or blocked pending dispute resolution.
         </p>
@@ -908,7 +1055,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             { label: 'Dual Auth Threshold (UGX)', key: 'requireDualAuthorizationAboveUgx', value: toleranceConfig.requireDualAuthorizationAboveUgx, suffix: ' UGX' },
           ].map((field) => (
             <div key={field.key}>
-              <label style={{ display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }}>{field.label}</label>
+              <label style={{ display: 'block', fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 4 }}>{field.label}</label>
               <input
                 type="number"
                 value={field.value}
@@ -926,9 +1073,9 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
                   width: '100%',
                   padding: '8px 12px',
                   borderRadius: 8,
-                  border: '1px solid rgba(100,116,139,0.2)',
-                  background: 'rgba(15,23,42,0.5)',
-                  color: '#e2e8f0',
+                  border: isDark ? '1px solid rgba(100,116,139,0.2)' : '1px solid #cbd5e1',
+                  background: isDark ? 'rgba(15,23,42,0.5)' : '#f8fafc',
+                  color: isDark ? '#e2e8f0' : '#0f172a',
                   fontSize: 14,
                   fontWeight: 600,
                   outline: 'none',
@@ -944,7 +1091,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             { label: 'Auto-approve Exact Match', key: 'autoApproveExactMatch', value: toleranceConfig.autoApproveExactMatch },
             { label: 'Auto-approve Within Tolerance', key: 'autoApproveWithinTolerance', value: toleranceConfig.autoApproveWithinTolerance },
           ].map((toggle) => (
-            <label key={toggle.key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#cbd5e1' }}>
+            <label key={toggle.key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: isDark ? '#cbd5e1' : '#334155' }}>
               <input
                 type="checkbox"
                 checked={toggle.value}
@@ -957,14 +1104,14 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
                   );
                   setToleranceConfig(updated);
                 }}
-                style={{ accentColor: '#38bdf8' }}
+                style={{ accentColor: isDark ? '#38bdf8' : '#0284c7' }}
               />
               {toggle.label}
             </label>
           ))}
         </div>
 
-        <div style={{ marginTop: 16, fontSize: 11, color: '#64748b' }}>
+        <div style={{ marginTop: 16, fontSize: 11, color: isDark ? '#64748b' : '#94a3b8' }}>
           Last configured by: {toleranceConfig.configuredByName} ({toleranceConfig.configuredByRole})
         </div>
       </div>
@@ -979,10 +1126,10 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
     return (
       <div style={styles.modal}>
         <div style={styles.modalContent}>
-          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', marginBottom: 12 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: isDark ? '#f1f5f9' : '#0f172a', marginBottom: 12 }}>
             ⚠ Override Match Verdict
           </h3>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 16 }}>
+          <p style={{ fontSize: 13, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 16 }}>
             You are overriding a blocked match verdict. This will approve the invoice for payment
             despite detected discrepancies. This action is audited.
           </p>
@@ -995,9 +1142,9 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
               minHeight: 100,
               padding: 12,
               borderRadius: 8,
-              border: '1px solid rgba(100,116,139,0.3)',
-              background: 'rgba(15,23,42,0.5)',
-              color: '#e2e8f0',
+              border: isDark ? '1px solid rgba(100,116,139,0.3)' : '1px solid #cbd5e1',
+              background: isDark ? 'rgba(15,23,42,0.5)' : '#f8fafc',
+              color: isDark ? '#e2e8f0' : '#0f172a',
               fontSize: 13,
               outline: 'none',
               resize: 'vertical',
@@ -1033,10 +1180,10 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
     return (
       <div style={styles.modal}>
         <div style={styles.modalContent}>
-          <h3 style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', marginBottom: 12 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: isDark ? '#f1f5f9' : '#0f172a', marginBottom: 12 }}>
             🚩 Raise Supplier Dispute
           </h3>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 12 }}>
+          <p style={{ fontSize: 13, color: isDark ? '#94a3b8' : '#64748b', marginBottom: 12 }}>
             Dispute against <strong>{selectedSession.supplierName}</strong> for invoice{' '}
             <strong>{selectedSession.invoiceNumber}</strong>.
           </p>
@@ -1044,16 +1191,16 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
             style={{
               padding: 12,
               borderRadius: 8,
-              background: 'rgba(239, 68, 68, 0.06)',
-              border: '1px solid rgba(239, 68, 68, 0.15)',
+              background: isDark ? 'rgba(239, 68, 68, 0.06)' : '#fef2f2',
+              border: isDark ? '1px solid rgba(239, 68, 68, 0.15)' : '1px solid #fecaca',
               marginBottom: 16,
             }}
           >
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#fca5a5', marginBottom: 4 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: isDark ? '#fca5a5' : '#b91c1c', marginBottom: 4 }}>
               {flaggedLines.length} Flagged Line Item(s) — Total Disputed: {formatUGX(totalAmt)}
             </div>
             {flaggedLines.map((l) => (
-              <div key={l.id} style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>
+              <div key={l.id} style={{ fontSize: 12, color: isDark ? '#cbd5e1' : '#334155', marginTop: 4 }}>
                 • {l.genericName}: {l.flagReason}
               </div>
             ))}
@@ -1080,7 +1227,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
           <Scale size={24} />
           3-Way Invoice Matching & Reconciliation
         </div>
-        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: isDark ? '#94a3b8' : '#64748b', marginTop: 4 }}>
           Purchase Order × Goods Received × Supplier Invoice — Financial Controls Engine
         </div>
         <div style={styles.tabs}>
@@ -1121,7 +1268,7 @@ export const InvoiceReconciliationConsole: React.FC<InvoiceReconciliationConsole
                   alignItems: 'center',
                   justifyContent: 'center',
                   height: '100%',
-                  color: '#64748b',
+                  color: isDark ? '#64748b' : '#94a3b8',
                 }}
               >
                 <Scale size={48} />

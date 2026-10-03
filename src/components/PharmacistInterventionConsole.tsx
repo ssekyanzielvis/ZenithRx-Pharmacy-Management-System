@@ -200,25 +200,25 @@ export const PharmacistInterventionConsole: React.FC<PharmacistInterventionConso
   return (
     <div className="space-y-6">
       {/* ── Top Header Cockpit ─────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 border border-slate-700/80 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-white dark:bg-gradient-to-r dark:from-slate-900 dark:via-teal-950 dark:to-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-6 text-slate-900 dark:text-white shadow-sm dark:shadow-xl relative overflow-hidden transition-colors duration-200">
         <div className="absolute -right-12 -top-12 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 bg-teal-500/20 border border-teal-500/30 rounded-xl text-teal-400">
+              <div className="p-2.5 bg-teal-100 dark:bg-teal-500/20 border border-teal-300 dark:border-teal-500/30 rounded-xl text-teal-600 dark:text-teal-400">
                 <Stethoscope className="w-6 h-6" />
               </div>
-              <span className="px-3 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1.5">
+              <span className="px-3 py-1 bg-teal-100 dark:bg-teal-500/20 border border-teal-300 dark:border-teal-500/30 text-teal-800 dark:text-teal-300 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" /> Good Pharmacy Practice (GPP) Clinical Governance
               </span>
-              <span className="px-3 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-full flex items-center gap-1.5">
+              <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-semibold rounded-full flex items-center gap-1.5">
                 <Award className="w-3.5 h-3.5" /> PSU Quality Audit Grade A
               </span>
             </div>
-            <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-white flex items-center gap-2">
+            <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
               Pharmacist Clinical Intervention Recording
             </h1>
-            <p className="text-slate-300 text-sm mt-1 max-w-2xl">
+            <p className="text-slate-600 dark:text-slate-300 text-sm mt-1 max-w-2xl">
               Structured documentation of clinical interventions: <strong>Original Prescription ➔ Reason ➔ Action Taken ➔ Final Decision</strong>.
               Demonstrates cognitive pharmaceutical care valuation, prescriber collaboration, and patient safety outcomes.
             </p>
@@ -233,13 +233,13 @@ export const PharmacistInterventionConsole: React.FC<PharmacistInterventionConso
             </button>
             <button
               onClick={handleDownloadReport}
-              className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm font-semibold rounded-xl flex items-center gap-2 transition-all"
+              className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl flex items-center gap-2 transition-all"
             >
               <Download className="w-4 h-4" /> Clinical Report (Dossier)
             </button>
             <button
               onClick={() => pharmacistInterventionService.exportInterventionsToCsv(filteredInterventions)}
-              className="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm font-semibold rounded-xl flex items-center gap-1.5 transition-all"
+              className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-semibold rounded-xl flex items-center gap-1.5 transition-all"
             >
               <FileText className="w-4 h-4" /> Export CSV
             </button>
@@ -247,47 +247,47 @@ export const PharmacistInterventionConsole: React.FC<PharmacistInterventionConso
         </div>
 
         {/* Clinical KPI Metric Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-700/60">
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-200 dark:border-slate-700/60">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3.5">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
               <span>Total Interventions</span>
-              <Layers className="w-4 h-4 text-teal-400" />
+              <Layers className="w-4 h-4 text-teal-600 dark:text-teal-400" />
             </div>
-            <div className="text-2xl font-black text-white mt-1">{kpis.totalInterventionsCount}</div>
-            <div className="text-[11px] text-teal-300 font-semibold mt-0.5">Cognitive Care Events</div>
+            <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{kpis.totalInterventionsCount}</div>
+            <div className="text-[11px] text-teal-700 dark:text-teal-300 font-semibold mt-0.5">Cognitive Care Events</div>
           </div>
 
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3.5">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
               <span>Doctor Acceptance Rate</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="text-2xl font-black text-emerald-400 mt-1">{kpis.prescriberAcceptanceRatePercent}%</div>
-            <div className="text-[11px] text-emerald-300 font-semibold mt-0.5">Approved Recommendations</div>
+            <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{kpis.prescriberAcceptanceRatePercent}%</div>
+            <div className="text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold mt-0.5">Approved Recommendations</div>
           </div>
 
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3.5">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
               <span>Life-Saving / Severe Averted</span>
-              <AlertOctagon className="w-4 h-4 text-rose-400" />
+              <AlertOctagon className="w-4 h-4 text-rose-600 dark:text-rose-400" />
             </div>
-            <div className="text-2xl font-black text-rose-400 mt-1">
+            <div className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">
               {kpis.grade1LifeSavingCount + kpis.grade2MajorToxicityPreventedCount}
             </div>
-            <div className="text-[11px] text-rose-300 font-semibold mt-0.5">
+            <div className="text-[11px] text-rose-700 dark:text-rose-300 font-semibold mt-0.5">
               {kpis.grade1LifeSavingCount} Fatal • {kpis.grade2MajorToxicityPreventedCount} Major Toxicity
             </div>
           </div>
 
-          <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-medium">
+          <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3.5">
+            <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 text-xs font-medium">
               <span>Prevented Healthcare Costs</span>
-              <Award className="w-4 h-4 text-amber-400" />
+              <Award className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
-            <div className="text-2xl font-black text-amber-400 mt-1">
+            <div className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
               {formatUGX(kpis.estimatedNetSavingsUgx)}
             </div>
-            <div className="text-[11px] text-amber-300 font-semibold mt-0.5">Averted Hospitalizations</div>
+            <div className="text-[11px] text-amber-700 dark:text-amber-300 font-semibold mt-0.5">Averted Hospitalizations</div>
           </div>
         </div>
       </div>
