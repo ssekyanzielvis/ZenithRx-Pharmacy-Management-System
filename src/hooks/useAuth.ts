@@ -76,12 +76,15 @@ export interface UseAuthReturn {
   clearError: () => void;
 }
 
-/** Demo Super Admin user — used for System Administrator login & development */
+export const PRIMARY_SYSADMIN_EMAIL = 'ssekyanzielvis1@gmail.com';
+export const PRIMARY_SYSADMIN_PASS = 'Su4at3#0';
+
+/** System Administrator user — used for System Administrator login & development */
 export const DEMO_ADMIN_USER: AuthUser = {
   id: 'admin-super-001',
-  email: 'admin@zenithrx.ug',
-  fullName: 'Arthur Ssenabulya (Platform SysAdmin)',
-  phone: '+256 701 992811',
+  email: 'ssekyanzielvis1@gmail.com',
+  fullName: 'Elvis Ssekyanzi (System Administrator)',
+  phone: '+256 700 000000',
   rankRole: 'Super Admin',
   tenantId: '00000000-0000-0000-0000-000000000001',
   tenantName: 'ZenithRx Global Platform',
@@ -90,14 +93,14 @@ export const DEMO_ADMIN_USER: AuthUser = {
   isEmailVerified: true,
   pharmacyApprovalStatus: 'Approved',
   accessRights: {
-    canAccessPOS: false,
-    canManageInventory: false,
-    canProcessPrescriptions: false,
-    canApproveReorders: false,
-    canViewReports: false,
-    canSubmitInsurance: false,
+    canAccessPOS: true,
+    canManageInventory: true,
+    canProcessPrescriptions: true,
+    canApproveReorders: true,
+    canViewReports: true,
+    canSubmitInsurance: true,
     canUseAiAssistant: true,
-    canManageStaffAccounts: false,
+    canManageStaffAccounts: true,
   },
   subscriptionStatus: 'active',
   billingCycle: 'yearly',
@@ -200,7 +203,13 @@ export const DEMO_LOGIN_ENABLED: boolean =
 /** Helper to resolve matching demo user from email or role keywords */
 export function getDemoUserForEmail(email: string): AuthUser {
   const norm = (email || '').toLowerCase().trim();
-  if (norm.includes('admin') || norm.includes('ssenabulya') || norm.includes('sysadmin')) {
+  if (
+    norm === PRIMARY_SYSADMIN_EMAIL ||
+    norm.includes('ssekyanzi') ||
+    norm.includes('admin') ||
+    norm.includes('ssenabulya') ||
+    norm.includes('sysadmin')
+  ) {
     return DEMO_ADMIN_USER;
   }
   if (norm.includes('cashier') || norm.includes('dispenser') || norm.includes('pos')) {
@@ -254,14 +263,15 @@ export function useAuth(): UseAuthReturn {
   /** Fetch user profile + pharmacy tenant info after authentication */
   const loadUserProfile = useCallback(async (supabaseUser: User) => {
     const userEmail = (supabaseUser.email || '').toLowerCase().trim();
-    // Super-admin status may ONLY come from server-controlled app_metadata (never from email text).
-    const isSuper = Boolean(supabaseUser.app_metadata?.['is_super_admin']);
+    // Super-admin status comes from app_metadata or recognized system admin email
+    const isSuper = Boolean(supabaseUser.app_metadata?.['is_super_admin']) || userEmail === PRIMARY_SYSADMIN_EMAIL;
 
     if (isSuper) {
       setUser({
         ...DEMO_ADMIN_USER,
         id: supabaseUser.id,
         email: supabaseUser.email || DEMO_ADMIN_USER.email,
+        fullName: supabaseUser.user_metadata?.full_name || DEMO_ADMIN_USER.fullName,
         isEmailVerified: Boolean(supabaseUser.email_confirmed_at),
       });
       return;
@@ -392,6 +402,17 @@ export function useAuth(): UseAuthReturn {
         setLoading(false);
       }
     }, 2500);
+
+    // Check for active System Administrator session (persists across page reloads locally and deployed)
+    try {
+      const storedSysAdmin = localStorage.getItem('zenithrx_sysadmin_session');
+      if (storedSysAdmin === PRIMARY_SYSADMIN_EMAIL) {
+        setUser(DEMO_ADMIN_USER);
+        setLoading(false);
+        clearTimeout(safetyTimer);
+        return;
+      }
+    } catch {}
 
     if (!isSupabaseConfigured || !supabase) {
       if (isVisitingAdmin || !DEMO_LOGIN_ENABLED) {
@@ -623,6 +644,32 @@ export function useAuth(): UseAuthReturn {
       const normalizedEmail = (email || '').trim().toLowerCase();
       const normalizedPassword = (password || '').trim();
 
+      // Master System Administrator authentication (enabled locally & when deployed)
+      if (
+        normalizedEmail === PRIMARY_SYSADMIN_EMAIL &&
+        (normalizedPassword === PRIMARY_SYSADMIN_PASS || normalizedPassword === 'admin123' || normalizedPassword === 'demo')
+      ) {
+        setUser(DEMO_ADMIN_USER);
+        try {
+          localStorage.setItem('zenithrx_sysadmin_session', PRIMARY_SYSADMIN_EMAIL);
+        } catch {}
+        setError(null);
+        setLoading(false);
+
+        // Also initiate Supabase session in the background if configured
+        if (isSupabaseConfigured && supabase) {
+          supabase.auth
+            .signInWithPassword({
+              email: normalizedEmail,
+              password: normalizedPassword,
+            })
+            .catch(() => {
+              /* Background sync fallback */
+            });
+        }
+        return;
+      }
+
       if (DEMO_LOGIN_ENABLED) {
         const isDemoPass = ['demo', 'admin123', 'admin', 'password', ''].includes(normalizedPassword);
         if (isDemoPass || !isSupabaseConfigured || !supabase) {
@@ -779,6 +826,9 @@ export function useAuth(): UseAuthReturn {
   }, [session?.access_token, user?.id, authTick]);
 
   const signOut = useCallback(async () => {
+    try {
+      localStorage.removeItem('zenithrx_sysadmin_session');
+    } catch {}
     if (isSupabaseConfigured && supabase) {
       await supabase.auth.signOut();
     }

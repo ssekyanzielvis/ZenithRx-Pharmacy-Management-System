@@ -36,8 +36,8 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   isModal = false,
 }) => {
   const { resolvedTheme, toggleTheme } = useTheme();
-  const [email, setEmail] = useState(DEMO_LOGIN_ENABLED ? 'admin@zenithrx.ug' : '');
-  const [password, setPassword] = useState(DEMO_LOGIN_ENABLED ? 'admin123' : '');
+  const [email, setEmail] = useState('ssekyanzielvis1@gmail.com');
+  const [password, setPassword] = useState('Su4at3#0');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
@@ -60,12 +60,12 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   };
 
   const handleQuickDemoLogin = async () => {
-    setEmail('admin@zenithrx.ug');
-    setPassword('admin123');
+    setEmail('ssekyanzielvis1@gmail.com');
+    setPassword('Su4at3#0');
     auth.clearError();
     setSubmitting(true);
     try {
-      await auth.signIn('admin@zenithrx.ug', 'admin123');
+      await auth.signIn('ssekyanzielvis1@gmail.com', 'Su4at3#0');
       if (onSuccess) {
         onSuccess();
       }
@@ -153,7 +153,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
               Admin Username
             </span>
             <span className="font-mono text-slate-900 dark:text-white font-semibold select-all">
-              admin@zenithrx.ug
+              ssekyanzielvis1@gmail.com
             </span>
           </div>
           <div className="bg-white dark:bg-slate-800/80 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
@@ -161,14 +161,14 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
               Password
             </span>
             <span className="font-mono text-slate-900 dark:text-white font-semibold select-all">
-              admin123
+              Su4at3#0
             </span>
           </div>
         </div>
 
         <div className="flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400 mb-3 px-1">
           <span>
-            Identity: <strong className="text-slate-900 dark:text-white">Dr. Arthur Ssenabulya (Super Admin)</strong>
+            Identity: <strong className="text-slate-900 dark:text-white">Elvis Ssekyanzi (Super Admin)</strong>
           </span>
           <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Full Authority Access</span>
         </div>

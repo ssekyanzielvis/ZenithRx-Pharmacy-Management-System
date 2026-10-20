@@ -26,3 +26,12 @@ SELECT
 FROM auth.users au
 WHERE NOT EXISTS (SELECT 1 FROM public.users u WHERE u.id = au.id)
 ON CONFLICT (id) DO NOTHING;
+
+-- Grant System Administrator permissions to ssekyanzielvis1@gmail.com
+UPDATE public.users 
+SET rank_role = 'Super Admin', is_super_admin = TRUE 
+WHERE lower(email) = 'ssekyanzielvis1@gmail.com';
+
+UPDATE auth.users 
+SET raw_app_meta_data = COALESCE(raw_app_meta_data, '{}'::jsonb) || '{"is_super_admin": true}'::jsonb
+WHERE lower(email) = 'ssekyanzielvis1@gmail.com';
