@@ -24,6 +24,13 @@ function resolvePatientDepsPlugin(): Plugin {
       if (source === 'react/jsx-dev-runtime') {
         return path.resolve(patientNodeModules, 'react/jsx-dev-runtime.js');
       }
+      if (source === 'qrcode') {
+        try {
+          return require.resolve('qrcode/lib/browser.js', { paths: [patientNodeModules, path.resolve(__dirname, '../node_modules')] });
+        } catch {
+          return null;
+        }
+      }
       if (!source.startsWith('.') && !source.startsWith('/') && !source.startsWith('@/')) {
         try {
           return require.resolve(source, { paths: [patientNodeModules] });
