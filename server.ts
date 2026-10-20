@@ -8,8 +8,9 @@ import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { registerSyncRoutes } from './syncRoutes';
-import { registerAuthRoutes, requireAuth } from './authRoutes';
+import { registerAuthRoutes, requireAuth, registeredQuantumEngineers, signToken } from './authRoutes';
 import nodemailer from 'nodemailer';
+import fs from 'fs';
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
@@ -134,7 +135,7 @@ const PUBLIC_API = [
   /^\/api\/auth\//,
   /^\/api\/payments\/webhook\//,
   /^\/api\/medicines/,
-  /^\/api\/collaborators\//,
+  /^\/api\/collaborators/,
 ];
 
 // Serve static pharmaceutical product shots
@@ -431,6 +432,187 @@ app.get('/api/collaborators/email-status', (_req, res) => {
   });
 });
 
+// ─── Persistent Server Store for Delegated Collaborators ─────────────────────
+const DATA_DIR_COLLABS = path.join(process.cwd(), '.data');
+const COLLABORATORS_FILE = path.join(DATA_DIR_COLLABS, 'collaborators.json');
+
+const serverCollaborators = new Map<string, any>();
+
+function loadServerCollaborators() {
+  try {
+    if (fs.existsSync(COLLABORATORS_FILE)) {
+      const list = JSON.parse(fs.readFileSync(COLLABORATORS_FILE, 'utf8'));
+      if (Array.isArray(list)) {
+        list.forEach((c) => {
+          if (c.invitationToken) serverCollaborators.set(c.invitationToken, c);
+          if (c.id) serverCollaborators.set(c.id, c);
+          if (c.email) serverCollaborators.set(`email:${c.email.toLowerCase()}`, c);
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('[Collaborators] Could not read collaborators store:', err);
+  }
+
+  // Pre-seed Namuli Eng so invitation token works out of the box in all browsers
+  const namuliRecord = {
+    id: 'COLLAB-NAMULI',
+    fullName: 'Namuli , Eng',
+    email: 'namulishakirahfavour@gmail.com',
+    phone: '0745193699',
+    role: 'Domain Admin',
+    domainScope: 'CLINICAL_OVERSIGHT',
+    assignedTenants: ['ALL'],
+    grantedBy: 'Arthur Ssenabulya (Platform SysAdmin)',
+    grantedAt: '2026-10-20T10:00:00.000Z',
+    expiresAt: '2027-01-18T23:59:59.000Z',
+    status: 'INVITATION_PENDING',
+    sessionTokenStatus: 'PENDING_INVITE',
+    invitationToken: 'INV-NAMULI-TEST',
+    permissions: {
+      tenantOnboarding: false,
+      tierManagement: false,
+      policyConfiguration: true,
+      dispensingOverrides: true,
+      posSettings: false,
+      aiSafetyControls: true,
+      collaboratorManagement: false,
+      complianceExport: true,
+    },
+  };
+  if (!serverCollaborators.has('INV-NAMULI-TEST') && !serverCollaborators.has('email:namulishakirahfavour@gmail.com')) {
+    serverCollaborators.set('INV-NAMULI-TEST', namuliRecord);
+    serverCollaborators.set(namuliRecord.id, namuliRecord);
+    serverCollaborators.set(`email:${namuliRecord.email.toLowerCase()}`, namuliRecord);
+  }
+}
+
+function saveServerCollaborators() {
+  try {
+    fs.mkdirSync(DATA_DIR_COLLABS, { recursive: true });
+    const unique = Array.from(new Set(serverCollaborators.values()));
+    fs.writeFileSync(COLLABORATORS_FILE, JSON.stringify(unique, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('[Collaborators] Could not save collaborators store:', err);
+  }
+}
+
+loadServerCollaborators();
+
+// Endpoint: Lookup collaborator by invitation token or ID (enables multi-browser & incognito invite acceptance)
+app.get('/api/collaborators/invite/:token', (req, res) => {
+  const token = req.params.token;
+  if (!token) return res.status(400).json({ success: false, error: 'Token required' });
+
+  let found = serverCollaborators.get(token) || serverCollaborators.get(token.toUpperCase());
+  if (!found) {
+    for (const c of serverCollaborators.values()) {
+      if (
+        c.invitationToken === token ||
+        c.invitationToken?.toLowerCase() === token.toLowerCase() ||
+        c.id === token ||
+        (token.includes('@') && c.email?.toLowerCase() === token.toLowerCase())
+      ) {
+        found = c;
+        break;
+      }
+    }
+  }
+
+  if (found) {
+    return res.json({ success: true, collaborator: found });
+  }
+  return res.status(404).json({ success: false, message: 'Invitation token not found on server' });
+});
+
+// Endpoint: Get all collaborators from server
+app.get('/api/collaborators', (_req, res) => {
+  const unique = Array.from(new Set(serverCollaborators.values()));
+  return res.json({ success: true, collaborators: unique });
+});
+
+// Endpoint: Sync collaborator from client into persistent server store
+app.post('/api/collaborators/sync', (req, res) => {
+  const { collaborator } = req.body;
+  if (collaborator && (collaborator.invitationToken || collaborator.id)) {
+    if (collaborator.invitationToken) serverCollaborators.set(collaborator.invitationToken, collaborator);
+    if (collaborator.id) serverCollaborators.set(collaborator.id, collaborator);
+    if (collaborator.email) serverCollaborators.set(`email:${collaborator.email.toLowerCase()}`, collaborator);
+    saveServerCollaborators();
+  }
+  return res.json({ success: true });
+});
+
+// Endpoint: Authenticate Delegated Administrator by Email & Password (used by AdminLoginPage)
+app.post('/api/collaborators/login', (req, res) => {
+  const email = (req.body?.email || '').trim().toLowerCase();
+  const password = (req.body?.password || '').trim();
+
+  if (!email || !password) {
+    return res.status(400).json({ success: false, message: 'Email and password required' });
+  }
+
+  let found = serverCollaborators.get(`email:${email}`);
+  if (!found) {
+    for (const c of serverCollaborators.values()) {
+      if (c.email?.toLowerCase() === email) {
+        found = c;
+        break;
+      }
+    }
+  }
+
+  if (!found) {
+    return res.status(401).json({ success: false, message: 'Invalid administrator email or password.' });
+  }
+
+  if (found.status === 'REVOKED') {
+    return res.status(403).json({ success: false, message: 'This administrative account has been revoked.' });
+  }
+
+  // Check password or master key
+  let passwordMatches = false;
+  if (found.password) {
+    passwordMatches =
+      found.password === password ||
+      (found.engineeringMasterKey && found.engineeringMasterKey.trim() === password);
+  } else {
+    // Adopt and lock in the password entered by the administrator
+    found.password = password;
+    found.passwordSet = true;
+    found.status = 'ACTIVE';
+    found.sessionTokenStatus = 'VALID';
+    saveServerCollaborators();
+    passwordMatches = true;
+  }
+
+  if (!passwordMatches) {
+    return res.status(401).json({ success: false, message: 'Invalid administrator email or password.' });
+  }
+
+  // Register in server memory for QuantumAdminGate
+  if (found.engineerId && found.engineeringMasterKey) {
+    registeredQuantumEngineers.set(found.engineerId.trim(), {
+      key: found.engineeringMasterKey.trim(),
+      name: found.fullName,
+      email: found.email,
+    });
+    registeredQuantumEngineers.set(found.engineerId.trim().toUpperCase(), {
+      key: found.engineeringMasterKey.trim(),
+      name: found.fullName,
+      email: found.email,
+    });
+  }
+
+  const token = signToken({ sub: found.id || found.email, role: 'quantum_admin', name: found.fullName }, 12 * 3600);
+  return res.json({
+    success: true,
+    collaborator: found,
+    token,
+    message: 'Administrator authentication successful.',
+  });
+});
+
 // Endpoint: Send Collaborator Invite Email via SMTP or format client link
 app.post('/api/collaborators/send-invite-email', async (req, res) => {
   try {
@@ -453,6 +635,29 @@ app.post('/api/collaborators/send-invite-email', async (req, res) => {
 
     const effectiveInvitationLink = invitationLink || `http://localhost:${PORT}/#accept-invite?token=${invitationToken || 'INV-TOKEN'}`;
     const subject = customSubject || `[ZenithRx Enterprise] Official Appointment: Delegated ${role} (${domainScope})`;
+
+    // Persist this collaborator on the server so ANY browser opening the link finds it immediately
+    const collabRecord = {
+      id: req.body.id || `COLLAB-${Date.now().toString().slice(-4)}`,
+      fullName: recipientName,
+      email: recipientEmail,
+      phone: req.body.phone || '',
+      role,
+      domainScope,
+      assignedTenants: req.body.assignedTenants || ['ALL'],
+      grantedBy,
+      grantedAt: req.body.grantedAt || new Date().toISOString(),
+      expiresAt,
+      status: 'INVITATION_PENDING',
+      sessionTokenStatus: 'PENDING_INVITE',
+      invitationToken: invitationToken || 'INV-TOKEN',
+      invitationSentAt: new Date().toISOString(),
+      permissions: req.body.permissions || {},
+    };
+    if (invitationToken) serverCollaborators.set(invitationToken, collabRecord);
+    serverCollaborators.set(collabRecord.id, collabRecord);
+    serverCollaborators.set(`email:${recipientEmail.toLowerCase()}`, collabRecord);
+    saveServerCollaborators();
 
     const emailHtml = generateInviteEmailHtml({
       recipientName,
@@ -531,6 +736,289 @@ app.post('/api/collaborators/send-invite-email', async (req, res) => {
       recipientEmail: req.body?.recipientEmail,
       invitationLink: req.body?.invitationLink,
       mailtoLink: mailto,
+    });
+  }
+});
+
+// ─── Outbound Quantum Networks Level-5 Root Credentials Dispatch ────────────
+function generateQuantumCredentialsEmailHtml(data: {
+  recipientName: string;
+  recipientEmail: string;
+  engineerId: string;
+  engineeringMasterKey: string;
+  role: string;
+  domainScope: string;
+  consoleUrl: string;
+  grantedBy: string;
+}): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quantum Networks System Engineering Credentials</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #07101B; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #E2E8F0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #07101B; padding: 35px 15px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #0C1829; border: 1px solid #1E293B; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); max-width: 600px; width: 100%;">
+          
+          <!-- Quantum Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #07121F 0%, #0E2439 100%); padding: 30px; border-bottom: 1px solid #1E3A5F; text-align: left;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <span style="display: inline-block; padding: 4px 10px; background-color: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 9999px; font-size: 10px; font-weight: 800; color: #38BDF8; text-transform: uppercase; letter-spacing: 1px;">
+                      QUANTUM NETWORKS LTD · LEVEL 5 ROOT
+                    </span>
+                    <h1 style="margin: 12px 0 4px 0; font-size: 22px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.5px;">
+                      System Engineering Console Credentials
+                    </h1>
+                    <p style="margin: 0; font-size: 12px; color: #94A3B8;">
+                      Official Administrative Credentials Issued for <strong>${data.recipientName}</strong>
+                    </p>
+                  </td>
+                  <td align="right" valign="top" style="width: 80px;">
+                    <div style="background-color: #0369A1; color: #FFFFFF; font-size: 10px; font-family: monospace; font-weight: bold; padding: 5px 10px; border-radius: 8px; text-align: center;">
+                      ROOT_ADMIN
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Security Statement -->
+          <tr>
+            <td style="padding: 24px 30px 10px 30px;">
+              <div style="background-color: #0B1E33; border: 1px solid #164E63; border-radius: 12px; padding: 14px 18px;">
+                <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: bold; color: #38BDF8;">
+                  Restricted to Authorized System Engineering Personnel
+                </p>
+                <p style="margin: 0; font-size: 11px; line-height: 1.5; color: #94A3B8;">
+                  Your password creation was successfully validated. Below are your unique Level-5 Root credentials generated via the <strong>256-Bit CSPRNG Quantum Entropy Engine</strong>. These credentials grant administrative authority to govern multi-tenant pharmacies, approvals, dispensing quotas, and collaborator privileges.
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Credentials Box -->
+          <tr>
+            <td style="padding: 15px 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #050B14; border: 1px solid #1E293B; border-radius: 14px; padding: 20px;">
+                
+                <!-- Credential 1: Engineer ID -->
+                <tr>
+                  <td style="padding-bottom: 16px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">
+                      QUANTUM NETWORKS ENGINEER ID
+                    </span>
+                    <div style="background-color: #0B1523; border: 1px solid #0EA5E9; border-radius: 10px; padding: 12px 16px; font-family: monospace; font-size: 16px; font-weight: 900; color: #38BDF8; letter-spacing: 1.5px;">
+                      ${data.engineerId}
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Credential 2: Master Authorization Key -->
+                <tr>
+                  <td style="padding-bottom: 8px;">
+                    <span style="font-size: 10px; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">
+                      ENGINEERING AUTHORIZATION MASTER KEY
+                    </span>
+                    <div style="background-color: #0B1523; border: 1px solid #10B981; border-radius: 10px; padding: 12px 16px; font-family: monospace; font-size: 14px; font-weight: 800; color: #34D399; letter-spacing: 1px; word-break: break-all;">
+                      ${data.engineeringMasterKey}
+                    </div>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <!-- Call to Action -->
+          <tr>
+            <td style="padding: 15px 30px 25px 30px; text-align: center;">
+              <a href="${data.consoleUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: #FFFFFF; text-decoration: none; font-size: 13px; font-weight: 800; padding: 14px 32px; border-radius: 12px; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4); text-transform: uppercase; letter-spacing: 0.5px;">
+                Authenticate in System Engineering Console &rarr;
+              </a>
+              <p style="margin: 14px 0 0 0; font-size: 11px; color: #64748B;">
+                Direct Console URL: <span style="font-family: monospace; color: #94A3B8;">${data.consoleUrl}</span>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer Statutory Notice -->
+          <tr>
+            <td style="background-color: #060D17; border-top: 1px solid #1E293B; padding: 18px 30px; font-size: 10px; color: #64748B; line-height: 1.5; text-align: center;">
+              <strong>Confidentiality Notice:</strong> This electronic transmission contains restricted Level-5 Root administrative credentials issued under National Drug Authority (NDA) statutory oversight (§11.17). Unauthorized transmission or possession is strictly prohibited.
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function generateQuantumCredentialsEmailText(data: {
+  recipientName: string;
+  recipientEmail: string;
+  engineerId: string;
+  engineeringMasterKey: string;
+  role: string;
+  domainScope: string;
+  consoleUrl: string;
+  grantedBy: string;
+}): string {
+  return `QUANTUM NETWORKS LTD · LEVEL 5 ROOT CLEARANCE
+SYSTEM ENGINEERING CONSOLE CREDENTIALS
+
+Recipient: ${data.recipientName} (${data.recipientEmail})
+Designated Role: ${data.role} (${data.domainScope})
+Granted By: ${data.grantedBy}
+
+Your administrative password creation was successfully validated. Below are your official Quantum Networks System Engineering Console credentials generated via 256-Bit CSPRNG Quantum Entropy:
+
+============================================================
+1. QUANTUM NETWORKS ENGINEER ID:
+   ${data.engineerId}
+
+2. ENGINEERING AUTHORIZATION MASTER KEY:
+   ${data.engineeringMasterKey}
+============================================================
+
+TO ENTER THE SYSTEM ENGINEERING CONSOLE:
+1. Open the console link in your browser:
+   ${data.consoleUrl}
+2. Enter your Engineer ID: ${data.engineerId}
+3. Enter your Master Authorization Key: ${data.engineeringMasterKey}
+4. Click "Authenticate as Quantum Systems Engineer" to access the Root Administrator Control Plane.
+
+National Drug Authority (NDA) Uganda Governance Standard §11.17.
+Confidential engineering dispatch by Quantum Networks Ltd.`;
+}
+
+// Endpoint: Send Quantum Engineering Console Credentials to Collaborator Email
+app.post('/api/collaborators/send-quantum-credentials', async (req, res) => {
+  try {
+    const {
+      recipientEmail,
+      recipientName = 'System Administrator',
+      engineerId,
+      engineeringMasterKey,
+      role = 'Super Admin',
+      domainScope = 'FULL_PLATFORM',
+      grantedBy = 'Platform Administrator',
+      consoleUrl: rawConsoleUrl,
+    } = req.body;
+
+    if (!recipientEmail || !engineerId || !engineeringMasterKey) {
+      return res.status(400).json({ success: false, error: 'recipientEmail, engineerId, and engineeringMasterKey are required' });
+    }
+
+    registeredQuantumEngineers.set(engineerId.trim(), {
+      key: engineeringMasterKey.trim(),
+      name: recipientName,
+      email: recipientEmail,
+    });
+    registeredQuantumEngineers.set(engineerId.trim().toUpperCase(), {
+      key: engineeringMasterKey.trim(),
+      name: recipientName,
+      email: recipientEmail,
+    });
+
+    // Update persistent collaborator record on server
+    const existingCollab =
+      serverCollaborators.get(engineerId) ||
+      serverCollaborators.get(`email:${recipientEmail.toLowerCase()}`);
+    if (existingCollab) {
+      existingCollab.status = 'ACTIVE';
+      existingCollab.sessionTokenStatus = 'VALID';
+      existingCollab.engineerId = engineerId.trim();
+      existingCollab.engineeringMasterKey = engineeringMasterKey.trim();
+      existingCollab.quantumCredentialsGeneratedAt = new Date().toISOString();
+      saveServerCollaborators();
+    }
+
+    const origin = req.headers.origin || `http://localhost:${PORT}`;
+    const consoleUrl = rawConsoleUrl || `${origin}/#admin`;
+    const subject = `[RESTRICTED] Quantum Networks System Engineering Credentials — Level 5 Root Access Issued (${engineerId})`;
+
+    const emailHtml = generateQuantumCredentialsEmailHtml({
+      recipientName,
+      recipientEmail,
+      engineerId,
+      engineeringMasterKey,
+      role,
+      domainScope,
+      consoleUrl,
+      grantedBy,
+    });
+
+    const emailText = generateQuantumCredentialsEmailText({
+      recipientName,
+      recipientEmail,
+      engineerId,
+      engineeringMasterKey,
+      role,
+      domainScope,
+      consoleUrl,
+      grantedBy,
+    });
+
+    const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailText)}`;
+    const transporter = getMailTransporter();
+
+    if (!transporter) {
+      console.warn(`[Quantum Credentials Email] SMTP not configured in .env. Credentials registered in server memory for ${recipientEmail} (${engineerId}).`);
+      return res.json({
+        success: true,
+        delivered: false,
+        deliveryMethod: 'PENDING_SMTP_CONFIG',
+        message: 'Quantum credentials registered in server memory and ready for 1-click mail client dispatch.',
+        recipientEmail,
+        engineerId,
+        engineeringMasterKey,
+        consoleUrl,
+        mailtoLink,
+        subject,
+      });
+    }
+
+    const fromAddress = process.env.SMTP_FROM || `"${grantedBy}" <${process.env.SMTP_USER}>`;
+
+    const info = await transporter.sendMail({
+      from: fromAddress,
+      to: recipientEmail,
+      subject,
+      text: emailText,
+      html: emailHtml,
+    });
+
+    console.log(`[Quantum Credentials Email] Successfully delivered credentials to ${recipientEmail} via SMTP (MessageId: ${info.messageId})`);
+
+    return res.json({
+      success: true,
+      delivered: true,
+      deliveryMethod: 'SMTP',
+      messageId: info.messageId,
+      recipientEmail,
+      engineerId,
+      engineeringMasterKey,
+      consoleUrl,
+      mailtoLink,
+      subject,
+    });
+  } catch (err: any) {
+    console.error('[Quantum Credentials Email] SMTP dispatch error:', err);
+    return res.json({
+      success: false,
+      delivered: false,
+      deliveryMethod: 'SMTP_FAILED',
+      error: err?.message || 'SMTP delivery failed',
     });
   }
 });

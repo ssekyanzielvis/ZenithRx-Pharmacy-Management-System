@@ -22,6 +22,9 @@ import { createClient } from '@supabase/supabase-js';
 
 export type Role = 'patient' | 'staff' | 'quantum_admin';
 
+/** In-memory registry of active delegated collaborator Quantum Engineering credentials */
+export const registeredQuantumEngineers = new Map<string, { key: string; name: string; email: string }>();
+
 export interface AuthClaims {
   sub: string;
   role: Role;
@@ -429,15 +432,26 @@ export function registerAuthRoutes(app: Express) {
   const allowedEngineers = (process.env.QUANTUM_ENGINEER_DEFAULT_ID || 'QN-ENG-8801').split(',').map((s) => s.trim()).filter(Boolean);
 
   app.post('/api/auth/admin/login', (req, res) => {
-    if (!adminKey) return res.status(503).json({ error: 'Admin console is not configured.' });
     const employeeId = str(req.body?.employeeId, 40);
     const key = typeof req.body?.key === 'string' ? req.body.key.slice(0, 256) : '';
     const lockKey = `admin:${ipOf(req)}`;
     const wait = lockState(lockKey);
     if (wait) return res.status(429).json({ error: `Locked after repeated failures. Retry in ${Math.ceil(wait / 60)} minute(s).`, retryAfterSeconds: wait });
 
-    const idOk = allowedEngineers.some((id) => safeEqual(id, employeeId));
-    const keyOk = safeEqual(adminKey, key);
+    // Check against registered delegated collaborator credentials or server master key
+    const cleanId = employeeId.trim().toUpperCase();
+    let reg = registeredQuantumEngineers.get(cleanId) || registeredQuantumEngineers.get(employeeId);
+    if (!reg) {
+      for (const [k, v] of registeredQuantumEngineers.entries()) {
+        if (k.trim().toUpperCase() === cleanId) {
+          reg = v;
+          break;
+        }
+      }
+    }
+    const idOk = allowedEngineers.some((id) => safeEqual(id.toUpperCase(), cleanId)) || Boolean(reg);
+    const keyOk = (reg && safeEqual(reg.key, key)) || (adminKey ? safeEqual(adminKey, key) : false);
+
     if (!(idOk && keyOk)) {
       recordFail(lockKey);
       audit('ADMIN_LOGIN_FAILED', `${ipOf(req)} id=${employeeId.slice(0, 6)}`);
@@ -445,8 +459,9 @@ export function registerAuthRoutes(app: Express) {
     }
     clearFails(lockKey);
     audit('ADMIN_LOGIN', employeeId);
-    const token = signToken({ sub: employeeId, role: 'quantum_admin', name: 'Quantum Networks Engineer' }, ADMIN_TTL);
-    return res.json({ success: true, token, expiresAt: new Date(Date.now() + ADMIN_TTL * 1000).toISOString() });
+    const engineerName = reg?.name || 'Quantum Networks Engineer';
+    const token = signToken({ sub: employeeId, role: 'quantum_admin', name: engineerName }, ADMIN_TTL);
+    return res.json({ success: true, token, expiresAt: new Date(Date.now() + ADMIN_TTL * 1000).toISOString(), engineerName });
   });
 
   // Pharmacy staff: exchange a verified Supabase session for a ZenithRx API token

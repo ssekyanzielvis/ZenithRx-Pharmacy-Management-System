@@ -406,11 +406,41 @@ export function useAuth(): UseAuthReturn {
     // Check for active System Administrator session (persists across page reloads locally and deployed)
     try {
       const storedSysAdmin = localStorage.getItem('zenithrx_sysadmin_session');
-      if (storedSysAdmin === PRIMARY_SYSADMIN_EMAIL) {
-        setUser(DEMO_ADMIN_USER);
-        setLoading(false);
-        clearTimeout(safetyTimer);
-        return;
+      if (storedSysAdmin) {
+        if (storedSysAdmin === PRIMARY_SYSADMIN_EMAIL) {
+          setUser(DEMO_ADMIN_USER);
+          setLoading(false);
+          clearTimeout(safetyTimer);
+          return;
+        }
+        const rawActive = localStorage.getItem('zenithrx_active_collaborator');
+        if (rawActive) {
+          const collab = JSON.parse(rawActive);
+          if (collab && collab.email?.toLowerCase() === storedSysAdmin.toLowerCase()) {
+            setUser({
+              id: collab.id || `collab-${Date.now()}`,
+              email: collab.email,
+              fullName: collab.fullName,
+              phone: collab.phone || '+256 700 000000',
+              rankRole: collab.role as any,
+              tenantId: 'PLATFORM_SUPER_ADMIN',
+              tenantName: 'ZenithRx Platform Governance',
+              ndaLicenseNo: 'NDA/UG/SYSADMIN/2026',
+              psuRegNo: 'PSU/ADMIN/001',
+              isOwner: true,
+              isSuperAdmin: true,
+              isEmailVerified: true,
+              pharmacyApprovalStatus: 'Approved',
+              accessRights: getDefaultRightsForRole(collab.role),
+              subscriptionStatus: 'active',
+              billingCycle: 'yearly',
+              selectedTier: 'Enterprise',
+            });
+            setLoading(false);
+            clearTimeout(safetyTimer);
+            return;
+          }
+        }
       }
     } catch {}
 
@@ -669,6 +699,112 @@ export function useAuth(): UseAuthReturn {
         }
         return;
       }
+
+      // Delegated Administrator authentication (checks server store & local collaborator registry)
+      try {
+        const collabRes = await fetch('/api/collaborators/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: normalizedEmail, password: normalizedPassword }),
+        });
+        if (collabRes.ok) {
+          const collabData = await collabRes.json();
+          if (collabData.success && collabData.collaborator) {
+            const collab = collabData.collaborator;
+            const authUser: AuthUser = {
+              id: collab.id || `collab-${Date.now()}`,
+              email: collab.email,
+              fullName: collab.fullName,
+              phone: collab.phone || '+256 700 000000',
+              rankRole: collab.role as any,
+              tenantId: 'PLATFORM_SUPER_ADMIN',
+              tenantName: 'ZenithRx Platform Governance',
+              ndaLicenseNo: 'NDA/UG/SYSADMIN/2026',
+              psuRegNo: 'PSU/ADMIN/001',
+              isOwner: true,
+              isSuperAdmin: true,
+              isEmailVerified: true,
+              pharmacyApprovalStatus: 'Approved',
+              accessRights: getDefaultRightsForRole(collab.role),
+              subscriptionStatus: 'active',
+              billingCycle: 'yearly',
+              selectedTier: 'Enterprise',
+            };
+            setUser(authUser);
+            try {
+              localStorage.setItem('zenithrx_sysadmin_session', collab.email);
+              localStorage.setItem('zenithrx_active_collaborator', JSON.stringify(collab));
+            } catch {}
+            if (collab.engineerId) {
+              sessionStorage.setItem('zenithrx_quantum_prefill_id', collab.engineerId);
+            }
+            if (collab.engineeringMasterKey) {
+              sessionStorage.setItem('zenithrx_quantum_prefill_key', collab.engineeringMasterKey);
+            }
+            if (collabData.token) {
+              setAuthToken(collabData.token, 'quantum_admin');
+            }
+            setError(null);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (collabErr) {
+        console.warn('[useAuth] Delegated admin server auth notice:', collabErr);
+      }
+
+      // Client-side fallback check for active delegated collaborator (offline / storage)
+      try {
+        const rawCollabs =
+          localStorage.getItem('zenithrx_delegated_collaborators_v1') ||
+          localStorage.getItem('zenithrx_delegated_collaborators');
+        if (rawCollabs) {
+          const list = JSON.parse(rawCollabs);
+          const matched = list.find((c: any) => c.email?.toLowerCase() === normalizedEmail);
+          if (matched && (matched.status === 'ACTIVE' || matched.passwordSet)) {
+            const matchPw =
+              !matched.password ||
+              matched.password === normalizedPassword ||
+              matched.engineeringMasterKey === normalizedPassword;
+            if (matchPw) {
+              const authUser: AuthUser = {
+                id: matched.id,
+                email: matched.email,
+                fullName: matched.fullName,
+                phone: matched.phone || '+256 700 000000',
+                rankRole: matched.role as any,
+                tenantId: 'PLATFORM_SUPER_ADMIN',
+                tenantName: 'ZenithRx Platform Governance',
+                ndaLicenseNo: 'NDA/UG/SYSADMIN/2026',
+                psuRegNo: 'PSU/ADMIN/001',
+                isOwner: true,
+                isSuperAdmin: true,
+                isEmailVerified: true,
+                pharmacyApprovalStatus: 'Approved',
+                accessRights: getDefaultRightsForRole(matched.role),
+                subscriptionStatus: 'active',
+                billingCycle: 'yearly',
+                selectedTier: 'Enterprise',
+              };
+              setUser(authUser);
+              try {
+                localStorage.setItem('zenithrx_sysadmin_session', matched.email);
+                localStorage.setItem('zenithrx_active_collaborator', JSON.stringify(matched));
+              } catch {}
+              if (matched.engineerId) {
+                sessionStorage.setItem('zenithrx_quantum_prefill_id', matched.engineerId);
+              }
+              if (matched.engineeringMasterKey) {
+                sessionStorage.setItem('zenithrx_quantum_prefill_key', matched.engineeringMasterKey);
+              }
+              setAuthToken(`quantum_token_${matched.id}`, 'quantum_admin');
+              setError(null);
+              setLoading(false);
+              return;
+            }
+          }
+        }
+      } catch {}
 
       if (DEMO_LOGIN_ENABLED) {
         const isDemoPass = ['demo', 'admin123', 'admin', 'password', ''].includes(normalizedPassword);

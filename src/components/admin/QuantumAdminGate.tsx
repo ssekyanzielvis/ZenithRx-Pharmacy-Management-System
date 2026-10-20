@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -38,6 +38,20 @@ export const QuantumAdminGate: React.FC<QuantumAdminGateProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const prefillId = sessionStorage.getItem('zenithrx_quantum_prefill_id');
+      const prefillKey = sessionStorage.getItem('zenithrx_quantum_prefill_key');
+      if (prefillId) {
+        setEmployeeId(prefillId);
+      }
+      if (prefillKey) {
+        setAccessKey(prefillKey);
+        setSuccessMessage('Loaded Quantum Networks Level-5 Root credentials from active session.');
+      }
+    }
+  }, []);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();

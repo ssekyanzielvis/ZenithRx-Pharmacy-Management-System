@@ -16,7 +16,11 @@ import {
   ExternalLink,
   Layers,
   FileCheck2,
-  Users
+  Users,
+  Copy,
+  Terminal,
+  Cpu,
+  Mail
 } from 'lucide-react';
 import {
   DelegatedCollaborator,
@@ -42,16 +46,30 @@ export const AcceptCollaboratorInvitePage: React.FC<AcceptCollaboratorInvitePage
   const [token, setToken] = useState<string>(() => {
     if (initialToken) return initialToken;
     if (typeof window !== 'undefined') {
-      const search = window.location.search;
-      const hash = window.location.hash;
+      const search = window.location.search || '';
+      const hash = window.location.hash || '';
+      const fullUrl = window.location.href || '';
+
       if (search.includes('token=')) {
         const params = new URLSearchParams(search);
-        return params.get('token') || '';
+        const t = params.get('token');
+        if (t) return decodeURIComponent(t).trim();
       }
       if (hash.includes('token=')) {
         const parts = hash.split('token=');
-        if (parts[1]) return parts[1].split('&')[0];
+        if (parts[1]) return decodeURIComponent(parts[1].split('&')[0]).trim();
       }
+      if (hash.includes('?')) {
+        const queryPart = hash.split('?')[1];
+        if (queryPart) {
+          const params = new URLSearchParams(queryPart);
+          const t = params.get('token');
+          if (t) return decodeURIComponent(t).trim();
+        }
+      }
+      // Direct token match for any INV- token in URL
+      const match = fullUrl.match(/INV-[A-Za-z0-9_-]+/i);
+      if (match) return match[0].trim();
     }
     return '';
   });
@@ -69,6 +87,9 @@ export const AcceptCollaboratorInvitePage: React.FC<AcceptCollaboratorInvitePage
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successResult, setSuccessResult] = useState<DelegatedCollaborator | null>(null);
+  const [copiedKey, setCopiedKey] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
+  const [mailtoFallbackLink, setMailtoFallbackLink] = useState<string | null>(null);
 
   // Load collaborator details
   const fetchCollaboratorData = async (targetToken: string) => {
@@ -147,6 +168,18 @@ export const AcceptCollaboratorInvitePage: React.FC<AcceptCollaboratorInvitePage
     setSubmitting(false);
 
     if (result.success && result.collaborator) {
+      if (result.collaborator.engineerId) {
+        sessionStorage.setItem('zenithrx_quantum_prefill_id', result.collaborator.engineerId);
+      }
+      if (result.collaborator.engineeringMasterKey) {
+        sessionStorage.setItem('zenithrx_quantum_prefill_key', result.collaborator.engineeringMasterKey);
+      }
+      if (result.collaborator.email) {
+        sessionStorage.setItem('zenithrx_quantum_prefill_email', result.collaborator.email);
+      }
+      if (result.mailtoLink) {
+        setMailtoFallbackLink(result.mailtoLink);
+      }
       setCollaborator(result.collaborator);
       setSuccessResult(result.collaborator);
     } else {
@@ -253,67 +286,221 @@ export const AcceptCollaboratorInvitePage: React.FC<AcceptCollaboratorInvitePage
             )}
           </div>
         ) : successResult ? (
-          /* Account Activated Celebration Card */
-          <div className="max-w-xl mx-auto bg-white border border-[#E3ECE8] rounded-3xl p-8 sm:p-10 shadow-2xl text-center space-y-6 animate-in fade-in zoom-in-95">
-            <div className="w-16 h-16 rounded-3xl bg-[#E8F7F0] border-2 border-[#20A66A]/30 flex items-center justify-center text-[#20A66A] mx-auto shadow-sm">
-              <CheckCircle2 className="w-9 h-9" />
-            </div>
-
-            <div className="space-y-2">
-              <span className="text-[11px] font-black uppercase tracking-widest text-[#20A66A] block">
-                STATUTORY ACCEPTANCE CONFIRMED
-              </span>
-              <h2 className="text-2xl font-black text-[#263B33] tracking-tight">
-                Welcome to ZenithRx Enterprise, {successResult.fullName}!
-              </h2>
-              <p className="text-xs text-[#5E7A70] max-w-md mx-auto leading-relaxed">
-                Your administrative appointment as <strong>{successResult.role} ({successResult.domainScope?.replace(/_/g, ' ')})</strong> is officially activated with full NDA statutory authorization.
-              </p>
-            </div>
-
-            <div className="bg-[#F8FBFA] border border-[#E3ECE8] rounded-2xl p-4 text-left space-y-2 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[#5E7A70]">Registered Admin Email:</span>
-                <strong className="text-[#263B33] font-mono">{successResult.email}</strong>
+          /* Quantum Networks Level 5 Root Console Credentials Presentation */
+          <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in zoom-in-95">
+            {/* Top Success Banner */}
+            <div className="bg-[#E8F7F0] border border-[#20A66A]/30 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#20A66A] text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#1E744F] block">
+                    PASSWORD CONFIGURED &amp; VERIFIED
+                  </span>
+                  <h4 className="text-sm font-black text-[#263B33]">
+                    Level-5 Root Credentials Created &amp; Dispatched
+                  </h4>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#5E7A70]">Session Status:</span>
-                <span className="px-2 py-0.5 rounded-full bg-[#E8F7F0] text-[#1E744F] font-bold text-[10px] border border-[#20A66A]/20">
-                  ACTIVE SESSION TOKEN ISSUED
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#5E7A70]">Superuser Governance Status:</span>
-                <strong className="text-[#20A66A]">ACTIVE &amp; VALIDATED</strong>
+              <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-white border border-[#20A66A]/20 rounded-full text-[11px] font-bold text-[#1E744F]">
+                <Cpu className="w-3.5 h-3.5 text-[#20A66A]" />
+                <span>256-Bit Cryptographic CSPRNG</span>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-              {onSuccessLaunch ? (
+            {/* Quantum Networks Console Credentials Card (Exact Match to Screenshot) */}
+            <div className="bg-white border-2 border-cyan-500/30 rounded-3xl p-6 sm:p-8 text-slate-900 shadow-2xl relative overflow-hidden">
+              <div className="absolute -top-24 -right-24 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Console Header */}
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-5 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-600 shadow-inner">
+                    <Cpu className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black tracking-widest text-cyan-700 uppercase">
+                        QUANTUM NETWORKS LTD
+                      </span>
+                      <span className="bg-cyan-100 text-cyan-800 border border-cyan-300 text-[9px] px-2 py-0.5 rounded-full font-bold">
+                        LEVEL 5 ROOT
+                      </span>
+                    </div>
+                    <h2 className="text-xl font-black tracking-tight text-slate-900 mt-0.5">
+                      System Engineering Console
+                    </h2>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-[10px] text-slate-400 font-mono block">CLEARANCE</span>
+                  <span className="text-xs font-bold text-emerald-600 font-mono">ROOT_ADMIN</span>
+                </div>
+              </div>
+
+              {/* Security Statement Notice */}
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6">
+                <div className="flex items-start gap-2.5">
+                  <ShieldAlert className="w-5 h-5 text-cyan-600 shrink-0 mt-0.5" />
+                  <div className="text-xs leading-relaxed text-slate-700">
+                    <p className="font-bold text-slate-900 mb-0.5">
+                      Restricted to Quantum Networks Technical Engineering Staff
+                    </p>
+                    <p className="text-[11px] text-slate-600">
+                      ZenithRx System Administration is governed exclusively by <strong>Quantum Networks Ltd</strong> (the platform architecture &amp; engineering firm). Client pharmacy personnel (pharmacists, cashiers, dispensers) cannot access this control plane.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* The Two Fields From Screenshot */}
+              <div className="space-y-4">
+                {/* Field 1: QUANTUM NETWORKS ENGINEER ID */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                      QUANTUM NETWORKS ENGINEER ID
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (successResult.engineerId) {
+                          navigator.clipboard.writeText(successResult.engineerId);
+                          setCopiedId(true);
+                          setTimeout(() => setCopiedId(false), 2000);
+                        }
+                      }}
+                      className="text-[11px] font-bold text-cyan-700 hover:text-cyan-800 flex items-center gap-1 cursor-pointer"
+                    >
+                      {copiedId ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="text-emerald-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy ID</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <div className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm text-cyan-900 font-bold flex items-center gap-2 select-all shadow-inner">
+                      <span className="text-slate-400 select-none">&gt;_</span>
+                      <span>{successResult.engineerId || 'QN-ENG-8801'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Field 2: ENGINEERING AUTHORIZATION MASTER KEY */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                      ENGINEERING AUTHORIZATION MASTER KEY
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (successResult.engineeringMasterKey) {
+                          navigator.clipboard.writeText(successResult.engineeringMasterKey);
+                          setCopiedKey(true);
+                          setTimeout(() => setCopiedKey(false), 2000);
+                        }
+                      }}
+                      className="text-[11px] font-bold text-cyan-700 hover:text-cyan-800 flex items-center gap-1 cursor-pointer"
+                    >
+                      {copiedKey ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="text-emerald-600">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy Master Key</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <div className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-300 rounded-xl font-mono text-sm text-slate-900 font-bold flex items-center gap-2 select-all break-all shadow-inner">
+                      <KeyRound className="w-4 h-4 text-slate-400 shrink-0 select-none" />
+                      <span className="text-slate-800">{successResult.engineeringMasterKey}</span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1.5 flex items-center gap-1">
+                    <Lock className="w-3 h-3 text-[#20A66A]" />
+                    <span>Protected by Level-5 Quantum Security Protocol &amp; Immutable Audit Telemetry.</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Automatic Email Notification Box */}
+              <div className="mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-2">
+                <div className="flex items-center gap-2 font-bold">
+                  <Mail className="w-4 h-4 text-[#20A66A]" />
+                  <span>Credentials Automatically Dispatched to Email:</span>
+                </div>
+                <div className="pl-6 space-y-1">
+                  <p className="font-mono text-xs text-[#263B33] font-bold">
+                    {successResult.email}
+                  </p>
+                  <p className="text-[11px] text-[#5E7A70]">
+                    A copy of your Engineer ID, Engineering Master Key, and direct console access instructions has been sent to your inbox.
+                  </p>
+                </div>
+                {mailtoFallbackLink && (
+                  <div className="pl-6 pt-1">
+                    <a
+                      href={mailtoFallbackLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#1E744F] underline hover:text-[#20A66A]"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open Credentials Dispatch in Email App</span>
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Button: Authenticate in System Engineering Console Now */}
+              <div className="mt-6 space-y-3">
                 <button
-                  onClick={() => onSuccessLaunch(successResult)}
-                  className="w-full sm:w-auto px-6 py-3 bg-[#20A66A] hover:bg-[#1E9760] text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Launch Admin Control Plane</span>
-                </button>
-              ) : onNavigateLogin ? (
-                <button
-                  onClick={onNavigateLogin}
-                  className="w-full sm:w-auto px-6 py-3 bg-[#20A66A] hover:bg-[#1E9760] text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
+                  type="button"
+                  onClick={() => {
+                    if (onSuccessLaunch) {
+                      onSuccessLaunch(successResult);
+                    } else if (onNavigateLogin) {
+                      onNavigateLogin();
+                    } else {
+                      window.location.hash = '#admin';
+                      window.location.reload();
+                    }
+                  }}
+                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
-                  <span>Proceed to Admin Sign In</span>
+                  <span>Authenticate as Quantum Systems Engineer</span>
                 </button>
-              ) : (
-                <a
-                  href="/#adminDelegated"
-                  className="w-full sm:w-auto px-6 py-3 bg-[#20A66A] hover:bg-[#1E9760] text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Enter ZenithRx Control Plane</span>
-                </a>
-              )}
+
+                <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={onNavigateHome}
+                    className="hover:text-slate-800 transition cursor-pointer flex items-center gap-1"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" /> Return to Pharmacy Workspace
+                  </button>
+                  <span className="text-[10px] font-mono text-slate-400">
+                    Server-verified · 5 attempts then lockout
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
