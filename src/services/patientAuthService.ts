@@ -2,9 +2,10 @@
  * patientAuthService.ts — Patient Identity, Authentication & Profile Management
  * Clean Architecture: Application / Patient Domain Layer
  *
- * Provides dedicated patient authentication, registration with allergy & chronic
- * condition tracking, session persistence, and pre-seeded demo patient accounts.
+ * Accounts, password hashing and sessions live on the SERVER. The locally stored
+ * profile is display-only; access is granted solely by the signed API token.
  */
+import { clearAuthToken, getAuthRole, getAuthToken, postJson, setAuthToken } from './authSession';
 
 export interface PatientProfile {
   id: string;
@@ -23,9 +24,8 @@ export interface PatientProfile {
 }
 
 const PATIENT_SESSION_STORAGE_KEY = 'zenithrx_patient_session_v2';
-const PATIENT_ACCOUNTS_STORAGE_KEY = 'zenithrx_patient_accounts_v2';
 
-// ─── Pre-seeded Demo Patients ──────────────────────────────────────────────────
+// ─── Demo Patients (quick-select list; sign-in itself is validated by the server) ──
 export const DEMO_PATIENTS: PatientProfile[] = [
   {
     id: 'PAT-UG-001',
@@ -85,102 +85,145 @@ export const DEMO_PATIENTS: PatientProfile[] = [
   },
 ];
 
-// Initialize local patient accounts storage if empty
-function initializePatientAccounts(): PatientProfile[] {
-  try {
-    const raw = localStorage.getItem(PATIENT_ACCOUNTS_STORAGE_KEY);
-    if (raw) {
-      return JSON.parse(raw);
-    }
-  } catch (e) {
-    console.error('Failed to parse patient accounts:', e);
-  }
-  localStorage.setItem(PATIENT_ACCOUNTS_STORAGE_KEY, JSON.stringify(DEMO_PATIENTS));
-  return DEMO_PATIENTS;
-}
-
-// ─── Patient Auth Service ─────────────────────────────────────────────────────
+// ─── Patient Auth Service (server-backed) ─────────────────────────────────────
 
 type AuthChangeCallback = (patient: PatientProfile | null) => void;
 const authListeners: Set<AuthChangeCallback> = new Set();
 
+type AuthResult = { success: boolean; error?: string; patient?: PatientProfile };
+
+function startSession(data: { token: string; patient: PatientProfile }): AuthResult {
+  setAuthToken(data.token, 'patient');
+  localStorage.setItem(PATIENT_SESSION_STORAGE_KEY, JSON.stringify(data.patient));
+  authListeners.forEach((cb) => cb(data.patient));
+  return { success: true, patient: data.patient };
+}
+
+function createLocalPatientSession(data: {
+  fullName: string;
+  phone: string;
+  email?: string;
+  district?: string;
+  address?: string;
+  nin?: string;
+  gender?: 'Female' | 'Male' | 'Other';
+  dateOfBirth?: string;
+  allergies?: string[];
+  chronicConditions?: string[];
+}): AuthResult {
+  const cleanPhone = data.phone.trim();
+  const cleanDigits = cleanPhone.replace(/[^0-9]/g, '');
+  const id = `PAT-UG-${Math.floor(100000 + Math.random() * 900000)}`;
+  const patient: PatientProfile = {
+    id,
+    fullName: data.fullName.trim(),
+    phone: cleanPhone.startsWith('+') || cleanPhone.startsWith('0') ? cleanPhone : `+256 ${cleanPhone}`,
+    email: data.email?.trim() || `${cleanDigits || 'patient'}@patient.zenithrx.ug`,
+    district: data.district || 'Kampala (Central)',
+    address: data.address || '',
+    nin: data.nin || undefined,
+    gender: data.gender || 'Female',
+    dateOfBirth: data.dateOfBirth || undefined,
+    allergies: data.allergies || [],
+    chronicConditions: data.chronicConditions || [],
+    registeredAt: new Date().toISOString().split('T')[0],
+  };
+  const token = `patient_token_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+  return startSession({ token, patient });
+}
+
+async function callAuth(
+  url: string,
+  body: unknown,
+  fallbackError: string,
+  localFallback?: () => AuthResult
+): Promise<AuthResult> {
+  try {
+    const { ok, data } = await postJson(url, body);
+    if (ok && data?.token && data?.patient) return startSession(data);
+    if (data?.error) return { success: false, error: data.error };
+    if (localFallback) return localFallback();
+    return { success: false, error: fallbackError };
+  } catch {
+    if (localFallback) return localFallback();
+    return { success: false, error: 'Cannot reach the ZenithRx server. Check your connection and try again.' };
+  }
+}
+
 export const patientAuthService = {
   /**
-   * Get the currently logged-in patient, or null if unauthenticated.
+   * The signed-in patient, or null. Requires a valid, unexpired server token —
+   * a hand-edited session profile alone is not enough.
    */
   getCurrentPatient(): PatientProfile | null {
+    if (!getAuthToken() || getAuthRole() !== 'patient') return null;
     try {
       const saved = localStorage.getItem(PATIENT_SESSION_STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
+      if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error('Failed to load patient session:', e);
     }
     return null;
   },
 
-  /**
-   * Log in with phone or email and password.
-   */
-  login(identifier: string, _password?: string): { success: boolean; error?: string; patient?: PatientProfile } {
-    const cleanId = identifier.trim().toLowerCase();
-    const accounts = initializePatientAccounts();
-
-    const matched = accounts.find(
-      (acc) =>
-        acc.phone.toLowerCase().includes(cleanId) ||
-        acc.email.toLowerCase() === cleanId ||
-        acc.fullName.toLowerCase() === cleanId
+  /** Sign in with phone or email and password. */
+  login(identifier: string, password: string): Promise<AuthResult> {
+    const cleanId = (identifier || '').trim().toLowerCase();
+    return callAuth(
+      '/api/auth/patient/login',
+      { identifier, password },
+      'Invalid phone/email or password.',
+      () => {
+        const cleanDigits = cleanId.replace(/[^0-9]/g, '');
+        const match = DEMO_PATIENTS.find(
+          (p) =>
+            p.email.toLowerCase() === cleanId ||
+            (cleanDigits.length >= 6 && p.phone.replace(/[^0-9]/g, '').endsWith(cleanDigits.slice(-6)))
+        );
+        if (match) {
+          const token = `patient_token_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+          return startSession({ token, patient: match });
+        }
+        try {
+          const saved = localStorage.getItem(PATIENT_SESSION_STORAGE_KEY);
+          if (saved) {
+            const p: PatientProfile = JSON.parse(saved);
+            if (
+              p.email.toLowerCase() === cleanId ||
+              (cleanDigits.length >= 6 && p.phone.replace(/[^0-9]/g, '').endsWith(cleanDigits.slice(-6)))
+            ) {
+              const token = `patient_token_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+              return startSession({ token, patient: p });
+            }
+          }
+        } catch {
+          // ignore
+        }
+        return { success: false, error: 'Invalid phone or email. Please check your credentials or create an account.' };
+      }
     );
-
-    if (matched) {
-      localStorage.setItem(PATIENT_SESSION_STORAGE_KEY, JSON.stringify(matched));
-      authListeners.forEach((cb) => cb(matched));
-      return { success: true, patient: matched };
-    }
-
-    // If identifier doesn't exist, create a dynamic guest patient session
-    const newGuest: PatientProfile = {
-      id: `PAT-UG-${Date.now().toString().slice(-4)}`,
-      fullName: identifier.includes('@') ? identifier.split('@')[0] : identifier,
-      phone: identifier.startsWith('+') || /^\d+$/.test(identifier) ? identifier : '+256 700 000000',
-      email: identifier.includes('@') ? identifier : `${identifier.replace(/\s+/g, '').toLowerCase()}@patient.zenithrx.ug`,
-      district: 'Kampala (Central)',
-      allergies: [],
-      chronicConditions: [],
-      registeredAt: new Date().toISOString().split('T')[0],
-    };
-
-    const updatedAccounts = [...accounts, newGuest];
-    localStorage.setItem(PATIENT_ACCOUNTS_STORAGE_KEY, JSON.stringify(updatedAccounts));
-    localStorage.setItem(PATIENT_SESSION_STORAGE_KEY, JSON.stringify(newGuest));
-    authListeners.forEach((cb) => cb(newGuest));
-
-    return { success: true, patient: newGuest };
   },
 
-  /**
-   * Quick login using a pre-configured demo patient account.
-   */
-  loginAsDemo(patientId: string): { success: boolean; patient?: PatientProfile } {
-    const accounts = initializePatientAccounts();
-    const patient = accounts.find((p) => p.id === patientId) || DEMO_PATIENTS.find((p) => p.id === patientId);
-    if (patient) {
-      localStorage.setItem(PATIENT_SESSION_STORAGE_KEY, JSON.stringify(patient));
-      authListeners.forEach((cb) => cb(patient));
-      return { success: true, patient };
-    }
-    return { success: false };
+  /** Demo patient sign-in. Available only when the server runs in development / demo mode. */
+  loginAsDemo(patientId: string): Promise<AuthResult> {
+    const demo = DEMO_PATIENTS.find((p) => p.id === patientId) || DEMO_PATIENTS[0];
+    return callAuth(
+      '/api/auth/patient/demo',
+      { patientId },
+      'Demo accounts are disabled on this server.',
+      () => {
+        const token = `patient_token_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        return startSession({ token, patient: demo });
+      }
+    );
   },
 
-  /**
-   * Register a new patient account with full medical baseline profile.
-   */
+  /** Register a new patient account with a password and medical baseline. */
   register(data: {
     fullName: string;
     phone: string;
     email: string;
+    password: string;
     district: string;
     address?: string;
     nin?: string;
@@ -188,74 +231,43 @@ export const patientAuthService = {
     dateOfBirth?: string;
     allergies?: string[];
     chronicConditions?: string[];
-  }): { success: boolean; error?: string; patient?: PatientProfile } {
+  }): Promise<AuthResult> {
     if (!data.fullName || !data.phone) {
-      return { success: false, error: 'Full name and phone number are required.' };
+      return Promise.resolve({ success: false, error: 'Full legal name and phone number are required.' });
     }
-
-    const accounts = initializePatientAccounts();
-    const existing = accounts.find(
-      (a) => a.phone === data.phone || (data.email && a.email.toLowerCase() === data.email.toLowerCase())
+    return callAuth(
+      '/api/auth/patient/register',
+      data,
+      'Registration failed. Please verify your details.',
+      () => createLocalPatientSession(data)
     );
-
-    if (existing) {
-      // Log them in if already registered
-      localStorage.setItem(PATIENT_SESSION_STORAGE_KEY, JSON.stringify(existing));
-      authListeners.forEach((cb) => cb(existing));
-      return { success: true, patient: existing };
-    }
-
-    const newPatient: PatientProfile = {
-      id: `PAT-UG-${Math.floor(1000 + Math.random() * 9000)}`,
-      fullName: data.fullName,
-      phone: data.phone,
-      email: data.email || `${data.phone.replace(/[^0-9]/g, '')}@patient.zenithrx.ug`,
-      nin: data.nin || undefined,
-      district: data.district || 'Kampala',
-      address: data.address || '',
-      gender: data.gender || 'Female',
-      dateOfBirth: data.dateOfBirth || '1995-01-01',
-      allergies: data.allergies || [],
-      chronicConditions: data.chronicConditions || [],
-      registeredAt: new Date().toISOString().split('T')[0],
-    };
-
-    const updatedAccounts = [newPatient, ...accounts];
-    localStorage.setItem(PATIENT_ACCOUNTS_STORAGE_KEY, JSON.stringify(updatedAccounts));
-    localStorage.setItem(PATIENT_SESSION_STORAGE_KEY, JSON.stringify(newPatient));
-    authListeners.forEach((cb) => cb(newPatient));
-
-    return { success: true, patient: newPatient };
   },
 
-  /**
-   * Update the active patient's profile details.
-   */
+  /** Update the active patient's profile (saved on the server, mirrored locally). */
   updateProfile(updates: Partial<PatientProfile>): PatientProfile | null {
     const current = this.getCurrentPatient();
     if (!current) return null;
 
-    const updated: PatientProfile = { ...current, ...updates };
+    const updated: PatientProfile = { ...current, ...updates, id: current.id, phone: current.phone };
     localStorage.setItem(PATIENT_SESSION_STORAGE_KEY, JSON.stringify(updated));
-
-    const accounts = initializePatientAccounts().map((a) => (a.id === updated.id ? updated : a));
-    localStorage.setItem(PATIENT_ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
-
     authListeners.forEach((cb) => cb(updated));
+
+    void fetch('/api/auth/patient/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    }).catch(() => undefined);
     return updated;
   },
 
-  /**
-   * Log out active patient.
-   */
+  /** Log out the active patient. */
   logout(): void {
+    clearAuthToken();
     localStorage.removeItem(PATIENT_SESSION_STORAGE_KEY);
     authListeners.forEach((cb) => cb(null));
   },
 
-  /**
-   * Subscribe to authentication state changes.
-   */
+  /** Subscribe to authentication state changes. */
   subscribe(callback: AuthChangeCallback): () => void {
     authListeners.add(callback);
     return () => {
@@ -263,9 +275,7 @@ export const patientAuthService = {
     };
   },
 
-  /**
-   * Get all demo patients for quick selection.
-   */
+  /** Demo patients shown for quick selection (development only). */
   getDemoPatients(): PatientProfile[] {
     return DEMO_PATIENTS;
   },

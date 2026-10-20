@@ -63,6 +63,10 @@
   --space-lg: 24px;
   --space-xl: 32px;
   --space-2xl: 48px;
+  /* Minimum Lateral Margin Token (Guaranteed at least 0.8cm across all viewports) */
+  --margin-lateral-min: clamp(0.8cm, 2.5vw, 1.2cm);
+  /* Minimum Vertical Margin Token (Guaranteed at least 0.8cm across all viewports) */
+  --margin-vertical-min: clamp(0.8cm, 2.5vh, 1.2cm);
 
   /* Touch & Retail Hardware Targets (§11.16) */
   --touch-target-min: 44px;
@@ -377,4 +381,22 @@ html, body {
     size: 80mm auto;
     margin: 0;
   }
+}
+
+/* --- Minimum 0.8cm Lateral & Vertical Margins Utilities --- */
+.page-lateral-margins {
+  padding-left: clamp(0.8cm, 2.5vw, 1.2cm) !important;
+  padding-right: clamp(0.8cm, 2.5vw, 1.2cm) !important;
+}
+
+.page-vertical-margins {
+  padding-top: clamp(0.8cm, 2.5vh, 1.2cm) !important;
+  padding-bottom: clamp(0.8cm, 2.5vh, 1.2cm) !important;
+}
+
+.page-margins {
+  padding-left: clamp(0.8cm, 2.5vw, 1.2cm) !important;
+  padding-right: clamp(0.8cm, 2.5vw, 1.2cm) !important;
+  padding-top: clamp(0.8cm, 2.5vh, 1.2cm) !important;
+  padding-bottom: clamp(0.8cm, 2.5vh, 1.2cm) !important;
 }

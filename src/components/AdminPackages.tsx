@@ -95,12 +95,14 @@ interface AdminPackagesProps {
   activeClient: ClientSubscription;
   setActiveClient: (client: ClientSubscription) => void;
   subTab?: string;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export const AdminPackages: React.FC<AdminPackagesProps> = ({
   activeClient,
   setActiveClient,
   subTab,
+  onNavigateTab,
 }) => {
   const [clients, setClients] = useState<ClientSubscription[]>(INITIAL_CLIENT_SUBSCRIPTIONS);
   const [selectedClientId, setSelectedClientId] = useState<string>(activeClient.id);
@@ -1175,7 +1177,7 @@ export const AdminPackages: React.FC<AdminPackagesProps> = ({
 
       {/* TAB 0: SUPERUSER CONTROL PLANE (§11.17) */}
       {activeTab === 'controlPlane' && (
-        <AdminControlPlane currentSuperAdminName="Dr. Arthur Ssenabulya" governanceTab={subTab} />
+        <AdminControlPlane currentSuperAdminName="Dr. Arthur Ssenabulya" governanceTab={subTab} onNavigateTab={onNavigateTab} />
       )}
 
       {/* TAB 1: CLIENT TAILORING MATRIX */}

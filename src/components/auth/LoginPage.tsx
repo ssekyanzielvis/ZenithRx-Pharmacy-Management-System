@@ -347,7 +347,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#070F1C] text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-white transition-colors duration-200">
       {/* ── Top Header Navigation Bar ── */}
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#0B1526]/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-xs transition-colors duration-200">
+      <header
+        className="sticky top-0 z-30 bg-white/95 dark:bg-[#0B1526]/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 py-3.5 flex items-center justify-between shadow-xs transition-colors duration-200"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+        }}
+      >
         <div className="flex items-center gap-3">
           {onBackToLanding && (
             <button
@@ -420,7 +426,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       </header>
 
       {/* ── Main Two-Column Hero / Auth Container ── */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-8 lg:p-12 relative overflow-hidden">
+      <main
+        className="flex-1 flex items-center justify-center relative overflow-hidden"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingTop: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+          paddingBottom: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+        }}
+      >
         {/* Ambient Background Glows */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 dark:bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -768,7 +782,15 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       </main>
 
       {/* ── Page Footer ── */}
-      <footer className="bg-white dark:bg-[#0B1526]/80 border-t border-slate-200 dark:border-slate-800 py-4 px-4 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors duration-200">
+      <footer
+        className="bg-white dark:bg-[#0B1526]/80 border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors duration-200"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingTop: 'clamp(0.8cm, 2vh, 1cm)',
+          paddingBottom: 'clamp(0.8cm, 2vh, 1cm)',
+        }}
+      >
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="font-medium">
             ZenithRx · Uganda National Drug Authority (NDA) Regulated Platform

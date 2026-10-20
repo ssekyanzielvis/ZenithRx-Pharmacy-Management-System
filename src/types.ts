@@ -36,6 +36,7 @@ export type ModuleTab =
   | 'adminExecutive'
   | 'adminPolicies'
   | 'adminDelegated'
+  | 'adminInviteCollaborator'
   | 'adminDualControl'
   | 'adminIncidents'
   | 'adminMatrix'

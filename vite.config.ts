@@ -32,9 +32,19 @@ export default defineConfig(({ mode }) => {
           patient: path.resolve(__dirname, 'patient.html'),
         },
         output: {
-          manualChunks: {
-            'vendor-react': ['react', 'react-dom'],
-            'vendor-icons': ['lucide-react'],
+          manualChunks(id) {
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('node_modules/lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('node_modules/qrcode')) {
+              return 'vendor-qrcode';
+            }
+            if (id.includes('node_modules/motion')) {
+              return 'vendor-motion';
+            }
           },
         },
       },

@@ -23,6 +23,7 @@ import {
   Info,
   ShieldAlert,
   ArrowRight,
+  ArrowLeft,
   Building2,
   MessageSquare,
 } from 'lucide-react';
@@ -45,6 +46,7 @@ interface PatientAICopilotPageProps {
   patientUser: PatientProfile | null;
   onOpenTeleconsult?: () => void;
   onNavigateToMedSearch?: (query: string) => void;
+  onGoBack?: () => void;
 }
 
 const QUICK_PROMPT_TOPICS = [
@@ -96,6 +98,7 @@ export const PatientAICopilotPage: React.FC<PatientAICopilotPageProps> = ({
   patientUser,
   onOpenTeleconsult,
   onNavigateToMedSearch,
+  onGoBack,
 }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -269,28 +272,28 @@ export const PatientAICopilotPage: React.FC<PatientAICopilotPageProps> = ({
 
   return (
     <div className="space-y-[1cm]" style={{ paddingTop: '1cm', paddingBottom: '1cm' }}>
-      {/* ── 1. Page Header & Clinical Triage Command Bar ── */}
+      {/* ── 1. Page Header & Clinical Triage Command Bar (Follows System Light/Dark Theme) ── */}
       <div
-        className="bg-gradient-to-r from-[#0d3b43] via-[#092e35] to-[#071a24] text-white rounded-3xl border border-teal-500/30 shadow-lg relative overflow-hidden"
+        className="bg-gradient-to-r from-emerald-50/80 via-teal-50/40 to-white dark:from-[#0d3b43] dark:via-[#092e35] dark:to-[#071a24] text-slate-900 dark:text-white rounded-3xl border border-emerald-200/80 dark:border-teal-500/30 shadow-xs dark:shadow-lg relative overflow-hidden transition-colors duration-200"
         style={{ padding: '1cm', marginBottom: '1cm' }}
       >
         <div className="absolute right-0 top-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <div className="w-10 h-10 rounded-2xl bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300 shadow-xs">
-                <Sparkles className="w-5 h-5 text-teal-300 animate-pulse" />
+              <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-teal-500/20 border border-emerald-300/80 dark:border-teal-400/40 flex items-center justify-center text-emerald-700 dark:text-teal-300 shadow-xs">
+                <Sparkles className="w-5 h-5 text-emerald-600 dark:text-teal-300 animate-pulse" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
                     Quantum RxAI Copilot
                   </h1>
-                  <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full">
+                  <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-300/80 dark:border-emerald-400/30 rounded-full shadow-2xs">
                     24/7 Clinical Triage
                   </span>
                 </div>
-                <p className="text-xs text-teal-200/90 font-medium mt-1">
+                <p className="text-xs text-slate-600 dark:text-teal-200/90 font-medium mt-1">
                   Intelligent dosage clarification, drug interactions &amp; symptom severity screening
                 </p>
               </div>
@@ -299,10 +302,20 @@ export const PatientAICopilotPage: React.FC<PatientAICopilotPageProps> = ({
 
           {/* Action Hub */}
           <div className="flex items-center gap-2.5 flex-wrap">
+            {onGoBack && (
+              <button
+                onClick={onGoBack}
+                className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-white/10 dark:hover:bg-white/20 border border-slate-200 dark:border-white/15 text-slate-700 dark:text-white font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-xs"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Previous Page</span>
+              </button>
+            )}
+
             {onOpenTeleconsult && (
               <button
                 onClick={onOpenTeleconsult}
-                className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-teal-500 dark:hover:bg-teal-400 dark:text-slate-950 font-black text-xs shadow-md shadow-emerald-600/20 dark:shadow-teal-900/40 transition-all cursor-pointer flex items-center gap-1.5 active:scale-95"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span>Ask Human Pharmacist</span>
@@ -311,7 +324,7 @@ export const PatientAICopilotPage: React.FC<PatientAICopilotPageProps> = ({
 
             <button
               onClick={handleReset}
-              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-white/10 dark:hover:bg-white/20 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 shadow-xs"
               title="Reset conversation"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -322,19 +335,19 @@ export const PatientAICopilotPage: React.FC<PatientAICopilotPageProps> = ({
 
         {/* Patient Clinical Profile Context Bar with 1cm vertical spacing */}
         <div
-          className="border-t border-teal-500/20 flex items-center justify-between gap-3 text-xs text-teal-100/80 flex-wrap"
+          className="border-t border-slate-200/80 dark:border-teal-500/20 flex items-center justify-between gap-3 text-xs text-slate-600 dark:text-teal-100/80 flex-wrap"
           style={{ marginTop: '1cm', paddingTop: '1cm' }}
         >
-          <div className="flex items-center gap-2 font-medium">
-            <span className="text-emerald-400 font-bold">Safety Profile:</span>
-            <span>{patientUser?.fullName || 'Grace Nakato'}</span>
+          <div className="flex items-center gap-2 font-medium flex-wrap">
+            <span className="text-emerald-700 dark:text-emerald-400 font-bold">Safety Profile:</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100">{patientUser?.fullName || 'Grace Nakato'}</span>
             <span>•</span>
-            <span>Allergies: {patientUser?.allergies?.length ? patientUser.allergies.join(', ') : 'None Recorded'}</span>
+            <span>Allergies: <strong className="text-rose-600 dark:text-rose-300 font-bold">{patientUser?.allergies?.length ? patientUser.allergies.join(', ') : 'None Recorded'}</strong></span>
             <span>•</span>
             <span>Regimen: Active Antibiotics &amp; Analgesics</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-teal-300 font-semibold">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-teal-300 font-semibold">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>NDA &amp; PSU Clinical Guidelines Grounded</span>
           </div>
         </div>
@@ -609,88 +622,98 @@ export const PatientAICopilotPage: React.FC<PatientAICopilotPageProps> = ({
         {/* Right Column: Clinical Safety & Protocol Panel (4 cols on lg) with exact 1cm vertical gap between cards */}
         <div className="lg:col-span-4 flex flex-col" style={{ gap: '1cm' }}>
           
-          {/* Active Safety Profile Card with 1cm padding */}
+          {/* Active Safety Profile Card with generous clinical padding */}
           <div
-            className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-4"
-            style={{ padding: '1cm' }}
+            className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
+            style={{ padding: '2rem 1.8rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
           >
-            <div
-              className="flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800"
-              style={{ paddingBottom: '0.5cm' }}
-            >
-              <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-4 h-4" />
+            <div className="flex items-center gap-3.5 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200/80 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
+                <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">
+                <h3 className="text-base font-black text-slate-900 dark:text-slate-100 leading-tight">
                   Active Clinical Safety Shield
                 </h3>
-                <p className="text-[10px] text-slate-400">Personalized to your registered profile</p>
+                <p className="text-xs text-slate-400 font-medium mt-0.5">Personalized to your registered profile</p>
               </div>
             </div>
 
-            <div className="space-y-3 text-xs" style={{ marginTop: '0.5cm', marginBottom: '0.5cm' }}>
-              <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/80">
-                <span className="text-slate-500">Patient Name:</span>
-                <span className="font-extrabold text-slate-800 dark:text-slate-200">{patientUser?.fullName || 'Grace Nakato'}</span>
-              </div>
-              <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/80">
-                <span className="text-slate-500">Known Allergies:</span>
-                <span className="font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md">
-                  {patientUser?.allergies?.length ? patientUser.allergies.join(', ') : 'None Reported'}
+            <div className="flex flex-col gap-2.5 text-xs">
+              {/* Patient Name */}
+              <div className="flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Patient Name:</span>
+                <span className="font-black text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+                  {patientUser?.fullName || 'David Kato'}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800/80">
-                <span className="text-slate-500">Chronic Conditions:</span>
-                <span className="font-bold text-cyan-700 dark:text-cyan-300">
-                  {patientUser?.chronicConditions?.length ? patientUser.chronicConditions.join(', ') : 'Hypertension (Mild)'}
+
+              {/* Known Allergies */}
+              <div className="flex flex-col gap-1.5 p-3 sm:p-3.5 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-900/50">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-rose-800 dark:text-rose-300">Known Allergies:</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 dark:text-rose-400">Critical Alert</span>
+                </div>
+                <span className="inline-block font-black text-xs sm:text-[13px] text-rose-700 dark:text-rose-300 leading-relaxed">
+                  {patientUser?.allergies?.length ? patientUser.allergies.join(', ') : 'Aspirin (Bronchospasm / Wheezing)'}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2">
-                <span className="text-slate-500">Active Regimen:</span>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400">2 Monitored Drugs</span>
+
+              {/* Chronic Conditions */}
+              <div className="flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-cyan-50/60 dark:bg-cyan-950/30 border border-cyan-200/70 dark:border-cyan-900/50">
+                <span className="text-xs font-bold text-cyan-800 dark:text-cyan-300">Chronic Conditions:</span>
+                <span className="font-black text-xs sm:text-sm text-cyan-900 dark:text-cyan-200">
+                  {patientUser?.chronicConditions?.length ? patientUser.chronicConditions.join(', ') : 'Asthma'}
+                </span>
+              </div>
+
+              {/* Active Regimen */}
+              <div className="flex items-center justify-between gap-3 p-3 sm:p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-900/50">
+                <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">Active Regimen:</span>
+                <span className="font-black text-xs sm:text-sm text-emerald-700 dark:text-emerald-300">
+                  2 Monitored Drugs
+                </span>
               </div>
             </div>
 
             {onNavigateToMedSearch && (
               <button
                 onClick={() => onNavigateToMedSearch('')}
-                className="w-full py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                style={{ marginTop: '0.5cm' }}
+                className="w-full py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 hover:border-emerald-200 dark:bg-slate-800 dark:hover:bg-emerald-950/60 dark:hover:text-emerald-300 border border-slate-200/80 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs group active:scale-98"
               >
                 <span>Browse Formulary &amp; Stock</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition-all" />
               </button>
             )}
           </div>
 
-          {/* Quick Guided Clinical Topics Card with 1cm padding */}
+          {/* Quick Guided Clinical Topics Card */}
           <div
-            className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-4"
-            style={{ padding: '1cm' }}
+            className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
+            style={{ padding: '2rem 1.8rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}
           >
             <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">
               Guided Clinical Queries
             </h4>
-            <div className="space-y-3" style={{ gap: '0.4cm', display: 'flex', flexDirection: 'column' }}>
+            <div className="flex flex-col gap-3">
               {QUICK_PROMPT_TOPICS.map((topic, i) => {
                 const Icon = topic.icon;
                 return (
                   <button
                     key={i}
                     onClick={() => handleSend(topic.query)}
-                    className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-teal-50 dark:hover:bg-teal-950/40 border border-slate-100 dark:border-slate-800/80 hover:border-teal-500/40 text-left transition-all group cursor-pointer"
+                    className="w-full flex items-center justify-between p-3.5 rounded-2xl hover:bg-teal-50 dark:hover:bg-teal-950/40 border border-slate-100 dark:border-slate-800/80 hover:border-teal-500/40 text-left transition-all group cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-900/40 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0">
-                        <Icon className="w-3.5 h-3.5" />
+                      <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-900/40 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0">
+                        <Icon className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 truncate">
                         <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{topic.label}</p>
                         <p className="text-[10px] text-slate-400 truncate mt-0.5">{topic.description}</p>
                       </div>
                     </div>
-                    <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0 ml-2">
+                    <span className="text-[9px] font-extrabold uppercase px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 shrink-0 ml-2">
                       {topic.category}
                     </span>
                   </button>
@@ -699,31 +722,31 @@ export const PatientAICopilotPage: React.FC<PatientAICopilotPageProps> = ({
             </div>
           </div>
 
-          {/* Emergency Escalation & Teleconsult Card with 1cm padding */}
+          {/* Emergency Escalation & Teleconsult Card (Follows System Light/Dark Theme) */}
           <div
-            className="bg-gradient-to-br from-rose-950/40 to-slate-900 border border-rose-800/40 rounded-3xl shadow-xs space-y-4"
-            style={{ padding: '1cm' }}
+            className="bg-rose-50/80 dark:bg-gradient-to-br dark:from-rose-950/40 dark:to-slate-900 border border-rose-200 dark:border-rose-800/40 rounded-3xl shadow-xs"
+            style={{ padding: '2rem 1.8rem', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}
           >
-            <div className="flex items-center gap-2 text-rose-400 font-black text-xs uppercase tracking-wide">
+            <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-black text-xs uppercase tracking-wide">
               <ShieldAlert className="w-4 h-4" />
               <span>Clinical Safety Escalation</span>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
               If you develop chest pain, severe shortness of breath, anaphylaxis, or confusion, call emergency services immediately:
             </p>
-            <div className="grid grid-cols-2 gap-3" style={{ paddingTop: '0.3cm' }}>
+            <div className="grid grid-cols-2 gap-3 pt-1">
               <a
                 href="tel:999"
-                className="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs text-center flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                className="py-3 px-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs text-center flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
               >
                 <PhoneCall className="w-3.5 h-3.5" />
                 <span>Call 999 / 112</span>
               </a>
               <a
                 href="tel:0200913555"
-                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs text-center flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer"
+                className="py-3 px-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 font-bold text-xs text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
               >
-                <PhoneCall className="w-3.5 h-3.5 text-teal-400" />
+                <PhoneCall className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
                 <span>PSU Hotline</span>
               </a>
             </div>

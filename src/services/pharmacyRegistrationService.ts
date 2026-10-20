@@ -202,7 +202,28 @@ export const pharmacyRegistrationService = {
    */
   async registerPharmacy(input: PharmacyRegistrationInput): Promise<CertifiedPharmacyEntity> {
     const all = getStoredCertifiedPharmacies();
-    const newId = `pharm-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    let newId = `pharm-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+
+    // Persist to the database via the server. Duplicate licence/email is a hard error;
+    // an unreachable server falls back to local-only so registration is never lost.
+    try {
+      const resp = await fetch('/api/pharmacies/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      const body = await resp.json().catch(() => ({}));
+      if (resp.ok && body?.id) {
+        newId = body.id;
+      } else if (resp.status === 409 || resp.status === 400) {
+        throw new Error(body?.error || 'Registration was rejected.');
+      } else {
+        console.warn('[pharmacyRegistrationService] Server persist failed:', body?.error || resp.status);
+      }
+    } catch (err: any) {
+      if (/already registered|required|rejected/i.test(err?.message || '')) throw err;
+      console.warn('[pharmacyRegistrationService] Server unreachable, saved locally only:', err);
+    }
 
     const newEntity: CertifiedPharmacyEntity = {
       id: newId,
@@ -233,28 +254,6 @@ export const pharmacyRegistrationService = {
     const updated = [newEntity, ...all];
     saveStoredCertifiedPharmacies(updated);
 
-    // If Supabase is connected, insert into Supabase tenants table
-    if (isSupabaseConfigured && supabase) {
-      try {
-        await (supabase.from('tenants') as any).insert([
-          {
-            id: newId,
-            name: newEntity.pharmacyName,
-            slug: newEntity.pharmacyName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-            location: `${newEntity.physicalAddress}, ${newEntity.district}`,
-            contact_phone: newEntity.contactPhone,
-            contact_email: newEntity.contactEmail,
-            package_tier: newEntity.packageTier,
-            nda_license_no: newEntity.ndaLicenseNo,
-            nda_verified: false,
-            supervising_pharmacist: newEntity.supervisingPharmacistName,
-            billing_status: 'pending_renewal',
-          },
-        ]);
-      } catch (err) {
-        console.warn('[pharmacyRegistrationService] Supabase insert note:', err);
-      }
-    }
 
     void logAuditEvent({
       tenantId: newId,

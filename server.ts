@@ -1,14 +1,15 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
-import dotenv from 'dotenv';
 import crypto from 'crypto';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
-
-dotenv.config();
+import { registerSyncRoutes } from './syncRoutes';
+import { registerAuthRoutes, requireAuth } from './authRoutes';
+import nodemailer from 'nodemailer';
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
@@ -70,12 +71,20 @@ app.use((req, res, next) => {
   next();
 });
 
-// Global Rate Limiting & 30-Failed-Login Quarantine Trigger
-app.use((req, res, next) => {
+// API Rate Limiting & Authentication Quarantine Engine (Scoped to /api routes only)
+app.use('/api', (req, res, next) => {
+  const isDev = process.env.NODE_ENV !== 'production';
   const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.socket.remoteAddress || '127.0.0.1';
+  const isLocalhost = clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === 'localhost' || clientIp.includes('127.0.0.1');
+
   const now = Date.now();
   const windowMs = 60 * 1000; // 1 Minute window
-  const maxRequests = req.path.startsWith('/api/auth') ? 15 : 200;
+  // Higher limits for local dev and standard API requests; sensitive auth routes still protected
+  const maxRequests = isDev && isLocalhost
+    ? 5000
+    : req.path.startsWith('/auth')
+      ? Number(process.env.RATE_LIMIT_AUTH_PER_MIN ?? 60)
+      : 1000;
 
   let bucket = ipBuckets.get(clientIp);
   if (!bucket) {
@@ -83,7 +92,7 @@ app.use((req, res, next) => {
     ipBuckets.set(clientIp, bucket);
   }
 
-  // Check if IP is in quarantine (e.g. from 30 failed attempts)
+  // Check if IP is in quarantine (e.g. from excessive failed attempts)
   if (bucket.quarantinedUntil && now < bucket.quarantinedUntil) {
     const retrySecs = Math.ceil((bucket.quarantinedUntil - now) / 1000);
     res.setHeader('Retry-After', retrySecs.toString());
@@ -112,6 +121,40 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json({ limit: '10mb' }));
+
+// ─── Authentication, Authorization & API guards ──────────────────────────────────
+registerAuthRoutes(app);
+registerSyncRoutes(app);
+
+// Every remaining /api route requires a valid signed token, except public health/security
+// beacons, the payment-provider webhook (verified by its own signature), medicine catalog and auth endpoints.
+const PUBLIC_API = [
+  /^\/api\/health$/,
+  /^\/api\/security\/failed-login$/,
+  /^\/api\/auth\//,
+  /^\/api\/payments\/webhook\//,
+  /^\/api\/medicines/,
+  /^\/api\/collaborators\//,
+];
+
+// Serve static pharmaceutical product shots
+app.use('/medicines', express.static(path.join(process.cwd(), 'public', 'medicines')));
+
+app.use('/api', (req, res, next) => {
+  const full = `/api${req.path}`;
+  if (PUBLIC_API.some((p) => p.test(full))) return next();
+  return requireAuth()(req, res, next);
+});
+// Role gates
+app.use('/api/patient', requireAuth('patient', 'staff'));
+app.use('/api/files', requireAuth('patient', 'staff'));
+app.use('/api/payments', (req, res, next) =>
+  req.path.startsWith('/webhook/') ? next() : requireAuth('staff')(req, res, next),
+);
+
+/** Patients are always bound to their own identity; staff may act on a supplied patient. */
+const resolvePatientId = (req: express.Request, supplied?: string) =>
+  req.auth!.role === 'patient' ? req.auth!.sub : supplied;
 
 // ─── Cloudflare R2 Client ─────────────────────────────────────────────────────
 function getR2Client(): S3Client | null {
@@ -190,6 +233,306 @@ app.post('/api/security/failed-login', (req, res) => {
     failedAttempts: bucket.failedAuthCount,
     remainingBeforeQuarantine: Math.max(0, 30 - bucket.failedAuthCount),
   });
+});
+
+// ─── Outbound Collaborator Invitation Email Dispatch Engine ─────────────────
+function getMailTransporter() {
+  const host = process.env.SMTP_HOST || (process.env.SMTP_USER?.includes('@gmail.com') ? 'smtp.gmail.com' : undefined);
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    return null;
+  }
+
+  const port = Number(process.env.SMTP_PORT || (host === 'smtp.gmail.com' ? 465 : 587));
+  const secure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : port === 465;
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    auth: {
+      user,
+      pass,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+}
+
+function generateInviteEmailHtml(data: {
+  recipientName: string;
+  recipientEmail: string;
+  role: string;
+  domainScope: string;
+  invitationLink: string;
+  invitationToken: string;
+  expiresAt: string;
+  grantedBy: string;
+  permissionsList: string[];
+}): string {
+  const expiresDateStr = new Date(data.expiresAt).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  const controlsItems = (data.permissionsList || [])
+    .map(
+      (perm) => `
+      <div style="padding: 8px 12px; margin-bottom: 6px; background-color: #F8FBFA; border: 1px solid #E3ECE8; border-radius: 8px; font-size: 11px; color: #263B33;">
+        <span style="color: #20A66A; font-weight: bold; margin-right: 6px;">&#10003;</span>
+        ${perm}
+      </div>`
+    )
+    .join('');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ZenithRx Official Delegated Appointment</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F4F7FB; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #263B33;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F4F7FB; padding: 30px 15px;">
+    <tr>
+      <td align="center">
+        <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 20px; border: 1px solid #E3ECE8; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+          <tr>
+            <td style="background-color: #0D1A2A; padding: 24px 30px; text-align: left; border-bottom: 2px solid #20A66A;">
+              <span style="display: inline-block; background-color: rgba(32,166,106,0.18); border: 1px solid rgba(32,166,106,0.4); color: #20A66A; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 3px 8px; border-radius: 6px; margin-bottom: 8px;">
+                SUPERUSER GOVERNANCE §11.17
+              </span>
+              <h1 style="color: #ffffff; font-size: 20px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">
+                ZenithRx Enterprise Pharmacy Management System
+              </h1>
+              <p style="color: #94A3B8; font-size: 12px; margin: 4px 0 0 0;">
+                Official Delegated Administrative Appointment &amp; Credential Setup
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 30px 30px 20px 30px; line-height: 1.6; font-size: 13px; color: #263B33;">
+              <p style="margin-top: 0; font-size: 16px; font-weight: 700; color: #0D1A2A;">
+                Dear ${data.recipientName},
+              </p>
+              <p style="color: #4A6359; margin-bottom: 20px; font-size: 13px;">
+                You have been officially granted delegated administrative authority on the <strong>ZenithRx Platform</strong> by <strong>${data.grantedBy}</strong> (System Administrator).
+              </p>
+              
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #F8FBFA; border: 1px solid #E3ECE8; border-radius: 14px; margin-bottom: 22px;">
+                <tr>
+                  <td width="50%" style="padding: 12px 16px; border-bottom: 1px solid #E3ECE8;">
+                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #5E7A70; display: block;">Designated Role</span>
+                    <strong style="color: #20A66A; font-size: 14px;">${data.role}</strong>
+                  </td>
+                  <td width="50%" style="padding: 12px 16px; border-bottom: 1px solid #E3ECE8;">
+                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #5E7A70; display: block;">Domain Scope</span>
+                    <strong style="color: #0D1A2A; font-size: 13px;">${(data.domainScope || 'CLINICAL_OVERSIGHT').replace(/_/g, ' ')}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="50%" style="padding: 12px 16px;">
+                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #5E7A70; display: block;">Invitation Token</span>
+                    <span style="font-family: monospace; font-size: 12px; font-weight: bold; color: #0D1A2A;">${data.invitationToken}</span>
+                  </td>
+                  <td width="50%" style="padding: 12px 16px;">
+                    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #5E7A70; display: block;">Appointment Validity</span>
+                    <strong style="color: #0D1A2A; font-size: 12px;">Until ${expiresDateStr}</strong>
+                  </td>
+                </tr>
+              </table>
+
+              <h3 style="font-size: 12px; font-weight: 800; color: #0D1A2A; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                Authorized Level of Access Rights &amp; What You Can Control (§11.17):
+              </h3>
+              <div style="margin-bottom: 24px;">
+                ${controlsItems}
+              </div>
+
+              <div style="background-color: #E8F7F0; border: 1px solid rgba(32,166,106,0.3); border-radius: 14px; padding: 18px; text-align: center; margin: 25px 0;">
+                <p style="margin: 0 0 12px 0; font-size: 13px; font-weight: 700; color: #1E744F;">
+                  Activate Your Administrative Authority &amp; Create Your Password
+                </p>
+                <a href="${data.invitationLink}" style="display: inline-block; background-color: #20A66A; color: #ffffff; font-size: 13px; font-weight: 800; text-decoration: none; padding: 12px 28px; border-radius: 10px; box-shadow: 0 4px 10px rgba(32,166,106,0.3);">
+                  Accept Appointment &amp; Set Up Password &rarr;
+                </a>
+              </div>
+
+              <p style="font-size: 11px; color: #5E7A70; line-height: 1.5; margin-top: 15px;">
+                Direct URL fallback:<br>
+                <a href="${data.invitationLink}" style="color: #20A66A; word-break: break-all;">${data.invitationLink}</a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #F8FBFA; border-top: 1px solid #E3ECE8; padding: 16px 30px; font-size: 10px; color: #87A196; line-height: 1.5; text-align: center;">
+              <strong>National Drug Authority (NDA) Uganda Governance Notice:</strong><br>
+              This notification contains administrative authority appointment credentials for the recipient ${data.recipientEmail}. If you are not the intended recipient, notify security@zenithrx.ug immediately.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function generateInviteEmailText(data: {
+  recipientName: string;
+  recipientEmail: string;
+  role: string;
+  domainScope: string;
+  invitationLink: string;
+  invitationToken: string;
+  expiresAt: string;
+  grantedBy: string;
+  permissionsList: string[];
+}): string {
+  return `ZENITHRX ENTERPRISE PHARMACY MANAGEMENT SYSTEM
+OFFICIAL DELEGATED ADMINISTRATIVE APPOINTMENT (§11.17)
+
+Dear ${data.recipientName},
+
+You have been formally appointed with delegated administrative authority on the ZenithRx Platform by ${data.grantedBy}.
+
+APPOINTMENT SUMMARY:
+- Role: ${data.role}
+- Domain Scope: ${data.domainScope}
+- Security Token: ${data.invitationToken}
+- Valid Until: ${new Date(data.expiresAt).toLocaleDateString()}
+
+AUTHORIZED CONTROLS & RIGHTS:
+${(data.permissionsList || []).map((p) => `- ${p}`).join('\n')}
+
+TO ACTIVATE YOUR APPOINTMENT & CREATE YOUR PASSWORD:
+Open the secure link below in your browser:
+${data.invitationLink}
+
+National Drug Authority (NDA) Uganda Statutory Compliance Notice.
+For assistance, contact: quantumnetworks@gmail.com`;
+}
+
+// Check Email Delivery Subsystem Status
+app.get('/api/collaborators/email-status', (_req, res) => {
+  const host = process.env.SMTP_HOST || (process.env.SMTP_USER?.includes('@gmail.com') ? 'smtp.gmail.com' : undefined);
+  const user = process.env.SMTP_USER;
+  const isConfigured = !!(host && user && process.env.SMTP_PASS);
+
+  res.json({
+    isConfigured,
+    smtpHost: host || 'Not set (e.g. smtp.gmail.com)',
+    smtpPort: process.env.SMTP_PORT || '465',
+    smtpUserMasked: user ? `${user.slice(0, 3)}***@${user.split('@')[1] || 'domain'}` : 'Not set',
+    smtpFrom: process.env.SMTP_FROM || 'ZenithRx Enterprise <notifications@zenithrx.ug>',
+  });
+});
+
+// Endpoint: Send Collaborator Invite Email via SMTP or format client link
+app.post('/api/collaborators/send-invite-email', async (req, res) => {
+  try {
+    const {
+      recipientEmail,
+      recipientName = 'Collaborator',
+      role = 'Domain Admin',
+      domainScope = 'CLINICAL_OVERSIGHT',
+      invitationLink,
+      invitationToken,
+      expiresAt = new Date(Date.now() + 90 * 86400000).toISOString(),
+      grantedBy = 'Dr. Arthur Ssenabulya (Platform SysAdmin)',
+      permissionsList = [],
+      subject: customSubject,
+    } = req.body;
+
+    if (!recipientEmail || !recipientEmail.includes('@')) {
+      return res.status(400).json({ success: false, error: 'Valid recipientEmail is required' });
+    }
+
+    const effectiveInvitationLink = invitationLink || `http://localhost:${PORT}/#accept-invite?token=${invitationToken || 'INV-TOKEN'}`;
+    const subject = customSubject || `[ZenithRx Enterprise] Official Appointment: Delegated ${role} (${domainScope})`;
+
+    const emailHtml = generateInviteEmailHtml({
+      recipientName,
+      recipientEmail,
+      role,
+      domainScope,
+      invitationLink: effectiveInvitationLink,
+      invitationToken: invitationToken || 'INV-SECURE',
+      expiresAt,
+      grantedBy,
+      permissionsList,
+    });
+
+    const emailText = generateInviteEmailText({
+      recipientName,
+      recipientEmail,
+      role,
+      domainScope,
+      invitationLink: effectiveInvitationLink,
+      invitationToken: invitationToken || 'INV-SECURE',
+      expiresAt,
+      grantedBy,
+      permissionsList,
+    });
+
+    const mailtoLink = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailText)}`;
+    const transporter = getMailTransporter();
+
+    if (!transporter) {
+      console.warn(`[Collaborator Email] SMTP credentials not found in .env. Invitation prepared for ${recipientEmail}.`);
+      return res.json({
+        success: true,
+        delivered: false,
+        deliveryMethod: 'PENDING_SMTP_CONFIG',
+        message: 'SMTP credentials (SMTP_USER, SMTP_PASS) are not yet configured in .env. The invitation is active and ready for 1-click dispatch via your mail client or clipboard.',
+        recipientEmail,
+        invitationLink: effectiveInvitationLink,
+        invitationToken,
+        mailtoLink,
+        subject,
+      });
+    }
+
+    const fromAddress = process.env.SMTP_FROM || `"${grantedBy}" <${process.env.SMTP_USER}>`;
+
+    const info = await transporter.sendMail({
+      from: fromAddress,
+      to: recipientEmail,
+      subject,
+      text: emailText,
+      html: emailHtml,
+    });
+
+    console.log(`[Collaborator Email] Successfully delivered invitation to ${recipientEmail} via SMTP (MessageId: ${info.messageId})`);
+
+    return res.json({
+      success: true,
+      delivered: true,
+      deliveryMethod: 'SMTP',
+      messageId: info.messageId,
+      recipientEmail,
+      invitationLink: effectiveInvitationLink,
+      invitationToken,
+      mailtoLink,
+      subject,
+    });
+  } catch (err: any) {
+    console.error('[Collaborator Email] SMTP dispatch error:', err);
+    const textFallback = req.body?.invitationLink || '';
+    const mailto = `mailto:${req.body?.recipientEmail}?subject=${encodeURIComponent('ZenithRx Appointment')}&body=${encodeURIComponent(textFallback)}`;
+    return res.json({
+      success: false,
+      delivered: false,
+      deliveryMethod: 'SMTP_FAILED',
+      error: err?.message || 'SMTP server connection rejected',
+      recipientEmail: req.body?.recipientEmail,
+      invitationLink: req.body?.invitationLink,
+      mailtoLink: mailto,
+    });
+  }
 });
 
 // AI Endpoint: Parse Prescription (OCR / Image or Text Analysis)
@@ -487,12 +830,362 @@ Current Patient Message: "${message}"`;
   }
 });
 
+// ─── Master Medicines & High-Fidelity Medicine Cards API ──────────────────────
+
+// Master medicine seed list for instant zero-dependency backend serving & Supabase fallback
+const SEED_MASTER_MEDICINES = [
+  {
+    id: 'med-salb-inh-100',
+    brandName: 'Ventolin Evohaler 100mcg',
+    genericName: 'Salbutamol',
+    genericInnName: 'Salbutamol Sulfate',
+    category: 'Respiratory',
+    therapeuticClass: 'Short-Acting Beta-2 Adrenergic Agonist (SABA)',
+    ndaRegistrationNumber: 'NDA/MAL/0192/2018',
+    form: 'Inhaler',
+    dosageForm: 'Pressurized Metered Dose Inhaler (pMDI)',
+    strength: '100mcg / puff (200 actuations)',
+    route: 'Inhalation',
+    packageSize: '1 Inhaler Canister in Plastic Actuator with Blue Dust Cap (200 Doses)',
+    manufacturer: 'Glaxo Wellcome / GSK',
+    countryOfManufacture: 'UK',
+    prescriptionStatus: 'POM',
+    suggestedRetailPriceUgx: 25000,
+    averageWholesalePriceUgx: 18000,
+    standardDoseAdult: '1 to 2 inhalations (100-200mcg) every 4-6 hours for acute relief of bronchospasm.',
+    adultDosageInstruction: '1 to 2 inhalations (100-200mcg) every 4–6 hours for acute relief of bronchospasm.',
+    actuationsOrPackInfo: '100mcg / puff (200 actuations)',
+    imageUrl: '/medicines/ventolin_evohaler.jpg',
+    highlights: [
+      { icon: 'lungs', title: 'Rapid Relief', subtitle: 'for bronchospasm' },
+      { icon: 'clock', title: 'Long-Lasting', subtitle: 'up to 4–6 hours' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: 'GSK' },
+      { icon: 'device', title: 'Easy to Use', subtitle: 'Metered dose inhaler' },
+    ],
+    verifiedByNda: true,
+    isActive: true,
+  },
+  {
+    id: 'med-para-tab-500',
+    brandName: 'Panadol Extra 500mg',
+    genericName: 'Paracetamol',
+    genericInnName: 'Paracetamol (Acetaminophen)',
+    category: 'Analgesics & Antipyretics',
+    therapeuticClass: 'Aniline Derivative Analgesic / CNS Stimulant',
+    ndaRegistrationNumber: 'NDA/MAL/0411/2020',
+    form: 'Film-Coated Tablet',
+    dosageForm: 'Film-Coated Tablet',
+    strength: '500mg / 65mg',
+    route: 'Oral',
+    packageSize: 'Box of 100 Tablets (10x10 Blister Pack)',
+    manufacturer: 'GlaxoSmithKline (GSK)',
+    countryOfManufacture: 'Kenya',
+    prescriptionStatus: 'OTC',
+    suggestedRetailPriceUgx: 35000,
+    averageWholesalePriceUgx: 200,
+    standardDoseAdult: '1 to 2 tablets (500mg - 1000mg) every 4-6 hours as needed. Max 4000mg/24h.',
+    adultDosageInstruction: '1 to 2 tablets (500mg - 1000mg) every 4-6 hours as needed for pain & fever. Max 4000mg/24h.',
+    actuationsOrPackInfo: '500mg / 65mg (Box of 100 Tablets)',
+    imageUrl: '/medicines/panadol_extra.jpg',
+    highlights: [
+      { icon: 'zap', title: 'Rapid Relief', subtitle: 'Targeted extra strength' },
+      { icon: 'clock', title: 'Fast Acting', subtitle: 'Starts in 15–30 min' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: 'GSK' },
+      { icon: 'pill', title: 'Easy to Swallow', subtitle: 'Film-coated tablets' },
+    ],
+    verifiedByNda: true,
+    isActive: true,
+  },
+  {
+    id: 'med-amox-tab-625',
+    brandName: 'Augmentin 625mg',
+    genericName: 'Co-Amoxiclav',
+    genericInnName: 'Amoxicillin + Clavulanic Acid',
+    category: 'Antibiotics',
+    therapeuticClass: 'Beta-lactamase inhibitor combination',
+    ndaRegistrationNumber: 'NDA/MAL/0891/2021',
+    form: 'Film-Coated Tablet',
+    dosageForm: 'Oval Film-Coated Tablet',
+    strength: '625mg (500mg/125mg)',
+    route: 'Oral',
+    packageSize: 'Box of 14 Tablets (2x7 Foil Blister)',
+    manufacturer: 'SmithKline Beecham / GSK',
+    countryOfManufacture: 'UK',
+    prescriptionStatus: 'POM',
+    suggestedRetailPriceUgx: 35000,
+    averageWholesalePriceUgx: 2200,
+    standardDoseAdult: '1 tablet (625mg) every 12 hours (BD) or 1 tablet every 8 hours (TDS) for severe infections.',
+    adultDosageInstruction: '1 tablet (625mg) every 12 hours (BD) at start of meal for bacterial infections.',
+    actuationsOrPackInfo: '625mg (14 Film-Coated Tablets)',
+    imageUrl: '/medicines/augmentin_625.jpg',
+    highlights: [
+      { icon: 'shield', title: 'Broad Spectrum', subtitle: 'Pathogen eradication' },
+      { icon: 'zap', title: 'Potent Action', subtitle: 'Beta-lactamase resistant' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: 'GSK' },
+      { icon: 'pill', title: 'Protected Foil', subtitle: 'Desiccant moisture seal' },
+    ],
+    verifiedByNda: true,
+    isActive: true,
+  },
+  {
+    id: 'med-para-susp-120',
+    brandName: 'Calpol Infant Suspension 120mg/5ml',
+    genericName: 'Paracetamol',
+    genericInnName: 'Paracetamol (Acetaminophen)',
+    category: 'Analgesics & Antipyretics',
+    therapeuticClass: 'Aniline Derivative Pediatric Analgesic',
+    ndaRegistrationNumber: 'NDA/MAL/0198/2019',
+    form: 'Oral Suspension',
+    dosageForm: 'Oral Suspension (Strawberry Flavor)',
+    strength: '120mg / 5mL',
+    route: 'Oral',
+    packageSize: '100 mL Amber Glass Bottle with 5mL Double-Ended Syringe',
+    manufacturer: 'GlaxoSmithKline (GSK)',
+    countryOfManufacture: 'UK',
+    prescriptionStatus: 'OTC',
+    suggestedRetailPriceUgx: 12000,
+    averageWholesalePriceUgx: 8500,
+    standardDoseAdult: 'Use tablet formulation for adults.',
+    adultDosageInstruction: 'Pediatric formulation: 2.5mL to 10mL based on age/weight with included syringe.',
+    actuationsOrPackInfo: '120mg / 5mL (100 mL Bottle)',
+    imageUrl: '/medicines/calpol_suspension.jpg',
+    highlights: [
+      { icon: 'heart', title: 'Gentle on Tummy', subtitle: 'Pediatric formula' },
+      { icon: 'clock', title: 'Up to 6 Hours', subtitle: 'Fever & pain control' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: 'GSK / Calpol' },
+      { icon: 'device', title: 'Easy to Use', subtitle: 'Measuring syringe' },
+    ],
+    verifiedByNda: true,
+    isActive: true,
+  },
+  {
+    id: 'med-artem-tab-20-120',
+    brandName: 'Coartem 20/120mg Dispersible',
+    genericName: 'Artemether / Lumefantrine',
+    genericInnName: 'Artemether + Lumefantrine',
+    category: 'Antimalarials',
+    therapeuticClass: 'Artemisinin-based Combination Therapy (ACT)',
+    ndaRegistrationNumber: 'NDA/MAL/0710/2019',
+    form: 'Tablet',
+    dosageForm: 'Sweetened Dispersible Tablet',
+    strength: '20mg / 120mg',
+    route: 'Oral',
+    packageSize: 'Box of 24 Dispersible Tablets (4x6 Blister Pack for 25-35kg)',
+    manufacturer: 'Novartis Pharma AG / Cipla Quality Chemicals Uganda',
+    countryOfManufacture: 'Uganda',
+    prescriptionStatus: 'POM',
+    suggestedRetailPriceUgx: 22000,
+    averageWholesalePriceUgx: 14000,
+    standardDoseAdult: 'Standard 6-dose regimen over 3 days (1-4 tablets per dose based on body weight).',
+    adultDosageInstruction: 'Standard 6-dose regimen over 3 days (1-4 tablets per dose based on body weight).',
+    actuationsOrPackInfo: '20/120mg (24 Dispersible Tablets)',
+    imageUrl: '/medicines/coartem.jpg',
+    highlights: [
+      { icon: 'zap', title: 'Rapid Action', subtitle: 'Clears malaria parasites' },
+      { icon: 'clock', title: '3-Day Course', subtitle: 'Full 6-dose cure' },
+      { icon: 'shield', title: 'Gold Standard', subtitle: 'Novartis / CQCL' },
+      { icon: 'pill', title: 'Dispersible', subtitle: 'Cherry flavored' },
+    ],
+    verifiedByNda: true,
+    isActive: true,
+  },
+];
+
+// Query all master medicines with filter support
+app.get('/api/medicines', async (req, res) => {
+  try {
+    const { search, category, limit } = req.query;
+    const sb = getSupabaseAdmin();
+
+    let medicines = [...SEED_MASTER_MEDICINES];
+
+    if (sb) {
+      try {
+        let query = sb.from('master_medicines_v2').select('*');
+        if (category && typeof category === 'string' && category.toLowerCase() !== 'all') {
+          query = query.ilike('therapeutic_category', `%${category}%`);
+        }
+        if (search && typeof search === 'string') {
+          query = query.or(`brand_name.ilike.%${search}%,generic_name.ilike.%${search}%,generic_inn_name.ilike.%${search}%`);
+        }
+        if (limit) {
+          query = query.limit(Number(limit));
+        }
+
+        const { data, error } = await query;
+        if (!error && data && data.length > 0) {
+          medicines = data.map((d: any) => ({
+            id: d.id,
+            brandName: d.brand_name,
+            genericName: d.generic_name || d.generic_inn_name,
+            genericInnName: d.generic_inn_name,
+            category: d.therapeutic_category,
+            therapeuticClass: d.therapeutic_class || d.therapeutic_category || 'General Therapeutic',
+            ndaRegistrationNumber: d.nda_registration_number,
+            form: d.dosage_form || d.form,
+            dosageForm: d.dosage_form || d.form || 'Standard Unit',
+            strength: d.strength,
+            route: d.route_of_administration,
+            packageSize: d.package_size,
+            manufacturer: d.manufacturer_name,
+            countryOfManufacture: d.country_of_manufacture,
+            prescriptionStatus: d.prescription_status?.toUpperCase() || 'POM',
+            suggestedRetailPriceUgx: Number(d.suggested_retail_price_ugx) || 25000,
+            averageWholesalePriceUgx: Number(d.average_wholesale_price_ugx) || 15000,
+            standardDoseAdult: d.adult_standard_dose,
+            adultDosageInstruction: d.adult_dosage_instruction || d.adult_standard_dose,
+            actuationsOrPackInfo: d.actuations_or_pack_info || d.strength,
+            imageUrl: d.image_url || '/medicines/ventolin_evohaler.jpg',
+            highlights: d.highlights || [],
+            verifiedByNda: d.is_nda_verified ?? true,
+            isActive: d.status === 'active',
+          }));
+        }
+      } catch (sbErr) {
+        console.warn('[DB] Supabase query fallback to in-memory catalogue:', sbErr);
+      }
+    }
+
+    // Filter in-memory if Supabase was bypassed or fallback
+    let filtered = medicines;
+    if (search && typeof search === 'string') {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(
+        (m) =>
+          m.brandName.toLowerCase().includes(q) ||
+          m.genericName.toLowerCase().includes(q) ||
+          m.category.toLowerCase().includes(q)
+      );
+    }
+    if (category && typeof category === 'string' && category.toLowerCase() !== 'all') {
+      filtered = filtered.filter((m) => m.category.toLowerCase().includes(category.toLowerCase()));
+    }
+
+    return res.json({ success: true, count: filtered.length, data: filtered });
+  } catch (err: any) {
+    console.error('[API] /api/medicines error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to fetch medicines' });
+  }
+});
+
+// Single medicine endpoint
+app.get('/api/medicines/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sb = getSupabaseAdmin();
+
+    if (sb) {
+      try {
+        const { data, error } = await sb.from('master_medicines_v2').select('*').eq('id', id).single();
+        if (!error && data) {
+          return res.json({
+            success: true,
+            data: {
+              id: data.id,
+              brandName: data.brand_name,
+              genericName: data.generic_name || data.generic_inn_name,
+              category: data.therapeutic_category,
+              ndaRegistrationNumber: data.nda_registration_number,
+              form: data.dosage_form || data.form,
+              strength: data.strength,
+              route: data.route_of_administration,
+              packageSize: data.package_size,
+              manufacturer: data.manufacturer_name,
+              suggestedRetailPriceUgx: Number(data.suggested_retail_price_ugx) || 25000,
+              standardDoseAdult: data.adult_standard_dose,
+              adultDosageInstruction: data.adult_dosage_instruction || data.adult_standard_dose,
+              actuationsOrPackInfo: data.actuations_or_pack_info || data.strength,
+              imageUrl: data.image_url || '/medicines/ventolin_evohaler.jpg',
+              highlights: data.highlights || [],
+              verifiedByNda: data.is_nda_verified ?? true,
+            },
+          });
+        }
+      } catch (err) {
+        // Fallback
+      }
+    }
+
+    const item = SEED_MASTER_MEDICINES.find((m) => m.id === id || m.brandName.toLowerCase().includes(id.toLowerCase()));
+    if (!item) {
+      return res.status(404).json({ error: 'Medicine not found' });
+    }
+    return res.json({ success: true, data: item });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Live branch availability for a specific medicine
+app.get('/api/medicines/:id/branches', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const med = SEED_MASTER_MEDICINES.find((m) => m.id === id || m.brandName.toLowerCase().includes(id.toLowerCase())) || SEED_MASTER_MEDICINES[0];
+
+    const branches = [
+      {
+        pharmacyId: 'pharma-001',
+        pharmacyName: 'Kampala City Pharmacy',
+        district: 'Kampala Central',
+        address: 'Plot 14 Nakasero Road, Kampala',
+        distanceKm: 0.8,
+        stockUnits: 142,
+        unitPriceUgx: med.suggestedRetailPriceUgx,
+        status: 'In Stock',
+        canHold: true,
+        phone: '+256 700 000001',
+      },
+      {
+        pharmacyId: 'pharma-002',
+        pharmacyName: 'Entebbe Airport Gateway Pharmacy',
+        district: 'Wakiso / Entebbe',
+        address: 'Portal Road Commercial Complex, Entebbe',
+        distanceKm: 34.2,
+        stockUnits: 48,
+        unitPriceUgx: med.suggestedRetailPriceUgx,
+        status: 'In Stock',
+        canHold: true,
+        phone: '+256 700 000002',
+      },
+      {
+        pharmacyId: 'pharma-003',
+        pharmacyName: 'Jinja Nile Crest Pharmacy',
+        district: 'Jinja',
+        address: 'Main Street, Jinja City',
+        distanceKm: 81.5,
+        stockUnits: 25,
+        unitPriceUgx: med.suggestedRetailPriceUgx,
+        status: 'In Stock',
+        canHold: true,
+        phone: '+256 700 000003',
+      },
+      {
+        pharmacyId: 'pharma-004',
+        pharmacyName: 'Mbarara High Street Chemist',
+        district: 'Mbarara',
+        address: 'High Street Commercial Center, Mbarara',
+        distanceKm: 268.0,
+        stockUnits: 64,
+        unitPriceUgx: med.suggestedRetailPriceUgx,
+        status: 'In Stock',
+        canHold: true,
+        phone: '+256 700 000004',
+      },
+    ];
+
+    return res.json({ success: true, medicine: med.brandName, branches });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── Patient Portal REST Endpoints ───────────────────────────────────────────
 
 // Create new patient order from PWA
 app.post('/api/patient/orders', async (req, res) => {
   try {
-    const { patientId, pharmacyId, items, deliveryAddress, paymentMethod, totalUgx } = req.body;
+    const { pharmacyId, items, deliveryAddress, paymentMethod, totalUgx } = req.body;
+    const patientId = resolvePatientId(req, req.body.patientId);
     const sb = getSupabaseAdmin();
 
     const orderNumber = `ORD-UG-${Date.now().toString().slice(-6)}`;
@@ -555,7 +1248,10 @@ app.post('/api/patient/orders', async (req, res) => {
 // Fetch patient orders
 app.get('/api/patient/orders/:patientId', async (req, res) => {
   try {
-    const { patientId } = req.params;
+    const patientId = resolvePatientId(req, req.params.patientId);
+    if (req.auth!.role === 'patient' && req.params.patientId !== req.auth!.sub) {
+      return res.status(403).json({ error: 'You can only view your own orders' });
+    }
     const sb = getSupabaseAdmin();
 
     if (sb) {
@@ -578,7 +1274,8 @@ app.get('/api/patient/orders/:patientId', async (req, res) => {
 // Book Pharmacist Teleconsultation
 app.post('/api/patient/teleconsult/book', async (req, res) => {
   try {
-    const { patientId, pharmacyId, chiefComplaint, urgency, scheduledAt } = req.body;
+    const { pharmacyId, chiefComplaint, urgency, scheduledAt } = req.body;
+    const patientId = resolvePatientId(req, req.body.patientId);
     const sb = getSupabaseAdmin();
 
     const meetingLink = `https://meet.zenithrx.ug/room-${crypto.randomBytes(4).toString('hex')}`;
@@ -615,7 +1312,8 @@ app.post('/api/patient/teleconsult/book', async (req, res) => {
 // Log Medication Dose
 app.post('/api/patient/adherence/log-dose', async (req, res) => {
   try {
-    const { scheduleId, patientId, status, notes } = req.body;
+    const { scheduleId, status, notes } = req.body;
+    const patientId = resolvePatientId(req, req.body.patientId);
     const sb = getSupabaseAdmin();
 
     if (sb) {

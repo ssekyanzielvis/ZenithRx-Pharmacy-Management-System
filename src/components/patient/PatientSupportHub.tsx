@@ -36,16 +36,19 @@ import {
   Zap,
   Trash2,
   Image as ImageIcon,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface PatientSupportHubProps {
   patient: PatientProfile | null;
   onOpenAuth: (mode: 'signin' | 'register', reason?: string) => void;
+  onGoBack?: () => void;
 }
 
 export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
   patient,
   onOpenAuth,
+  onGoBack,
 }) => {
   const patientIdentifier = patient?.phone || patient?.id || '+256 701 234 567';
   const [tickets, setTickets] = useState<SupportTicket[]>(() =>
@@ -194,36 +197,55 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
 
       {/* Header Banner with 1cm padding */}
       <div
-        className="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white rounded-3xl shadow-md flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden"
-        style={{ padding: '1cm', marginBottom: '0.5cm' }}
+        className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs text-slate-900 dark:text-white flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden transition-colors"
+        style={{ padding: '2rem 2.2rem', marginBottom: '0.5cm' }}
       >
-        <div className="space-y-2 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-xs text-xs font-bold border border-white/20">
-            <Headphones className="w-4 h-4 text-amber-300" />
-            <span>Patient Support &amp; Complaints Desk</span>
+        <div className="flex items-start sm:items-center gap-4 relative z-10">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
+            <Headphones className="w-7 h-7" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight pt-1">
-            How can our customer care team assist you today?
-          </h2>
-          <p className="text-xs sm:text-sm text-blue-100 max-w-2xl leading-relaxed">
-            Track active complaints, report order delays, resolve payment deductions, or get assistance with deliveries.
-            <em> Note: For clinical dosage and medical questions, please use the Clinical Consultation hub.</em>
-          </p>
+          <div className="space-y-1.5 min-w-0">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-200/80 dark:border-emerald-800 shadow-2xs">
+              <Headphones className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Patient Support &amp; Complaints Desk</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-tight pt-1">
+              How can our customer care team assist you today?
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">
+              Track active complaints, report order delays, resolve payment deductions, or get assistance with deliveries.{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-300">
+                Note: For clinical dosage and medical questions, please use the Clinical Consultation hub.
+              </span>
+            </p>
+          </div>
         </div>
 
-        <button
-          onClick={() => {
-            if (!patient) {
-              onOpenAuth('signin', 'Sign in to file a support request');
-            } else {
-              setIsCreateModalOpen(true);
-            }
-          }}
-          className="px-6 py-3.5 rounded-2xl bg-white text-blue-900 hover:bg-blue-50 font-black text-xs sm:text-sm shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer self-start md:self-auto shrink-0 relative z-10 active:scale-95"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Submit Support Ticket</span>
-        </button>
+        <div className="flex items-center gap-3 self-start md:self-auto shrink-0 relative z-10 flex-wrap">
+          {onGoBack && (
+            <button
+              onClick={onGoBack}
+              className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
+            >
+              <ArrowLeft className="w-4 h-4 text-slate-500" />
+              <span>Previous Page</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              if (!patient) {
+                onOpenAuth('signin', 'Sign in to file a support request');
+              } else {
+                setIsCreateModalOpen(true);
+              }
+            }}
+            className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Submit Support Ticket</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Workspace Split with 1cm gap */}
@@ -234,32 +256,32 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
         
         {/* Left: Patient Ticket History (5 cols) with 1cm padding */}
         <div
-          className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-5"
-          style={{ padding: '1cm' }}
+          className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
+          style={{ padding: '2rem 1.8rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
         >
           <div
             className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800"
-            style={{ paddingBottom: '0.4cm' }}
+            style={{ paddingBottom: '0.9rem' }}
           >
             <h3 className="font-black text-sm sm:text-base text-slate-900 dark:text-slate-100">
               Your Support Inquiries ({tickets.length})
             </h3>
-            <span className="text-[10px] sm:text-xs font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200/80 dark:border-emerald-800/80 px-2.5 py-0.5 rounded-full">
               Uganda SLA: &lt; 2h
             </span>
           </div>
 
-          <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '520px', overflowY: 'auto' }} className="pr-1">
             {tickets.length === 0 ? (
               <div
                 className="text-center text-slate-400 text-xs border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl"
-                style={{ padding: '1cm' }}
+                style={{ padding: '2rem 1.5rem' }}
               >
-                <Headphones className="w-10 h-10 mx-auto mb-2 opacity-50 text-blue-500" />
+                <Headphones className="w-10 h-10 mx-auto mb-2 opacity-50 text-emerald-600 dark:text-emerald-400" />
                 <p className="font-semibold text-slate-600 dark:text-slate-300">You have no open support tickets.</p>
                 <button
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="mt-3 inline-block text-xs text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer"
+                  className="mt-3 inline-block text-xs text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer"
                 >
                   Create your first ticket
                 </button>
@@ -272,14 +294,15 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                   <div
                     key={t.id}
                     onClick={() => setSelectedTicketId(t.id)}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer space-y-2 ${
+                    className={`rounded-2xl border transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-300 dark:border-blue-700 shadow-xs'
-                        : 'bg-slate-50/70 dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700/80 hover:border-slate-300'
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-500 dark:border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs'
+                        : 'bg-slate-50/70 dark:bg-slate-800/50 border-slate-200/80 dark:border-slate-700/80 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 hover:border-slate-300'
                     }`}
+                    style={{ padding: '1rem 1.15rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono font-black text-xs text-blue-600 dark:text-blue-400">
+                      <span className="font-mono font-black text-xs text-emerald-700 dark:text-emerald-400">
                         {t.ticketNumber}
                       </span>
                       <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase ${getStatusBadge(t.status)}`}>
@@ -291,7 +314,7 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                       {t.subject}
                     </h4>
 
-                    <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1">
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 pt-1">
                       <span>{catMeta.label}</span>
                       <span className="font-mono">{new Date(t.createdAt).toLocaleDateString()}</span>
                     </div>
@@ -304,27 +327,27 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
 
         {/* Right: Active Ticket Thread & Conversation (7 cols) with 1cm padding */}
         <div
-          className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-6"
-          style={{ padding: '1cm' }}
+          className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
+          style={{ padding: '2rem 2.2rem', display: 'flex', flexDirection: 'column', gap: '1.4rem' }}
         >
           {activeTicket ? (
             <>
               {/* Header */}
               <div
                 className="border-b border-slate-100 dark:border-slate-800 space-y-2"
-                style={{ paddingBottom: '0.4cm' }}
+                style={{ paddingBottom: '0.8rem' }}
               >
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-black text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 rounded-md border border-blue-200/60 dark:border-blue-800/60">
+                    <span className="font-mono font-black text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-3 py-1 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 shadow-2xs">
                       {activeTicket.ticketNumber}
                     </span>
-                    <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border uppercase ${getStatusBadge(activeTicket.status)}`}>
+                    <span className={`text-[10px] font-black px-2.5 py-1 rounded-xl border uppercase shadow-2xs ${getStatusBadge(activeTicket.status)}`}>
                       {activeTicket.status.replace(/_/g, ' ')}
                     </span>
                   </div>
 
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
                     Opened: {new Date(activeTicket.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                   </span>
                 </div>
@@ -336,13 +359,13 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
 
               {/* Initial Problem Statement */}
               <div
-                className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs space-y-2"
-                style={{ padding: '0.5cm' }}
+                className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 text-xs sm:text-sm"
+                style={{ padding: '1.2rem 1.4rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
               >
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
                   Your Description
                 </span>
-                <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line font-medium">
                   {activeTicket.description}
                 </p>
               </div>
@@ -351,9 +374,9 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
               {activeTicket.status === 'resolved' && (
                 <div
                   className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-700 space-y-3 text-xs text-emerald-950 dark:text-emerald-100"
-                  style={{ padding: '0.6cm' }}
+                  style={{ padding: '1.2rem 1.4rem' }}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                     <div>
                       <h4 className="font-black text-sm">Issue Marked as Resolved by Pharmacy Staff</h4>
@@ -409,16 +432,16 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
               )}
 
               {/* Threaded Message Replies */}
-              <div className="space-y-3">
-                <h4 className="font-black text-xs uppercase tracking-wider text-slate-400">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                <h4 className="font-black text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500">
                   Staff Communication Trail
                 </h4>
 
-                <div className="space-y-3 max-h-[320px] overflow-y-auto pr-1">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', maxHeight: '340px', overflowY: 'auto' }} className="pr-1">
                   {activeTicket.responses.filter((r) => !r.isInternalNote).length === 0 ? (
                     <div
                       className="text-center text-slate-400 text-xs border border-dashed border-slate-200 dark:border-slate-700 rounded-2xl"
-                      style={{ padding: '0.6cm' }}
+                      style={{ padding: '1.25rem 1rem' }}
                     >
                       A pharmacy support specialist is reviewing your case. Responses will appear here.
                     </div>
@@ -428,43 +451,44 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                       .map((resp) => (
                         <div
                           key={resp.id}
-                          className={`p-4 rounded-2xl text-xs space-y-1.5 ${
+                          className={`rounded-2xl text-xs space-y-1.5 shadow-2xs ${
                             resp.senderType === 'patient'
-                              ? 'bg-slate-100 dark:bg-slate-800 ml-8 mr-0'
-                              : 'bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 mr-8 ml-0'
+                              ? 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700/80 ml-8 mr-0'
+                              : 'bg-emerald-50/70 dark:bg-emerald-950/50 border border-emerald-200/80 dark:border-emerald-800/80 text-slate-800 dark:text-slate-200 mr-8 ml-0'
                           }`}
+                          style={{ padding: '1rem 1.25rem' }}
                         >
-                          <div className="flex items-center justify-between text-[10px] opacity-75">
+                          <div className="flex items-center justify-between text-[10px] opacity-75 font-semibold">
                             <span className="font-black">{resp.senderName} ({resp.senderRole || 'Care Team'})</span>
                             <span className="font-mono">
                               {new Date(resp.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
-                          <p className="text-xs leading-relaxed">{resp.message}</p>
+                          <p className="text-xs sm:text-sm leading-relaxed">{resp.message}</p>
                         </div>
                       ))
                   )}
                 </div>
               </div>
 
-              {/* Reply Box with 0.5cm top spacing */}
+              {/* Reply Box with top spacing */}
               {activeTicket.status !== 'closed' && (
                 <form
                   onSubmit={handleSendReply}
                   className="border-t border-slate-100 dark:border-slate-800 flex gap-2.5"
-                  style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                  style={{ marginTop: '0.5rem', paddingTop: '1.1rem' }}
                 >
                   <input
                     type="text"
                     value={replyMessage}
                     onChange={(e) => setReplyMessage(e.target.value)}
                     placeholder="Type additional details or reply to support staff..."
-                    className="flex-1 px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="flex-1 px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 shadow-2xs"
                     required
                   />
                   <button
                     type="submit"
-                    className="px-6 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-extrabold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                    className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-black shadow-xs transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
                     <span>Reply</span>
@@ -475,16 +499,29 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
           ) : (
             <div
               className="text-center text-slate-400 text-xs flex flex-col items-center justify-center min-h-[300px]"
-              style={{ padding: '1.2cm' }}
+              style={{ padding: '2rem 1.5rem' }}
             >
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center mb-3">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center mb-3 border border-emerald-100 dark:border-emerald-900/50 shadow-2xs">
                 <Headphones className="w-8 h-8 opacity-80" />
               </div>
-              <p className="font-medium text-slate-600 dark:text-slate-300">Select a support ticket from the list to view updates.</p>
+              <p className="font-semibold text-slate-600 dark:text-slate-300">Select a support ticket from the list to view updates.</p>
             </div>
           )}
         </div>
       </div>
+
+      {/* Bottom Back Navigation */}
+      {onGoBack && (
+        <div className="flex items-center justify-between pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+          <button
+            onClick={onGoBack}
+            className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-black text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+          >
+            <ArrowLeft className="w-4 h-4 text-slate-500" />
+            <span>Back to Previous Page</span>
+          </button>
+        </div>
+      )}
 
       {/* ── Submit Ticket Modal (Creative Interactive Support Studio) ── */}
       {isCreateModalOpen && (
@@ -492,22 +529,22 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
           <div className="bg-white dark:bg-slate-900 border-2 border-slate-200/90 dark:border-slate-800 rounded-3xl sm:rounded-[36px] max-w-2xl w-full shadow-2xl my-6 sm:my-10 overflow-hidden flex flex-col">
             
             {/* 1. Modal Hero Header */}
-            <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white p-6 sm:p-8 flex items-center justify-between border-b border-white/10 relative">
+            <div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-6 sm:p-8 flex items-center justify-between border-b border-slate-200/90 dark:border-slate-800 relative">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-blue-500/30 to-indigo-500/20 border border-blue-400/40 flex items-center justify-center text-blue-300 shadow-lg shadow-blue-500/10 shrink-0">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200/80 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-md shadow-emerald-500/10 shrink-0">
                   <Headphones className="w-6 h-6 sm:w-7 sm:h-7" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-blue-300 bg-blue-500/20 border border-blue-400/40 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 border border-emerald-200/80 dark:border-emerald-800/80 px-2.5 py-0.5 rounded-full">
                       Priority Support Hotline
                     </span>
-                    <span className="text-[10px] font-bold text-emerald-400 flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                       Pharmacist on Duty
                     </span>
                   </div>
-                  <h3 className="font-black text-lg sm:text-2xl text-white mt-1">
+                  <h3 className="font-black text-lg sm:text-2xl text-slate-900 dark:text-white mt-1">
                     Submit Customer Support Ticket
                   </h3>
                 </div>
@@ -515,7 +552,7 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
 
               <button
                 onClick={() => setIsCreateModalOpen(false)}
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-xs"
+                className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-xs"
                 title="Close"
               >
                 <X className="w-5 h-5" />
@@ -532,7 +569,7 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                     <label className="block text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider">
                       Select Issue Category <span className="text-rose-500">*</span>
                     </label>
-                    <span className="text-[11px] font-extrabold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800/60">
+                    <span className="text-[11px] font-extrabold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/60">
                       Guaranteed Response: &lt; {getCategoryMeta(newCategory).slaHours}h
                     </span>
                   </div>
@@ -558,13 +595,13 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                           onClick={() => setNewCategory(c.category)}
                           className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 relative ${
                             isSelected
-                              ? 'bg-blue-50/90 dark:bg-blue-950/70 border-blue-500 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-md'
+                              ? 'bg-emerald-50/90 dark:bg-emerald-950/70 border-emerald-500 dark:border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs'
                               : 'bg-slate-50 dark:bg-slate-800/70 border-slate-200/90 dark:border-slate-700/80 hover:bg-slate-100/80 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                              isSelected ? 'bg-blue-600 text-white shadow-xs' : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                              isSelected ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                             }`}>
                               {getIcon()}
                             </div>
@@ -641,7 +678,7 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                           setNewDescription(t.desc);
                         }
                       }}
-                      className="w-full appearance-none px-4 py-3 sm:py-3.5 bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 rounded-2xl font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 cursor-pointer transition-all shadow-xs pr-10"
+                      className="w-full appearance-none px-4 py-3 sm:py-3.5 bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 rounded-2xl font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer transition-all shadow-xs pr-10"
                     >
                       <option value="">⚡ Select a pre-built template to auto-fill...</option>
                       <option value="delivery_delay">🛵 Delivery Boda delayed in transit (&gt; 45 mins)</option>
@@ -660,8 +697,8 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                   <label className="block text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100">
                     Subject / Short Summary <span className="text-rose-500">*</span>
                   </label>
-                  <div className="flex items-stretch rounded-2xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 focus-within:ring-4 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all shadow-xs overflow-hidden min-h-[58px] sm:min-h-[62px]">
-                    <div className="w-14 sm:w-16 bg-slate-100 dark:bg-slate-800/90 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border-r border-slate-200 dark:border-slate-700">
+                  <div className="flex items-stretch rounded-2xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 focus-within:ring-4 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all shadow-xs overflow-hidden min-h-[58px] sm:min-h-[62px]">
+                    <div className="w-14 sm:w-16 bg-slate-100 dark:bg-slate-800/90 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border-r border-slate-200 dark:border-slate-700">
                       <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
                     <input
@@ -680,7 +717,7 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                   <label className="block text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100">
                     Order ID or Mobile Money TID <span className="text-slate-400 font-normal">(Optional)</span>
                   </label>
-                  <div className="flex items-stretch rounded-2xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 focus-within:ring-4 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all shadow-xs overflow-hidden min-h-[58px] sm:min-h-[62px]">
+                  <div className="flex items-stretch rounded-2xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 focus-within:ring-4 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all shadow-xs overflow-hidden min-h-[58px] sm:min-h-[62px]">
                     <div className="w-14 sm:w-16 bg-slate-100 dark:bg-slate-800/90 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0 border-r border-slate-200 dark:border-slate-700">
                       <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
@@ -704,7 +741,7 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
                     placeholder="Please describe what happened, relevant timestamps, location, and how our support pharmacists can best resolve this for you..."
-                    className="w-full p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 rounded-2xl text-sm sm:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-xs leading-relaxed resize-none font-medium min-h-[140px]"
+                    className="w-full p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 rounded-2xl text-sm sm:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all shadow-xs leading-relaxed resize-none font-medium min-h-[140px]"
                     required
                   />
                 </div>
@@ -715,7 +752,7 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                     Attach Photo / Receipt Proof <span className="text-slate-400 font-normal">(Optional)</span>
                   </label>
                   
-                  <div className="flex items-stretch rounded-2xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 focus-within:ring-4 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all shadow-xs overflow-hidden min-h-[58px] sm:min-h-[62px]">
+                  <div className="flex items-stretch rounded-2xl bg-slate-50 dark:bg-slate-800/90 border-2 border-slate-200/90 dark:border-slate-700 focus-within:ring-4 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all shadow-xs overflow-hidden min-h-[58px] sm:min-h-[62px]">
                     <div className="w-14 sm:w-16 bg-slate-100 dark:bg-slate-800/90 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0 border-r border-slate-200 dark:border-slate-700">
                       <Paperclip className="w-5 h-5 sm:w-6 sm:h-6" />
                     </div>
@@ -757,7 +794,7 @@ export const PatientSupportHub: React.FC<PatientSupportHubProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 sm:flex-initial px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-blue-600/30 hover:shadow-xl hover:shadow-blue-600/40 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-95"
+                    className="flex-1 sm:flex-initial px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-md shadow-emerald-600/25 transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-95"
                   >
                     <Send className="w-4 h-4 shrink-0" />
                     <span>Submit Ticket</span>

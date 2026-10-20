@@ -93,8 +93,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth, onOpenAdmin }) =
         </div>
       </header>
 
-      {/* ── Main Landing Page Content (PromoBannerView) ── */}
-      <main className="p-4 sm:p-8 max-w-7xl mx-auto">
+      {/* ── Main Landing Page Content (PromoBannerView with at least 0.8cm lateral and vertical margin) ── */}
+      <main
+        className="max-w-7xl mx-auto"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingTop: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+          paddingBottom: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+        }}
+      >
         <PromoBannerView
           onSelectFeature={handleOpenLogin}
           openBarcodeScanner={handleOpenLogin}
@@ -104,7 +112,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ auth, onOpenAdmin }) =
       </main>
 
       {/* ── Footer ── */}
-      <footer className="bg-white dark:bg-[#0B1526]/80 text-slate-600 dark:text-slate-400 py-6 px-4 border-t border-slate-200 dark:border-slate-800 text-center text-xs space-y-2 shadow-xs transition-colors duration-200">
+      <footer
+        className="bg-white dark:bg-[#0B1526]/80 text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 text-center text-xs space-y-2 shadow-xs transition-colors duration-200"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingTop: 'clamp(0.8cm, 2vh, 1cm)',
+          paddingBottom: 'clamp(0.8cm, 2vh, 1cm)',
+        }}
+      >
         <p className="text-slate-900 dark:text-white font-extrabold tracking-wide">
           ZENITHRX — CLINICAL PHARMACY MANAGEMENT SYSTEM
         </p>

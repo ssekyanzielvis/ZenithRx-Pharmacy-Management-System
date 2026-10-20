@@ -5,6 +5,7 @@ dist-patient/
 patient/node_modules/
 patient/dist/
 coverage/
+.data/
 .DS_Store
 *.log
 .env*

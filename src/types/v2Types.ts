@@ -101,6 +101,12 @@ export type ControlledScheduleType = 'Non-Controlled' | 'Class A Narcotic (Locka
 export type StorageTemperatureClass = 'Room Temp (15°C - 25°C)' | 'Controlled Room (15°C - 30°C)' | 'Cold Chain (2°C - 8°C)' | 'Frozen (< -15°C)' | 'Cool Storage (< 20°C)';
 export type MedicineLifecycleStatus = 'active' | 'inactive' | 'discontinued' | 'under_review';
 
+export interface MedicineFeatureHighlight {
+  icon?: 'lungs' | 'clock' | 'shield' | 'device' | 'pill' | 'heart' | 'zap' | 'sparkles' | 'check' | string;
+  title: string;
+  subtitle: string;
+}
+
 export interface MasterMedicineItem {
   id: string;
   productGroupId?: string; // e.g. 'PROD-PARACETAMOL'
@@ -161,6 +167,12 @@ export interface MasterMedicineItem {
   commonAllergies: string[];
   contraindications: string[];
   counselingNotes: string;
+
+  // Visual Product Presentation & Feature Badges (§MedicineCard UI)
+  imageUrl?: string; // Isolated 3D product shot (e.g. '/medicines/ventolin_evohaler.jpg')
+  highlights?: MedicineFeatureHighlight[]; // 4 highlighted badges (e.g. Rapid Relief, Long-Lasting, etc.)
+  actuationsOrPackInfo?: string; // e.g. '100mcg / puff (200 actuations)' or '20 Film-Coated Tablets'
+  adultDosageInstruction?: string; // Specific adult dosage callout snippet
 
   // Pricing & Commercials
   averageWholesalePriceUgx: number;

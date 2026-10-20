@@ -72,7 +72,13 @@ export const Header: React.FC<HeaderProps> = ({
       
       {/* ── LANDING PAGE HEADER (Clean Public Corporate Bar) ── */}
       {isLandingPage ? (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+        <div
+          className="max-w-7xl mx-auto py-3 flex flex-wrap items-center justify-between gap-4"
+          style={{
+            paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+            paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          }}
+        >
           
           {/* Left: Brand Logo & Title */}
           <div
@@ -170,7 +176,13 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       ) : (
         /* ── OPERATIONAL WORKSPACE HEADER (When operating live pharmacy modules) ── */
-        <div className="max-w-full px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+        <div
+          className="max-w-full py-3 flex flex-wrap items-center justify-between gap-4"
+          style={{
+            paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+            paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          }}
+        >
           
           {/* Left: Sidebar Toggle Button + Brand Logo */}
           <div className="flex items-center gap-3">

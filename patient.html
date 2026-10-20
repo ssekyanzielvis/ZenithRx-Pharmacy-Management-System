@@ -37,21 +37,34 @@
     <meta property="og:image" content="/icon.png" />
     <meta property="og:type" content="website" />
 
-    <!-- ─── Service Worker Registration ─────────────────────── -->
+    <!-- ─── Service Worker Lifecycle Handler ─────────────────── -->
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('/sw.js', { scope: '/' })
-            .then((reg) => {
-              console.log('[ZenithRx PWA] Service Worker registered:', reg.scope);
-              // Trigger update check on each page load
-              reg.update();
-            })
-            .catch((err) => {
-              console.warn('[ZenithRx PWA] Service Worker registration failed:', err);
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            for (const registration of registrations) {
+              registration.unregister();
+            }
+          });
+          if ('caches' in window) {
+            caches.keys().then((keys) => {
+              for (const key of keys) {
+                if (key.includes('patient') || key.includes('zenithrx')) caches.delete(key);
+              }
             });
-        });
+          }
+        } else {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker
+              .register('/sw.js', { scope: '/' })
+              .then((reg) => {
+                reg.update();
+              })
+              .catch((err) => {
+                console.warn('[ZenithRx PWA] Service Worker registration failed:', err);
+              });
+          });
+        }
       }
     </script>
   </head>

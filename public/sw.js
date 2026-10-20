@@ -4,7 +4,7 @@
 // Cache-first strategy for app shell, network-first for API.
 // ============================================================
 
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const PATIENT_CACHE  = `zenithrx-patient-${CACHE_VERSION}`;
 const API_CACHE      = `zenithrx-patient-api-${CACHE_VERSION}`;
 
@@ -31,9 +31,11 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys
-          .filter((key) => key !== PATIENT_CACHE && key !== API_CACHE)
-          .map((key) => caches.delete(key))
+        keys.map((key) => {
+          if (key !== PATIENT_CACHE && key !== API_CACHE) {
+            return caches.delete(key);
+          }
+        })
       )
     )
   );
@@ -47,6 +49,14 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests (POST, etc.)
   if (request.method !== 'GET') return;
+
+  // Local development: always use network first to prevent serving stale pre-compiled chunks
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    event.respondWith(
+      fetch(request).catch(() => caches.match(request))
+    );
+    return;
+  }
 
   // API calls: network-first, fall back to cached API response
   if (url.pathname.startsWith('/api/')) {

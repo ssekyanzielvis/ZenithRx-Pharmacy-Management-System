@@ -100,6 +100,10 @@ CREATE TABLE IF NOT EXISTS drugs (
   manufacturer         TEXT NOT NULL,
   prescription_required BOOLEAN NOT NULL DEFAULT FALSE,
   unit                 TEXT NOT NULL,
+  image_url            TEXT,
+  highlights           JSONB DEFAULT '[]'::jsonb,
+  actuations_or_pack_info VARCHAR(128),
+  adult_dosage_instruction TEXT,
   created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

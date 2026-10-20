@@ -37,6 +37,9 @@ export default defineConfig(({ mode }) => {
       host: true,
       port: 3001,
       open: '/patient.html',
+      proxy: {
+        '/api': { target: env.VITE_API_PROXY_TARGET || 'http://localhost:3000', changeOrigin: true },
+      },
     },
     build: {
       outDir: 'dist-patient',

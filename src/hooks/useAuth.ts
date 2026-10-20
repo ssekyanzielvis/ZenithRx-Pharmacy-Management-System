@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
+import { AUTH_CHANGE_EVENT, clearAuthToken, getAuthRole, getAuthToken, postJson, setAuthToken } from '../services/authSession';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import type { SubscriptionStatus, BillingCycle, UserRoleRank, TierName } from '../types';
 import { getDefaultRightsForRole } from '../lib/rolePermissions';
@@ -189,6 +190,13 @@ export const DEMO_INVENTORY_USER: AuthUser = {
 
 export const DEMO_USER = DEMO_OWNER_USER;
 
+/**
+ * Demo / fallback sessions are a LOCAL DEVELOPMENT convenience only. They exist solely when the
+ * app runs under `vite dev` AND VITE_ENABLE_DEMO_LOGIN=true. Production builds can never enable them.
+ */
+export const DEMO_LOGIN_ENABLED: boolean =
+  Boolean((import.meta as any).env?.DEV) && (import.meta as any).env?.VITE_ENABLE_DEMO_LOGIN === 'true';
+
 /** Helper to resolve matching demo user from email or role keywords */
 export function getDemoUserForEmail(email: string): AuthUser {
   const norm = (email || '').toLowerCase().trim();
@@ -246,12 +254,8 @@ export function useAuth(): UseAuthReturn {
   /** Fetch user profile + pharmacy tenant info after authentication */
   const loadUserProfile = useCallback(async (supabaseUser: User) => {
     const userEmail = (supabaseUser.email || '').toLowerCase().trim();
-    const isSuper = Boolean(
-      supabaseUser.app_metadata?.['is_super_admin'] ||
-      userEmail.includes('admin@zenithrx.ug') ||
-      userEmail.includes('superadmin') ||
-      userEmail.includes('ssenabulya')
-    );
+    // Super-admin status may ONLY come from server-controlled app_metadata (never from email text).
+    const isSuper = Boolean(supabaseUser.app_metadata?.['is_super_admin']);
 
     if (isSuper) {
       setUser({
@@ -291,7 +295,7 @@ export function useAuth(): UseAuthReturn {
           selectedTier: matchedPharmacy.packageTier,
         });
       } else {
-        setUser(DEMO_USER);
+        setUser(DEMO_LOGIN_ENABLED ? DEMO_USER : null);
       }
       return;
     }
@@ -390,7 +394,7 @@ export function useAuth(): UseAuthReturn {
     }, 2500);
 
     if (!isSupabaseConfigured || !supabase) {
-      if (isVisitingAdmin) {
+      if (isVisitingAdmin || !DEMO_LOGIN_ENABLED) {
         setUser(null);
       } else {
         setUser(DEMO_USER);
@@ -535,7 +539,11 @@ export function useAuth(): UseAuthReturn {
           selectedTier: matched.packageTier,
         });
       } else {
-        setUser(getDemoUserForEmail(email));
+        if (DEMO_LOGIN_ENABLED) setUser(getDemoUserForEmail(email));
+        else {
+          setError('Email verification is unavailable right now. Please try again later.');
+          return false;
+        }
       }
       return true;
     }
@@ -556,8 +564,12 @@ export function useAuth(): UseAuthReturn {
         });
 
         if (retryErr) {
-          // In development, gracefully fall back and activate
-          console.warn('[useAuth] verifyOtp fallback in dev mode:', retryErr.message);
+          if (!DEMO_LOGIN_ENABLED) {
+            // A wrong or expired code must NEVER activate a session.
+            setError('That verification code is invalid or has expired. Please request a new one.');
+            return false;
+          }
+          console.warn('[useAuth] verifyOtp failed — demo fallback (dev only):', retryErr.message);
           setPendingEmailVerification(null);
           setUser(getDemoUserForEmail(email));
           return true;
@@ -576,7 +588,11 @@ export function useAuth(): UseAuthReturn {
       }
       return true;
     } catch (err: any) {
-      console.warn('[useAuth] OTP verify exception, auto-activating dev session:', err);
+      if (!DEMO_LOGIN_ENABLED) {
+        setError('Verification failed. Please check your connection and try again.');
+        return false;
+      }
+      console.warn('[useAuth] OTP verify exception — demo session (dev only):', err);
       setPendingEmailVerification(null);
       setUser(getDemoUserForEmail(email));
       return true;
@@ -600,36 +616,29 @@ export function useAuth(): UseAuthReturn {
     }
   }, []);
 
-  // ─── Sign In Action (With Seamless Dev Mode Bypass) ─────────────────────────
+  // ─── Sign In Action ──────────────────────────────────────────────────────────
+  // Real authentication via Supabase. Demo shortcuts exist only when DEMO_LOGIN_ENABLED (dev builds).
   const signIn = useCallback(
     async (email: string, password: string) => {
       const normalizedEmail = (email || '').trim().toLowerCase();
       const normalizedPassword = (password || '').trim();
 
-      // Check if credentials are demo / development shortcuts
-      const isDemoPass =
-        normalizedPassword === 'demo' ||
-        normalizedPassword === 'admin123' ||
-        normalizedPassword === 'admin' ||
-        normalizedPassword === 'password' ||
-        !normalizedPassword;
+      if (DEMO_LOGIN_ENABLED) {
+        const isDemoPass = ['demo', 'admin123', 'admin', 'password', ''].includes(normalizedPassword);
+        if (isDemoPass || !isSupabaseConfigured || !supabase) {
+          setUser(getDemoUserForEmail(normalizedEmail));
+          setError(null);
+          setLoading(false);
+          return;
+        }
+      }
 
-      const isDemoEmail =
-        normalizedEmail.includes('admin') ||
-        normalizedEmail.includes('owner') ||
-        normalizedEmail.includes('pharmacist') ||
-        normalizedEmail.includes('cashier') ||
-        normalizedEmail.includes('inventory') ||
-        normalizedEmail.includes('ssenabulya') ||
-        normalizedEmail.includes('demo') ||
-        isDemoPass;
-
-      // Direct instant bypass for development / demo logins
-      if (isDemoEmail || isDemoPass || !isSupabaseConfigured || !supabase) {
-        const demoUser = getDemoUserForEmail(normalizedEmail);
-        setUser(demoUser);
-        setError(null);
-        setLoading(false);
+      if (!isSupabaseConfigured || !supabase) {
+        setError('Sign-in is unavailable: authentication service is not configured.');
+        return;
+      }
+      if (!normalizedEmail || !normalizedPassword) {
+        setError('Enter your email and password.');
         return;
       }
 
@@ -643,11 +652,8 @@ export function useAuth(): UseAuthReturn {
         });
 
         if (signInError) {
-          console.warn('[useAuth] Supabase auth error, activating dev bypass user:', signInError.message);
-          // In development, fall back gracefully to a valid session
-          const fallbackUser = getDemoUserForEmail(normalizedEmail);
-          setUser(fallbackUser);
-          setLoading(false);
+          // Never fall back to a session on failure.
+          setError('Invalid email or password.');
           return;
         }
 
@@ -655,9 +661,8 @@ export function useAuth(): UseAuthReturn {
           await loadUserProfile(signInData.user);
         }
       } catch (err: any) {
-        console.warn('[useAuth] Supabase connection error, falling back to dev user:', err);
-        const fallbackUser = getDemoUserForEmail(normalizedEmail);
-        setUser(fallbackUser);
+        console.warn('[useAuth] Supabase connection error:', err);
+        setError('Cannot reach the sign-in service. Check your connection and try again.');
       } finally {
         setLoading(false);
       }
@@ -666,6 +671,7 @@ export function useAuth(): UseAuthReturn {
   );
 
   const loginAsAdminDemo = useCallback(() => {
+    if (!DEMO_LOGIN_ENABLED) return;
     setUser(DEMO_ADMIN_USER);
     setError(null);
   }, []);
@@ -746,16 +752,44 @@ export function useAuth(): UseAuthReturn {
     [user?.id]
   );
 
+  // ─── Server API token for staff (enables sync, files, payments, AI) ────────────────────
+  const [authTick, setAuthTick] = useState(0);
+  useEffect(() => {
+    const onChange = () => setAuthTick((t) => t + 1);
+    window.addEventListener(AUTH_CHANGE_EVENT, onChange);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, onChange);
+  }, []);
+
+  useEffect(() => {
+    // Skip if a staff session is already active, and never replace a platform-engineer session.
+    const existingRole = getAuthRole();
+    if (existingRole === 'staff' || existingRole === 'quantum_admin') return;
+    let cancelled = false;
+    const store = ({ ok, data }: { ok: boolean; data: any }) => {
+      if (!cancelled && ok && data?.token) setAuthToken(data.token, 'staff');
+    };
+    if (session?.access_token) {
+      postJson('/api/auth/staff/exchange', { accessToken: session.access_token }).then(store).catch(() => undefined);
+    } else if (DEMO_LOGIN_ENABLED && user) {
+      postJson('/api/auth/staff/demo', {}).then(store).catch(() => undefined);
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [session?.access_token, user?.id, authTick]);
+
   const signOut = useCallback(async () => {
     if (isSupabaseConfigured && supabase) {
       await supabase.auth.signOut();
     }
+    if (getAuthRole() === 'staff') clearAuthToken();
     setUser(null);
     setSession(null);
     setPendingEmailVerification(null);
   }, []);
 
   const switchRoleDemo = useCallback((role: UserRoleRank | 'Super Admin') => {
+    if (!DEMO_LOGIN_ENABLED) return; // privilege changes are never client-controlled in real builds
     if (role === 'Super Admin') {
       setUser(DEMO_ADMIN_USER);
       return;

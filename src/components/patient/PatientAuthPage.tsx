@@ -22,10 +22,9 @@ import {
   Info,
   Shield,
   Activity,
-  Zap,
 } from 'lucide-react';
 import { ThemeToggle } from '../ui/ThemeToggle';
-import { patientAuthService, PatientProfile, DEMO_PATIENTS } from '../../services/patientAuthService';
+import { patientAuthService, PatientProfile } from '../../services/patientAuthService';
 
 export interface PatientAuthPageProps {
   initialMode?: 'signin' | 'register';
@@ -94,32 +93,29 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
   const [regGender, setRegGender] = useState<'Female' | 'Male' | 'Other'>('Female');
   const [regSelectedAllergies, setRegSelectedAllergies] = useState<string[]>([]);
   const [regSelectedChronic, setRegSelectedChronic] = useState<string[]>([]);
+  const [regPassword, setRegPassword] = useState('');
   const [regError, setRegError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleDemoSelect = (demo: PatientProfile) => {
-    const res = patientAuthService.loginAsDemo(demo.id);
-    if (res.success && res.patient) {
-      onSuccess(res.patient);
-    }
-  };
-
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
-    if (!loginId.trim()) {
-      setLoginError('Please enter your registered phone number or email.');
+    if (!loginId.trim() || !loginPassword) {
+      setLoginError('Please enter your registered phone number or email, and your password.');
       return;
     }
 
-    const res = patientAuthService.login(loginId, loginPassword);
+    setSubmitting(true);
+    const res = await patientAuthService.login(loginId, loginPassword);
+    setSubmitting(false);
     if (res.success && res.patient) {
       onSuccess(res.patient);
     } else {
-      setLoginError(res.error || 'Invalid credentials. You can also click any test profile on the left for instant access.');
+      setLoginError(res.error || 'Invalid phone/email or password.');
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError('');
 
@@ -127,11 +123,17 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
       setRegError('Full legal name and WhatsApp phone number are required.');
       return;
     }
+    if (regPassword.length < 8 || !/[A-Za-z]/.test(regPassword) || !/\d/.test(regPassword)) {
+      setRegError('Choose a password of at least 8 characters that includes a letter and a number.');
+      return;
+    }
 
-    const res = patientAuthService.register({
+    setSubmitting(true);
+    const res = await patientAuthService.register({
       fullName: regFullName,
       phone: regPhone,
       email: regEmail,
+      password: regPassword,
       district: regDistrict,
       address: regAddress,
       nin: regNin,
@@ -139,6 +141,7 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
       allergies: regSelectedAllergies,
       chronicConditions: regSelectedChronic,
     });
+    setSubmitting(false);
 
     if (res.success && res.patient) {
       onSuccess(res.patient);
@@ -241,7 +244,15 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
       </nav>
 
       {/* ─── 3. Main Split-Hero Content ─── */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-10 flex items-center">
+      <main
+        className="flex-1 max-w-7xl w-full mx-auto flex items-center"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingTop: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+          paddingBottom: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+        }}
+      >
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-[1cm] items-stretch my-4" style={{ gap: '1cm', marginTop: '1cm', marginBottom: '1cm' }}>
           
           {/* ─── LEFT COLUMN: Atmospheric Clinical Brand & 1-Click Access (5 Cols) ─── */}
@@ -249,16 +260,16 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
             
             {/* Clinical Brand Hero Card */}
             <div
-              className="rounded-3xl bg-gradient-to-br from-[#064E3B] via-[#047857] to-[#0F766E] text-white shadow-xl shadow-emerald-950/20 relative overflow-hidden flex-1 flex flex-col justify-between"
+              className="rounded-3xl bg-gradient-to-br from-emerald-50 via-white to-teal-50 text-slate-900 border border-emerald-100 shadow-sm dark:from-[#064E3B] dark:via-[#047857] dark:to-[#0F766E] dark:text-white dark:border-transparent dark:shadow-xl dark:shadow-emerald-950/20 relative overflow-hidden flex-1 flex flex-col justify-between"
               style={{ padding: '1cm', gap: '1cm' }}
             >
               {/* Subtle background glow */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-teal-300/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-300/20 dark:bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-teal-200/30 dark:bg-teal-300/10 rounded-full blur-2xl pointer-events-none" />
 
               <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', gap: '0.6cm' }}>
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md text-emerald-100 text-xs font-bold border border-white/20 w-fit">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/70 dark:bg-white/15 backdrop-blur-md text-emerald-800 dark:text-emerald-100 text-xs font-bold border border-emerald-200 dark:border-white/20 w-fit">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-300" />
                   <span>Licensed Uganda Healthcare Network</span>
                 </div>
 
@@ -267,60 +278,31 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
                     Safe, Verified Patient Care at Your Fingertips
                   </h2>
 
-                  <p className="text-xs sm:text-sm text-emerald-50 leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-emerald-50 leading-relaxed font-normal">
                     Refill authenticated prescriptions, check real-time stock across licensed Uganda pharmacies, and consult licensed doctors online.
                   </p>
                 </div>
 
-                {/* Key Benefits Grid with 1cm Vertical Separation */}
-                <div className="grid grid-cols-2 gap-3 border-t border-white/15" style={{ marginTop: '0.6cm', paddingTop: '0.6cm' }}>
-                  <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15 space-y-1">
-                    <Shield className="w-4 h-4 text-emerald-200 mb-1" />
-                    <p className="text-xs font-bold text-white">100% Genuine Meds</p>
-                    <p className="text-[10px] text-emerald-100/80">NDA batch tracking</p>
+                {/* Key Benefits (Un-carded Clean Typography) */}
+                <div className="grid grid-cols-2 gap-4 border-t border-emerald-100 dark:border-white/15 pt-5">
+                  <div className="flex items-start gap-2.5">
+                    <Shield className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-200 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">100% Genuine Meds</p>
+                      <p className="text-[11px] text-slate-500 dark:text-emerald-100/80 mt-0.5">NDA batch tracking</p>
+                    </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15 space-y-1">
-                    <Activity className="w-4 h-4 text-emerald-200 mb-1" />
-                    <p className="text-xs font-bold text-white">Safety Safeguards</p>
-                    <p className="text-[10px] text-emerald-100/80">Allergy &amp; dosage checks</p>
+                  <div className="flex items-start gap-2.5">
+                    <Activity className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-200 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">Safety Safeguards</p>
+                      <p className="text-[11px] text-slate-500 dark:text-emerald-100/80 mt-0.5">Allergy &amp; dosage checks</p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* ⚡ Quick Demo Patient Profiles (1-Click Test Access with Generous Spacing) */}
-              <div className="border-t border-white/15 relative z-10" style={{ marginTop: '0.8cm', paddingTop: '0.8cm' }}>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-black uppercase tracking-wider text-emerald-200 flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-300 fill-amber-300" />
-                    1-Click Demo Profiles
-                  </span>
-                  <span className="text-xs bg-white/20 px-3 py-1 rounded-full text-white font-bold backdrop-blur-xs">
-                    Test Access
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
-                  {DEMO_PATIENTS.map((demo) => (
-                    <button
-                      key={demo.id}
-                      type="button"
-                      onClick={() => handleDemoSelect(demo)}
-                      className="p-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 hover:border-white/40 text-left transition-all group flex flex-col justify-between cursor-pointer shadow-xs active:scale-98"
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <span className="text-sm font-black text-white group-hover:text-amber-200 transition-colors truncate">
-                          {demo.fullName}
-                        </span>
-                        <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform shrink-0" />
-                      </div>
-                      <span className="text-xs text-emerald-100/90 font-medium truncate mt-1.5">
-                        {demo.district.split(' ')[0]} • {demo.phone.slice(-6)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
 
           </div>
@@ -574,6 +556,30 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
                       </div>
                     </div>
 
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
+                        Create Password <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="flex items-center w-full h-12 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 focus-within:border-emerald-500 focus-within:ring-3 focus-within:ring-emerald-500/10 focus-within:bg-white dark:focus-within:bg-slate-800 transition-all shadow-2xs overflow-hidden px-3.5 gap-2.5">
+                        <input
+                          type={showPassword ? 'text' : 'password'}
+                          autoComplete="new-password"
+                          placeholder="At least 8 characters, with a letter and a number"
+                          value={regPassword}
+                          onChange={(e) => setRegPassword(e.target.value)}
+                          className="flex-1 h-full bg-transparent border-0 text-xs font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-0"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="text-slate-400 hover:text-emerald-600 transition-colors shrink-0"
+                          title={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
@@ -623,15 +629,15 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
                     </div>
                   </div>
 
-                  {/* Clinical Safety Profile Section */}
-                  <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 space-y-3.5">
-                    <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold text-xs">
-                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  {/* Clinical Safety Profile Section (Generously Spaced) */}
+                  <div className="p-5 sm:p-6 rounded-2xl bg-amber-50/80 dark:bg-amber-950/25 border border-amber-200/90 dark:border-amber-800/60 space-y-4 my-2">
+                    <div className="flex items-center gap-2.5 text-amber-900 dark:text-amber-200 font-black text-xs sm:text-sm pb-2.5 border-b border-amber-200/70 dark:border-amber-800/50">
+                      <AlertTriangle className="w-4.5 h-4.5 text-amber-600 shrink-0" />
                       <span>Clinical Safety Profile (Critical for Safe Prescriptions)</span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-1">
+                      <div className="space-y-2">
                         <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
                           Known Drug Allergies
                         </label>
@@ -656,12 +662,12 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         <label className="block text-xs font-bold text-slate-700 dark:text-slate-200">
                           Chronic Medical Conditions
                         </label>
                         <div className="flex items-center w-full h-12 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 focus-within:border-emerald-500 focus-within:ring-3 focus-within:ring-emerald-500/10 transition-all shadow-2xs overflow-hidden px-3.5 gap-2.5">
-                          <div className="flex items-center justify-center text-purple-500 shrink-0 select-none">
+                          <div className="flex items-center justify-center text-emerald-500 shrink-0 select-none">
                             <HeartPulse className="w-4 h-4" />
                           </div>
                           <select
@@ -723,7 +729,15 @@ export const PatientAuthPage: React.FC<PatientAuthPageProps> = ({
       </main>
 
       {/* ─── 4. Inherited Footer ─── */}
-      <footer className="max-w-7xl mx-auto w-full px-3 sm:px-6 lg:px-8 text-center text-[11px] text-slate-500 dark:text-slate-400 py-6 border-t border-slate-200 dark:border-slate-800 mt-auto">
+      <footer
+        className="max-w-7xl mx-auto w-full text-center text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 mt-auto"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingTop: 'clamp(0.8cm, 2vh, 1cm)',
+          paddingBottom: 'clamp(0.8cm, 2vh, 1cm)',
+        }}
+      >
         <p>© 2026 ZenithRx Uganda · NDA Regulated Platform · 24/7 Helpline: 0200 913 555</p>
       </footer>
     </div>

@@ -53,6 +53,8 @@ import {
   SERVICE_CATEGORIES,
 } from '../../services/pharmacyServicesCatalogueService';
 import { getMasterMedicines, MasterMedicineItem } from '../../services/medicineSafetyService';
+import { MedicineCard } from '../ui/MedicineCard';
+import { PatientMedicineDetailPage } from './PatientMedicineDetailPage';
 import { getHealthEducationArticles } from '../../services/healthEducationService';
 import { formatUGX } from '../../services/formatters';
 import { ThemeToggle } from '../ui/ThemeToggle';
@@ -62,6 +64,7 @@ interface PatientLandingPageProps {
   onSelectAction: (action: 'prescriptions' | 'search' | 'refills' | 'telehealth' | 'adr' | 'copilot') => void;
   currentUser?: { fullName: string; phone?: string; id?: string } | null;
   onReturnToPortal?: () => void;
+  onViewMedicineDetail?: (medicine: MasterMedicineItem) => void;
 }
 
 export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
@@ -69,6 +72,7 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
   onSelectAction,
   currentUser,
   onReturnToPortal,
+  onViewMedicineDetail,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -101,7 +105,7 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
     serviceCategory: selectedServiceCategory,
   });
 
-  const handleActionClick = (action: 'prescriptions' | 'search' | 'refills' | 'telehealth' | 'adr', reason?: string) => {
+  const handleActionClick = (action: 'prescriptions' | 'search' | 'refills' | 'telehealth' | 'adr' | 'copilot', reason?: string) => {
     if (currentUser) {
       if (onReturnToPortal) onReturnToPortal();
       onSelectAction(action);
@@ -133,15 +137,15 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#070E18] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200 selection:bg-emerald-500 selection:text-white pb-12">
       
       {/* ── 1. Top Clinical Regulatory Ticker Bar ── */}
-      <div className="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-950 text-emerald-200 text-[10px] sm:text-xs py-1.5 px-3 sm:px-4 border-b border-emerald-800/40 shadow-xs">
+      <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-100 dark:from-emerald-950 dark:via-teal-950 dark:to-slate-950 text-emerald-900 dark:text-emerald-200 text-[10px] sm:text-xs py-1.5 px-3 sm:px-4 border-b border-emerald-200/80 dark:border-emerald-800/40 shadow-2xs">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 font-medium">
           <div className="flex items-center gap-1.5 truncate">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-            <span className="truncate">
+            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <span className="truncate font-semibold">
               NDA Certified Network · 30-Min Express Medicine Delivery Across Uganda
             </span>
           </div>
-          <div className="hidden sm:flex items-center gap-3 shrink-0 text-[11px] text-emerald-300/80 font-bold">
+          <div className="hidden sm:flex items-center gap-3 shrink-0 text-[11px] text-emerald-800 dark:text-emerald-300/80 font-bold">
             <span>Helpline: <strong>0200 913 555</strong></span>
           </div>
         </div>
@@ -149,7 +153,11 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
 
       {/* ── 2. Glassmorphic Navigation Bar (Responsive on Mobile & Desktop) ── */}
       <nav 
-        className="bg-white/95 dark:bg-[#0B131F]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-40 transition-all flex flex-col justify-center shadow-xs px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 min-h-[72px] sm:min-h-[88px]"
+        className="bg-white/95 dark:bg-[#0B131F]/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800 sticky top-0 z-40 transition-all flex flex-col justify-center shadow-xs py-2.5 sm:py-3.5 min-h-[72px] sm:min-h-[88px]"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+        }}
       >
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-3 sm:gap-6">
           
@@ -419,14 +427,14 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
             {/* 2. Chronic Refills */}
             <button
               onClick={() => handleActionClick('refills', 'Sign in to automate your chronic refill schedule')}
-              className="rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0c1626] border border-slate-200/80 dark:border-slate-800 hover:border-purple-500/60 shadow-2xs hover:shadow-xs transition-all flex flex-col items-center text-center justify-center group cursor-pointer w-full"
+              className="rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0c1626] border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500/60 shadow-2xs hover:shadow-xs transition-all flex flex-col items-center text-center justify-center group cursor-pointer w-full"
               style={{ padding: '1cm', gap: '0.5cm' }}
             >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
                 <HeartPulse className="w-5 h-5" />
               </div>
               <div className="min-w-0 flex flex-col items-center text-center space-y-1">
-                <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-purple-600 transition-colors">
+                <h4 className="text-xs sm:text-sm font-black text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors">
                   Chronic Refills
                 </h4>
                 <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 truncate hidden sm:block">Automated Schedules</p>
@@ -497,38 +505,46 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
       {/* ── 4. Participating Pharmacies Section (Clean & De-congested with 1cm Rhythm) ── */}
       <section 
         id="pharmacies" 
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-        style={{ paddingTop: '1.2cm', paddingBottom: '1.2cm', display: 'flex', flexDirection: 'column', gap: '0.8cm' }}
+        className="max-w-7xl mx-auto"
+        style={{
+          paddingTop: '1.2cm',
+          paddingBottom: '1.2cm',
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.8cm',
+        }}
       >
         
-        {/* Section Header */}
+        {/* Section Header (Centered) */}
         <div 
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6 border-b border-slate-200/60 dark:border-slate-800/80"
+          className="flex flex-col items-center text-center space-y-4 border-b border-slate-200/60 dark:border-slate-800/80 max-w-4xl mx-auto w-full"
           style={{ paddingBottom: '0.6cm' }}
         >
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          <div className="space-y-2.5 flex flex-col items-center text-center">
+            <div className="flex items-center justify-center gap-2.5 flex-wrap">
+              <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 LIVE PHARMACIES &amp; STOCK
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] font-black border border-emerald-300 dark:border-emerald-800">
+              <span className="px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[11px] font-black border border-emerald-300 dark:border-emerald-800 shadow-2xs">
                 {allPharmacies.length} BRANCHES
               </span>
             </div>
-            <h2 className="text-xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100 text-center leading-tight">
               Participating Pharmacies &amp; Real-Time Availability
             </h2>
           </div>
 
-          {/* District Selection: Universal Modern Dropdown Selector */}
-          <div className="w-full sm:w-72 md:w-80 shrink-0">
+          {/* District Selection: Universal Modern Dropdown Selector Centered */}
+          <div className="w-full max-w-sm sm:max-w-md mx-auto pt-1">
             <div className="relative flex items-center">
               <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 absolute left-4 pointer-events-none shrink-0 z-10" />
               <select
                 value={selectedDistrict}
                 onChange={(e) => setSelectedDistrict(e.target.value)}
                 style={{ paddingLeft: '2.75rem', paddingRight: '2.5rem' }}
-                className="w-full py-3 sm:py-3.5 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-2xl text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 shadow-2xs appearance-none cursor-pointer transition-all hover:border-slate-300 dark:hover:border-slate-600"
+                className="w-full py-3 sm:py-3.5 bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-2xl text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 shadow-2xs appearance-none cursor-pointer transition-all hover:border-slate-300 dark:hover:border-slate-600 text-center"
               >
                 {districts.map((d) => (
                   <option key={d} value={d}>
@@ -541,8 +557,8 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
           </div>
         </div>
 
-        {/* Horizontal Scrollable Quick Filters Bar (One Clean Row) */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+        {/* Horizontal Scrollable Quick Filters Bar (Centered) */}
+        <div className="flex items-center justify-start sm:justify-center gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
           <button
             onClick={() => setOpenNowOnly(!openNowOnly)}
             className={`px-3.5 py-2 rounded-2xl font-bold text-xs transition-all whitespace-nowrap shrink-0 flex items-center gap-2 cursor-pointer ${
@@ -571,11 +587,11 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
             onClick={() => setDeliveryOnly(!deliveryOnly)}
             className={`px-3.5 py-2 rounded-2xl font-bold text-xs transition-all whitespace-nowrap shrink-0 flex items-center gap-2 cursor-pointer ${
               deliveryOnly
-                ? 'bg-indigo-600 text-white shadow-xs'
+                ? 'bg-emerald-600 text-white shadow-xs'
                 : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
             }`}
           >
-            <Truck className="w-4 h-4 text-indigo-500" />
+            <Truck className="w-4 h-4 text-emerald-500" />
             <span>Delivery</span>
           </button>
 
@@ -690,7 +706,7 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
                       style={{ paddingTop: '0.35cm' }}
                     >
                       <span className="flex items-center gap-2 truncate">
-                        <Truck className={`w-4 h-4 shrink-0 ${pharm.deliveryAvailable ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400'}`} />
+                        <Truck className={`w-4 h-4 shrink-0 ${pharm.deliveryAvailable ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`} />
                         <span className="truncate">{pharm.deliveryAvailable ? `Delivery (${pharm.deliveryTimeMin})` : 'No Delivery'}</span>
                       </span>
                       <span className="flex items-center gap-1.5 shrink-0 font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-1 rounded-lg">
@@ -733,7 +749,15 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
 
       {/* ── 5. National Medicine Price Index ── */}
       <section id="medicines" className="py-12 sm:py-16 bg-white dark:bg-[#09111c] border-y border-slate-200/80 dark:border-slate-800" style={{ marginTop: '1cm', marginBottom: '1cm' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-[1cm]">
+        <div
+          className="max-w-7xl mx-auto space-y-[1cm]"
+          style={{
+            paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+            paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+            paddingTop: 'clamp(0.8cm, 2vh, 1.2cm)',
+            paddingBottom: 'clamp(0.8cm, 2vh, 1.2cm)',
+          }}
+        >
           
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
             <div>
@@ -754,64 +778,37 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[1cm]" style={{ gap: '1cm' }}>
-            {masterMedicines.slice(0, 6).map((med) => (
-              <div
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            {masterMedicines.slice(0, 4).map((med) => (
+              <MedicineCard
                 key={med.id}
-                className="bg-slate-50/80 dark:bg-[#0c1626] border border-slate-200/80 dark:border-slate-800 rounded-2xl sm:rounded-3xl flex flex-col justify-between hover:shadow-xs transition-all"
-                style={{ padding: '1cm', gap: '1cm' }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm' }}>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[9px] font-extrabold uppercase text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-                      {med.category}
-                    </span>
-                    <span className="text-[9px] font-mono text-slate-400">{med.ndaRegistrationNumber}</span>
-                  </div>
-
-                  <div>
-                    <h4 className="text-base font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                      {med.brandName}
-                    </h4>
-                    <p className="text-xs text-slate-500 italic mt-0.5">{med.genericName}</p>
-                  </div>
-
-                  <div className="bg-white dark:bg-slate-800/60 rounded-xl p-3 text-xs text-slate-600 dark:text-slate-300 space-y-1.5 border border-slate-100 dark:border-slate-800/80">
-                    <p><span className="font-bold">Form:</span> {med.form} ({med.strength})</p>
-                    <p><span className="font-bold">Dose:</span> {med.standardDoseAdult}</p>
-                  </div>
-                </div>
-
-                <div className="pt-3 flex items-center justify-between border-t border-slate-200/80 dark:border-slate-800">
-                  <div>
-                    <span className="text-[9px] text-slate-400 block font-semibold leading-none">Price per pack</span>
-                    <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 mt-1 block">
-                      {formatUGX(med.suggestedRetailPriceUgx)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => setSelectedMedicineForModal(med)}
-                      className="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      Details
-                    </button>
-                    <button
-                      onClick={() => handleActionClick('prescriptions', `Sign in to order ${med.brandName}`)}
-                      className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-xs cursor-pointer transition-all active:scale-95"
-                    >
-                      Order
-                    </button>
-                  </div>
-                </div>
-              </div>
+                medicine={med}
+                onOrder={(m) => handleActionClick('prescriptions', `Sign in to order ${m.brandName}`)}
+                onViewBranches={() => handleActionClick('search', 'Sign in to check live branch availability')}
+                onViewDetails={(m) => {
+                  if (onViewMedicineDetail) {
+                    onViewMedicineDetail(m);
+                  } else {
+                    setSelectedMedicineForModal(m);
+                  }
+                }}
+              />
             ))}
           </div>
         </div>
       </section>
 
       {/* ── 6. Safety-First Clinical Stepper ── */}
-      <section id="workflow" className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-[1cm]" style={{ marginTop: '1cm', marginBottom: '1cm' }}>
+      <section
+        id="workflow"
+        className="py-12 sm:py-16 max-w-7xl mx-auto space-y-[1cm]"
+        style={{
+          marginTop: '1cm',
+          marginBottom: '1cm',
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+        }}
+      >
         <div className="text-center max-w-2xl mx-auto space-y-2 mb-4">
           <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
             SAFETY-FIRST ARCHITECTURE
@@ -842,7 +839,7 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
               title: 'FEFO Pack',
               desc: 'Dispensed from audited First-Expiry-First-Out batches.',
               icon: Pill,
-              color: 'text-purple-600 bg-purple-50 dark:bg-purple-950/80',
+              color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/80',
             },
             {
               step: '04',
@@ -879,7 +876,15 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
 
       {/* ── 7. Health Articles ── */}
       <section id="health-library" className="py-12 sm:py-16 bg-white dark:bg-[#09111c] border-t border-slate-200/80 dark:border-slate-800" style={{ marginTop: '1cm', marginBottom: '1cm' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-[1cm]">
+        <div
+          className="max-w-7xl mx-auto space-y-[1cm]"
+          style={{
+            paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+            paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+            paddingTop: 'clamp(0.8cm, 2vh, 1.2cm)',
+            paddingBottom: 'clamp(0.8cm, 2vh, 1.2cm)',
+          }}
+        >
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-[10px] sm:text-xs font-black uppercase text-emerald-600 dark:text-emerald-400">
@@ -923,17 +928,25 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
       </section>
 
       {/* ── 8. Emergency Helpline Card ── */}
-      <section className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" style={{ marginTop: '1.2cm', marginBottom: '1.5cm' }}>
+      <section
+        className="py-8 max-w-7xl mx-auto"
+        style={{
+          marginTop: '1.2cm',
+          marginBottom: '1.5cm',
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+        }}
+      >
         <div
-          className="bg-gradient-to-r from-slate-950 via-slate-900 to-emerald-950 text-white rounded-3xl shadow-2xl flex flex-col md:flex-row items-center justify-between border border-slate-800"
+          className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100/80 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950 text-slate-900 dark:text-white rounded-3xl shadow-lg dark:shadow-2xl flex flex-col md:flex-row items-center justify-between border border-emerald-200/90 dark:border-slate-800 transition-colors"
           style={{ padding: '1.2cm', gap: '1cm' }}
         >
           <div className="text-center md:text-left" style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm' }}>
-            <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
+            <span className="text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
               24/7 PHARMACY HELPLINE
             </span>
-            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight">Need Urgent Medication Advice?</h3>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-slate-900 dark:text-white">Need Urgent Medication Advice?</h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed">
               Speak directly with an on-duty accredited pharmacist via WhatsApp or Phone for instant dosage and interaction safety.
             </p>
           </div>
@@ -990,7 +1003,7 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
                 onClick={() => setModalActiveTab('services')}
                 className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
                   modalActiveTab === 'services'
-                    ? 'bg-blue-600 text-white shadow-xs font-black'
+                    ? 'bg-emerald-600 text-white shadow-xs font-black'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                 }`}
               >
@@ -1001,7 +1014,7 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
                 onClick={() => setModalActiveTab('hours')}
                 className={`px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
                   modalActiveTab === 'hours'
-                    ? 'bg-indigo-600 text-white shadow-xs font-black'
+                    ? 'bg-emerald-600 text-white shadow-xs font-black'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                 }`}
               >
@@ -1090,57 +1103,52 @@ export const PatientLandingPage: React.FC<PatientLandingPageProps> = ({
         </div>
       )}
 
-      {/* ── Modal: Medicine Details ── */}
+      {/* ── Dedicated Full-Page Medicine Detail & Clinical Monograph ── */}
       {selectedMedicineForModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-[#0c1626] border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-5 shadow-2xl space-y-3.5">
-            <div className="flex items-start justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-              <div>
-                <span className="text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full">
-                  {selectedMedicineForModal.category}
-                </span>
-                <h3 className="text-base font-black text-slate-900 dark:text-slate-100 mt-1">
-                  {selectedMedicineForModal.brandName}
-                </h3>
-                <p className="text-xs text-slate-500 italic">{selectedMedicineForModal.genericName}</p>
-              </div>
-              <button onClick={() => setSelectedMedicineForModal(null)} className="p-1 text-slate-400">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-              <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-1">
-                <p><strong className="text-slate-900 dark:text-slate-100">Dosage:</strong> {selectedMedicineForModal.standardDoseAdult}</p>
-                <p><strong className="text-slate-900 dark:text-slate-100">Form:</strong> {selectedMedicineForModal.form} ({selectedMedicineForModal.strength})</p>
-                <p><strong className="text-slate-900 dark:text-slate-100">Manufacturer:</strong> {selectedMedicineForModal.manufacturer}</p>
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800">
-                <div>
-                  <span className="text-[9px] text-slate-400 block font-semibold">Retail Price</span>
-                  <span className="text-base font-black text-emerald-600 dark:text-emerald-400">
-                    {formatUGX(selectedMedicineForModal.suggestedRetailPriceUgx)}
-                  </span>
-                </div>
-                <button
-                  onClick={() => {
-                    const med = selectedMedicineForModal;
-                    setSelectedMedicineForModal(null);
-                    handleActionClick('prescriptions', `Sign in to order ${med.brandName}`);
-                  }}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl shadow-xs cursor-pointer"
-                >
-                  Order
-                </button>
-              </div>
-            </div>
+        <div className="fixed inset-0 z-50 bg-[#F4F7FB] dark:bg-[#0B131F] overflow-y-auto animate-in fade-in">
+          <div className="py-6 min-h-screen">
+            <PatientMedicineDetailPage
+              medicine={selectedMedicineForModal}
+              onGoBack={() => setSelectedMedicineForModal(null)}
+              patientUser={currentUser}
+              onAddToCart={(med) => {
+                setSelectedMedicineForModal(null);
+                handleActionClick('prescriptions', `Sign in to order ${med.brandName}`);
+              }}
+              onViewBranches={() => {
+                setSelectedMedicineForModal(null);
+                handleActionClick('search', 'Sign in to check live branch availability');
+              }}
+              onConsultPharmacist={() => {
+                setSelectedMedicineForModal(null);
+                handleActionClick('telehealth', 'Sign in for clinical pharmacist teleconsultation');
+              }}
+              onReportReaction={() => {
+                setSelectedMedicineForModal(null);
+                handleActionClick('adr', 'Sign in to report an adverse drug reaction');
+              }}
+              onAskCopilot={() => {
+                setSelectedMedicineForModal(null);
+                handleActionClick('copilot', 'Sign in to chat with RxAI Copilot');
+              }}
+              onSelectAlternative={(altMed) => {
+                setSelectedMedicineForModal(altMed);
+              }}
+            />
           </div>
         </div>
       )}
 
       {/* ── Footer ── */}
-      <footer className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 text-center text-[11px] text-slate-500 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <footer
+        className="max-w-7xl mx-auto text-center text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800"
+        style={{
+          paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+          paddingTop: 'clamp(0.8cm, 2vh, 1.2cm)',
+          paddingBottom: 'clamp(0.8cm, 2vh, 1.2cm)',
+        }}
+      >
         <p>© 2026 ZenithRx Uganda · NDA Regulated Platform · 24/7 Helpline: 0200 913 555</p>
       </footer>
 

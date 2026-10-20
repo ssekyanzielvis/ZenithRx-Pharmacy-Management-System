@@ -72,6 +72,15 @@ export const INITIAL_MASTER_MEDICINES: MasterMedicineItem[] = [
     commonAllergies: ['Paracetamol hypersensitivity', 'Severe hepatic impairment'],
     contraindications: ['Severe active liver disease / cirrhosis', 'Known G6PD deficiency (high doses)'],
     counselingNotes: 'Do not take concurrently with other paracetamol-containing cough, cold or flu remedies.',
+    imageUrl: '/medicines/panadol_extra.jpg',
+    actuationsOrPackInfo: '500mg / 65mg (Box of 100 Tablets)',
+    adultDosageInstruction: '1 to 2 tablets (500mg - 1000mg) every 4-6 hours as needed for pain & fever. Max 4000mg/24h.',
+    highlights: [
+      { icon: 'zap', title: 'Rapid Relief', subtitle: 'Targeted extra strength' },
+      { icon: 'clock', title: 'Fast Acting', subtitle: 'Starts in 15–30 min' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: 'GSK' },
+      { icon: 'pill', title: 'Easy to Swallow', subtitle: 'Film-coated tablets' },
+    ],
     averageWholesalePriceUgx: 200,
     suggestedRetailPriceUgx: 350,
     verifiedByNda: true,
@@ -122,6 +131,15 @@ export const INITIAL_MASTER_MEDICINES: MasterMedicineItem[] = [
     commonAllergies: ['Paracetamol hypersensitivity'],
     contraindications: ['Severe liver failure'],
     counselingNotes: 'Always use the supplied measuring syringe; never use a household teaspoon.',
+    imageUrl: '/medicines/calpol_suspension.jpg',
+    actuationsOrPackInfo: '120mg / 5mL (100 mL Bottle)',
+    adultDosageInstruction: 'Pediatric formulation: 2.5mL to 10mL based on age/weight with included syringe.',
+    highlights: [
+      { icon: 'heart', title: 'Gentle on Tummy', subtitle: 'Pediatric formula' },
+      { icon: 'clock', title: 'Up to 6 Hours', subtitle: 'Fever & pain control' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: 'GSK / Calpol' },
+      { icon: 'device', title: 'Easy to Use', subtitle: 'Measuring syringe' },
+    ],
     averageWholesalePriceUgx: 8500,
     suggestedRetailPriceUgx: 12000,
     verifiedByNda: true,
@@ -175,8 +193,17 @@ export const INITIAL_MASTER_MEDICINES: MasterMedicineItem[] = [
     commonAllergies: ['Penicillin', 'Beta-lactam antibiotics', 'Cephalosporins (cross-allergy 5-10%)'],
     contraindications: ['History of penicillin-associated cholestatic jaundice / liver dysfunction'],
     counselingNotes: 'Take immediately at the start of a meal to enhance absorption and prevent stomach upset. Complete full course.',
+    imageUrl: '/medicines/augmentin_625.jpg',
+    actuationsOrPackInfo: '625mg (14 Film-Coated Tablets)',
+    adultDosageInstruction: '1 tablet (625mg) every 12 hours (BD) at start of meal for bacterial infections.',
+    highlights: [
+      { icon: 'shield', title: 'Broad Spectrum', subtitle: 'Pathogen eradication' },
+      { icon: 'zap', title: 'Potent Action', subtitle: 'Beta-lactamase resistant' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: 'GSK' },
+      { icon: 'pill', title: 'Protected Foil', subtitle: 'Desiccant moisture seal' },
+    ],
     averageWholesalePriceUgx: 2200,
-    suggestedRetailPriceUgx: 3000,
+    suggestedRetailPriceUgx: 35000,
     verifiedByNda: true,
     isActive: true,
     status: 'active',
@@ -479,6 +506,18 @@ export const INITIAL_MASTER_MEDICINES: MasterMedicineItem[] = [
     commonAllergies: ['Salbutamol hypersensitivity', 'Propellant allergy'],
     contraindications: ['Hypersensitivity to salbutamol'],
     counselingNotes: 'Shake well before spraying. Breathe out fully, seal lips on mouthpiece, press down while breathing in deeply, and hold breath for 10 seconds.',
+    
+    // Visual Presentation & High-Fidelity Medicine Card Props
+    imageUrl: '/medicines/ventolin_evohaler.jpg',
+    actuationsOrPackInfo: '100mcg / puff (200 actuations)',
+    adultDosageInstruction: '1 to 2 inhalations (100-200mcg) every 4–6 hours for acute relief of bronchospasm.',
+    highlights: [
+      { icon: 'lungs', title: 'Rapid Relief', subtitle: 'for bronchospasm' },
+      { icon: 'clock', title: 'Long-Lasting', subtitle: 'up to 4–6 hours' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: 'GSK' },
+      { icon: 'device', title: 'Easy to Use', subtitle: 'Metered dose inhaler' },
+    ],
+
     averageWholesalePriceUgx: 18000,
     suggestedRetailPriceUgx: 25000,
     verifiedByNda: true,
@@ -582,7 +621,26 @@ class MedicineSafetyService {
     const cached = localStorage.getItem(STORAGE_KEY_MASTER_CATALOGUE);
     if (cached) {
       try {
-        this.medicines = JSON.parse(cached);
+        const parsed: MasterMedicineItem[] = JSON.parse(cached);
+        // Enrich any cached records with latest visuals, pack info, highlights and imagery
+        this.medicines = parsed.map((item) => {
+          const init = INITIAL_MASTER_MEDICINES.find((m) => m.id === item.id);
+          if (init) {
+            const price = (item.suggestedRetailPriceUgx && item.suggestedRetailPriceUgx > 1000)
+              ? item.suggestedRetailPriceUgx
+              : init.suggestedRetailPriceUgx;
+            return {
+              ...init,
+              ...item,
+              imageUrl: init.imageUrl || item.imageUrl,
+              highlights: (init.highlights && init.highlights.length > 0) ? init.highlights : item.highlights,
+              actuationsOrPackInfo: init.actuationsOrPackInfo || item.actuationsOrPackInfo,
+              adultDosageInstruction: init.adultDosageInstruction || item.adultDosageInstruction,
+              suggestedRetailPriceUgx: price,
+            };
+          }
+          return item;
+        });
       } catch {
         this.medicines = INITIAL_MASTER_MEDICINES;
       }
@@ -644,4 +702,75 @@ export const medicineSafetyService = new MedicineSafetyService();
 
 export const getMasterMedicines = (): MasterMedicineItem[] => {
   return medicineSafetyService.getAll();
+};
+
+/**
+ * Returns the 4 clinical/consumer highlights for the high-fidelity MedicineCard UI.
+ * If custom highlights were not stored, falls back to clinically derived highlights.
+ */
+export const getMedicineCardHighlights = (med: MasterMedicineItem): { icon?: string; title: string; subtitle: string }[] => {
+  if (med.highlights && med.highlights.length > 0) {
+    return med.highlights;
+  }
+
+  const cat = (med.category || '').toLowerCase();
+  const form = (med.form || '').toLowerCase();
+  const brand = (med.manufacturer || 'Certified Rx').split(' ')[0] || 'GSK';
+
+  if (cat.includes('respiratory') || form.includes('inhaler')) {
+    return [
+      { icon: 'lungs', title: 'Rapid Relief', subtitle: 'for bronchospasm' },
+      { icon: 'clock', title: 'Long-Lasting', subtitle: 'up to 4–6 hours' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: brand },
+      { icon: 'device', title: 'Easy to Use', subtitle: 'Metered dose inhaler' },
+    ];
+  }
+
+  if (cat.includes('analgesic') || cat.includes('pain') || cat.includes('fever')) {
+    return [
+      { icon: 'zap', title: 'Rapid Relief', subtitle: 'Targeted pain relief' },
+      { icon: 'clock', title: 'Fast Acting', subtitle: 'Starts in 15–30 min' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: brand },
+      { icon: 'pill', title: 'Easy to Use', subtitle: form.includes('suspension') ? 'Oral syringe included' : 'Film-coated tablets' },
+    ];
+  }
+
+  if (cat.includes('antibiotic')) {
+    return [
+      { icon: 'shield', title: 'Broad Spectrum', subtitle: 'Gram+ & Gram- cure' },
+      { icon: 'zap', title: 'Potent Action', subtitle: 'Clinical efficacy' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: brand },
+      { icon: 'pill', title: 'Course Pack', subtitle: 'Protected foil strip' },
+    ];
+  }
+
+  if (cat.includes('malaria')) {
+    return [
+      { icon: 'zap', title: 'Rapid Clearance', subtitle: 'WHO gold standard ACT' },
+      { icon: 'clock', title: '3-Day Course', subtitle: 'Complete 6-dose cure' },
+      { icon: 'shield', title: 'Trusted Brand', subtitle: brand },
+      { icon: 'pill', title: 'Dispersible', subtitle: 'Sweet cherry taste' },
+    ];
+  }
+
+  return [
+    { icon: 'zap', title: 'Proven Efficacy', subtitle: 'NDA certified' },
+    { icon: 'clock', title: 'Optimal Release', subtitle: 'Targeted bioavailability' },
+    { icon: 'shield', title: 'Trusted Brand', subtitle: brand },
+    { icon: 'pill', title: 'Easy to Use', subtitle: med.form || 'Oral posology' },
+  ];
+};
+
+/**
+ * Returns isolated product shot URL for a given medicine.
+ */
+export const getMedicineImageUrl = (med: MasterMedicineItem): string => {
+  if (med.imageUrl) return med.imageUrl;
+  const name = (med.brandName || '').toLowerCase();
+  if (name.includes('ventolin') || name.includes('salbutamol')) return '/medicines/ventolin_evohaler.jpg';
+  if (name.includes('panadol')) return '/medicines/panadol_extra.jpg';
+  if (name.includes('augmentin') || name.includes('amoxicillin')) return '/medicines/augmentin_625.jpg';
+  if (name.includes('calpol')) return '/medicines/calpol_suspension.jpg';
+  if (name.includes('coartem')) return '/medicines/coartem.jpg';
+  return '/medicines/ventolin_evohaler.jpg';
 };

@@ -5,6 +5,7 @@
 
 import { AuthUser } from '../hooks/useAuth';
 import { logSecurityAudit } from './auditLogger';
+import { clearAuthToken, getAuthRole, postJson, setAuthToken } from './authSession';
 
 const STORAGE_KEY_QUANTUM_AUTH = 'zenithrx_quantum_engineer_session';
 
@@ -58,78 +59,66 @@ export const QUANTUM_SUPER_ADMIN_USER: AuthUser = {
   selectedTier: 'Enterprise',
 };
 
-// Read engineering authorization master key from .env (VITE_QUANTUM_ENGINEERING_MASTER_KEY)
-const ENV_MASTER_KEY = ((import.meta as any).env?.VITE_QUANTUM_ENGINEERING_MASTER_KEY || '').trim();
-const MASTER_ENGINEERING_KEY = ENV_MASTER_KEY || 'QUANTUM-SYS-2026';
-const DEV_FALLBACK_KEY = 'admin';
+// The engineering authorization key is verified ONLY on the server (/api/auth/admin/login).
+// Nothing secret is bundled into the browser and there are no fallback/demo keys.
 
 export const isQuantumEngineerAuthenticated = (): boolean => {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY_QUANTUM_AUTH) || localStorage.getItem(STORAGE_KEY_QUANTUM_AUTH);
-    if (raw) {
-      const data = JSON.parse(raw);
-      return data?.isAuthenticated === true;
-    }
-  } catch (err) {
-    console.error('Error reading Quantum engineer session:', err);
-  }
-  return false;
+  // Valid only while a signed, unexpired quantum_admin token exists (tab-scoped).
+  return getAuthRole() === 'quantum_admin';
 };
 
-export const verifyQuantumEngineerAccess = (
+export const verifyQuantumEngineerAccess = async (
   accessKey: string,
   employeeId: string = 'QN-ENG-8801'
-): { success: boolean; message: string; profile?: QuantumEngineerProfile } => {
+): Promise<{ success: boolean; message: string; profile?: QuantumEngineerProfile }> => {
   const cleanKey = (accessKey || '').trim();
   const cleanId = (employeeId || '').trim();
 
-  const isValidKey = cleanKey === MASTER_ENGINEERING_KEY || cleanKey === DEV_FALLBACK_KEY || cleanKey === 'admin123' || cleanKey === 'demo';
+  try {
+    const { ok, data } = await postJson('/api/auth/admin/login', { employeeId: cleanId, key: cleanKey });
 
-  if (isValidKey) {
-    const sessionData = {
-      isAuthenticated: true,
-      profile: {
-        ...QUANTUM_NETWORKS_LEAD_ENGINEER,
-        verifiedAt: new Date().toISOString(),
-      },
-    };
-
-    try {
-      sessionStorage.setItem(STORAGE_KEY_QUANTUM_AUTH, JSON.stringify(sessionData));
-    } catch {
-      // Ignore storage errors
+    if (ok && data.token) {
+      setAuthToken(data.token, 'quantum_admin');
+      const profile = { ...QUANTUM_NETWORKS_LEAD_ENGINEER, verifiedAt: new Date().toISOString() };
+      try {
+        sessionStorage.setItem(STORAGE_KEY_QUANTUM_AUTH, JSON.stringify({ isAuthenticated: true, profile }));
+      } catch {
+        // Ignore storage errors
+      }
+      logSecurityAudit(
+        'QUANTUM_ENGINEER_SECURITY_AUTHENTICATION_SUCCESS',
+        `Quantum Networks Engineer ${QUANTUM_NETWORKS_LEAD_ENGINEER.fullName} (${QUANTUM_NETWORKS_LEAD_ENGINEER.employeeId}) authenticated to System Administrator Console.`,
+        QUANTUM_NETWORKS_LEAD_ENGINEER.fullName,
+        '00000000-0000-0000-0000-000000000000'
+      );
+      return {
+        success: true,
+        message: 'Quantum Networks Systems Engineering credentials successfully verified. Root access granted.',
+        profile,
+      };
     }
 
+    // Log unauthorized breach attempt (never log any part of the key)
     logSecurityAudit(
-      'QUANTUM_ENGINEER_SECURITY_AUTHENTICATION_SUCCESS',
-      `Quantum Networks Engineer ${QUANTUM_NETWORKS_LEAD_ENGINEER.fullName} (${QUANTUM_NETWORKS_LEAD_ENGINEER.employeeId}) authenticated to System Administrator Console.`,
-      QUANTUM_NETWORKS_LEAD_ENGINEER.fullName,
-      '00000000-0000-0000-0000-000000000000'
+      'QUANTUM_ADMIN_UNAUTHORIZED_INTRUSION_ATTEMPT',
+      'SECURITY ALERT: Unauthorized attempt to access Quantum Networks System Administrator Console. Access blocked.',
+      'UNKNOWN_INTRUDER',
+      'SECURITY_GATEWAY'
     );
-
     return {
-      success: true,
-      message: 'Quantum Networks Systems Engineering credentials successfully verified. Root access granted.',
-      profile: sessionData.profile,
+      success: false,
+      message:
+        data?.error ||
+        'Invalid Quantum Networks Engineering Authorization Key. Access strictly restricted to Quantum Networks technical staff.',
     };
+  } catch {
+    return { success: false, message: 'Cannot reach the ZenithRx server. Check your connection and try again.' };
   }
-
-  // Log unauthorized breach attempt
-  logSecurityAudit(
-    'QUANTUM_ADMIN_UNAUTHORIZED_INTRUSION_ATTEMPT',
-    `SECURITY ALERT: Unauthorized attempt to access Quantum Networks System Administrator Console with key: "${cleanKey.slice(0, 3)}***". Access blocked.`,
-    'UNKNOWN_INTRUDER',
-    'SECURITY_GATEWAY'
-  );
-
-  return {
-    success: false,
-    message: 'Invalid Quantum Networks Engineering Authorization Key. Access strictly restricted to Quantum Networks technical staff.',
-  };
 };
 
 export const terminateQuantumEngineerSession = () => {
   try {
+    clearAuthToken();
     sessionStorage.removeItem(STORAGE_KEY_QUANTUM_AUTH);
     localStorage.removeItem(STORAGE_KEY_QUANTUM_AUTH);
   } catch (err) {

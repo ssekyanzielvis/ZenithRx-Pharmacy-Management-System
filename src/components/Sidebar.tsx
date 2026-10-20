@@ -108,6 +108,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     activeTab === 'adminExecutive' ||
     activeTab === 'adminPolicies' ||
     activeTab === 'adminDelegated' ||
+    activeTab === 'adminInviteCollaborator' ||
     activeTab === 'adminDualControl' ||
     activeTab === 'adminIncidents' ||
     activeTab === 'adminMatrix' ||

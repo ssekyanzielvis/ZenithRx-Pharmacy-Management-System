@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   Check,
   ArrowRight,
+  ArrowLeft,
   Sparkles,
   Smartphone,
   ShieldCheck,
@@ -37,12 +38,14 @@ interface PatientNotificationCenterProps {
   patientPhoneOrId?: string;
   patientName?: string;
   onNavigateTab: (tab: string, payload?: any) => void;
+  onGoBack?: () => void;
 }
 
 export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps> = ({
   patientPhoneOrId,
   patientName = 'Patient',
   onNavigateTab,
+  onGoBack,
 }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'unread' | 'clinical' | 'orders' | 'safety' | 'announcements'>('all');
@@ -134,7 +137,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
       case 'payment_received':
         return <CreditCard className="w-4 h-4 text-teal-600 dark:text-teal-400" />;
       case 'order_ready':
-        return <PackageCheck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />;
+        return <PackageCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       case 'delivery_dispatched':
         return <Truck className="w-4 h-4 text-amber-600 dark:text-amber-400" />;
       case 'delivery_completed':
@@ -144,7 +147,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
       case 'adr_update':
         return <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />;
       case 'system_announcement':
-        return <BellRing className="w-4 h-4 text-purple-600 dark:text-purple-400" />;
+        return <BellRing className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
       default:
         return <Bell className="w-4 h-4 text-slate-500" />;
     }
@@ -167,11 +170,17 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
       {/* ── 1. Page Header Hero Section ── */}
       <div
         className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
-        style={{ padding: '1cm', marginBottom: '1cm' }}
+        style={{
+          padding: '2rem 2.2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem',
+          marginBottom: '1cm',
+        }}
       >
         <div
           className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800"
-          style={{ paddingBottom: '0.8cm' }}
+          style={{ paddingBottom: '1.25rem' }}
         >
           <div className="flex items-start sm:items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
@@ -197,7 +206,17 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
 
           {/* Right Action & Multi-channel Status */}
           <div className="flex items-center gap-3 self-start lg:self-center flex-wrap">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 text-xs font-semibold border border-slate-200/80 dark:border-slate-700">
+            {onGoBack && (
+              <button
+                onClick={onGoBack}
+                className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer active:scale-98"
+              >
+                <ArrowLeft className="w-4 h-4 text-slate-500" />
+                <span>Previous Page</span>
+              </button>
+            )}
+
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 text-xs font-semibold border border-slate-200/80 dark:border-slate-700">
               <Radio className="w-3.5 h-3.5 text-emerald-500" />
               <span>SMS &amp; WhatsApp Live</span>
             </div>
@@ -205,7 +224,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer active:scale-98"
+                className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-2 shadow-xs cursor-pointer active:scale-98"
               >
                 <CheckCheck className="w-4 h-4" />
                 <span>Mark all as read</span>
@@ -216,8 +235,8 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
 
         {/* ── Filter Dropdown Selector & Search Command Bar ── */}
         <div
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-between items-stretch sm:items-center"
-          style={{ marginTop: '0.8cm', paddingTop: '0.2cm' }}
+          className="flex flex-col sm:flex-row gap-3.5 sm:gap-4 justify-between items-stretch sm:items-center"
+          style={{ paddingTop: '0.2rem' }}
         >
           {/* Notification Stream Filter Dropdown */}
           <div className="relative w-full sm:w-72 md:w-80">
@@ -270,46 +289,72 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
         <div className="lg:col-span-5 xl:col-span-4 flex flex-col" style={{ gap: '1cm' }}>
           {/* Card 1: Multi-Channel Delivery Guarantee */}
           <div
-            className="bg-white dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 text-slate-900 dark:text-white rounded-3xl shadow-sm dark:shadow-md border border-slate-200 dark:border-slate-800 transition-colors duration-200"
-            style={{ padding: '1cm', display: 'flex', flexDirection: 'column', gap: '0.6cm' }}
+            className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white rounded-3xl shadow-xs border border-slate-200/90 dark:border-slate-800 transition-colors duration-200"
+            style={{ padding: '2rem 1.8rem', display: 'flex', flexDirection: 'column', gap: '1.4rem' }}
           >
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200 dark:border-emerald-500/30">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/80 dark:border-emerald-800 shadow-2xs">
                 <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               </div>
-              <h4 className="text-base font-black text-slate-900 dark:text-white tracking-tight">Multi-Channel Delivery</h4>
+              <div>
+                <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight leading-tight">
+                  Multi-Channel Delivery
+                </h4>
+                <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
+                  Instant Failover Guarantee
+                </span>
+              </div>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
               ZenithRx guarantees instant failover across 3 notification rails so you never miss an urgent clinical notice or courier arrival.
             </p>
 
-            <div className="space-y-3.5 text-xs sm:text-sm" style={{ paddingTop: '0.2cm' }}>
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/10 backdrop-blur-xs border border-slate-200 dark:border-white/10 shadow-xs hover:bg-slate-100 dark:hover:bg-white/15 transition-all">
-                <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse shrink-0 ring-4 ring-emerald-500/20 dark:ring-emerald-400/20" />
-                  <span className="font-bold text-slate-800 dark:text-slate-100">In-App Realtime</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              {/* Row 1: In-App Realtime */}
+              <div
+                className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 shadow-2xs hover:border-emerald-500/40 transition-all"
+                style={{ padding: '0.9rem 1.1rem' }}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 ring-4 ring-emerald-100 dark:ring-emerald-950/80" />
+                  <span className="font-bold text-xs sm:text-[13px] text-slate-800 dark:text-slate-100 truncate">
+                    In-App Realtime
+                  </span>
                 </div>
-                <span className="text-[11px] font-black text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-emerald-300 dark:border-emerald-500/40 shadow-xs">
+                <span className="text-[10px] font-black text-emerald-800 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/90 px-3 py-1.5 rounded-xl uppercase tracking-wider border border-emerald-200 dark:border-emerald-800 shadow-2xs shrink-0 leading-none">
                   ACTIVE
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/10 backdrop-blur-xs border border-slate-200 dark:border-white/10 shadow-xs hover:bg-slate-100 dark:hover:bg-white/15 transition-all">
-                <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-blue-500 dark:bg-blue-400 shrink-0 ring-4 ring-blue-500/20 dark:ring-blue-400/20" />
-                  <span className="font-bold text-slate-800 dark:text-slate-100">Telecom SMS (OTP)</span>
+              {/* Row 2: Telecom SMS (OTP) */}
+              <div
+                className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 shadow-2xs hover:border-blue-500/40 transition-all"
+                style={{ padding: '0.9rem 1.1rem' }}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0 ring-4 ring-blue-100 dark:ring-blue-950/80" />
+                  <span className="font-bold text-xs sm:text-[13px] text-slate-800 dark:text-slate-100 truncate">
+                    Telecom SMS (OTP)
+                  </span>
                 </div>
-                <span className="text-[11px] font-black text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-blue-300 dark:border-blue-500/40 shadow-xs">
+                <span className="text-[10px] font-black text-blue-800 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/90 px-3 py-1.5 rounded-xl uppercase tracking-wider border border-blue-200 dark:border-blue-800 shadow-2xs shrink-0 leading-none">
                   ENABLED
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/10 backdrop-blur-xs border border-slate-200 dark:border-white/10 shadow-xs hover:bg-slate-100 dark:hover:bg-white/15 transition-all">
-                <div className="flex items-center gap-3">
-                  <span className="w-3 h-3 rounded-full bg-teal-500 dark:bg-teal-400 shrink-0 ring-4 ring-teal-500/20 dark:ring-teal-400/20" />
-                  <span className="font-bold text-slate-800 dark:text-slate-100">WhatsApp Receipts</span>
+              {/* Row 3: WhatsApp Receipts */}
+              <div
+                className="flex items-center justify-between gap-3 rounded-2xl bg-slate-50/90 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 shadow-2xs hover:border-teal-500/40 transition-all"
+                style={{ padding: '0.9rem 1.1rem' }}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-teal-500 shrink-0 ring-4 ring-teal-100 dark:ring-teal-950/80" />
+                  <span className="font-bold text-xs sm:text-[13px] text-slate-800 dark:text-slate-100 truncate">
+                    WhatsApp Receipts
+                  </span>
                 </div>
-                <span className="text-[11px] font-black text-teal-700 dark:text-teal-300 bg-teal-100 dark:bg-teal-950/90 px-3 py-1 rounded-xl uppercase tracking-wider border border-teal-300 dark:border-teal-500/40 shadow-xs">
+                <span className="text-[10px] font-black text-teal-800 dark:text-teal-300 bg-teal-100 dark:bg-teal-950/90 px-3 py-1.5 rounded-xl uppercase tracking-wider border border-teal-200 dark:border-teal-800 shadow-2xs shrink-0 leading-none">
                   CONNECTED
                 </span>
               </div>
@@ -319,37 +364,37 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
           {/* Card 2: Interactive Category Filter Hub */}
           <div
             className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
-            style={{ padding: '1cm', display: 'flex', flexDirection: 'column', gap: '0.6cm' }}
+            style={{ padding: '2rem 1.8rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
           >
             <div
               className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800"
-              style={{ paddingBottom: '0.4cm' }}
+              style={{ paddingBottom: '0.9rem' }}
             >
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/50 shadow-2xs">
                   <Layers className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
                   <h3 className="text-base font-black text-slate-900 dark:text-slate-100">
-                    Notification Categories ({NOTIFICATION_CATEGORIES_META.length})
+                    Categories ({NOTIFICATION_CATEGORIES_META.length})
                   </h3>
                 </div>
               </div>
               {selectedCategory !== 'all' && (
                 <button
                   onClick={() => setSelectedCategory('all')}
-                  className="px-3 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-xs font-black text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-all cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-xs font-black text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 transition-all cursor-pointer"
                 >
                   Show All
                 </button>
               )}
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
               Click any category below to filter alerts across clinical and operational events:
             </p>
 
-            <div className="grid grid-cols-1 gap-2.5 sm:gap-3 pt-1">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', paddingTop: '0.2rem' }}>
               {NOTIFICATION_CATEGORIES_META.map((meta) => {
                 const isCatSelected = selectedCategory === meta.category;
                 return (
@@ -358,13 +403,14 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                     onClick={() =>
                       setSelectedCategory(isCatSelected ? 'all' : meta.category)
                     }
-                    className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3.5 shadow-2xs hover:shadow-xs active:scale-98 ${isCatSelected
+                    className={`rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3.5 shadow-2xs hover:shadow-xs active:scale-98 ${isCatSelected
                         ? 'border-emerald-500 bg-emerald-50/90 dark:bg-emerald-950/60 shadow-xs ring-2 ring-emerald-500/30'
                         : 'border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700'
                       }`}
+                    style={{ padding: '0.85rem 1.1rem' }}
                   >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-2xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-2xs">
                         {getCategoryIcon(meta.category)}
                       </div>
                       <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 truncate">
@@ -373,7 +419,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                     </div>
 
                     {isCatSelected && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 shadow-xs" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 shadow-xs ring-2 ring-emerald-200 dark:ring-emerald-900" />
                     )}
                   </button>
                 );
@@ -385,11 +431,11 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
         {/* ── Right Column: Activity Stream & Inspector (7-8 cols) ── */}
         <div className="lg:col-span-7 xl:col-span-8 flex flex-col" style={{ gap: '1cm' }}>
           <div className="flex items-center justify-between pb-1">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-slate-100">
+            <div className="flex items-center gap-3">
+              <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100">
                 Activity Stream
               </h3>
-              <span className="text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
+              <span className="text-xs font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                 {notifications.length} {notifications.length === 1 ? 'alert' : 'alerts'}
               </span>
             </div>
@@ -407,47 +453,52 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
           {/* Selected Notification Inspector (displayed above stream when an item is chosen) */}
           {selectedItem && (
             <div
-              className="bg-white dark:bg-slate-900 border-2 border-emerald-500/40 dark:border-emerald-500/30 rounded-3xl shadow-md space-y-4 animate-in fade-in"
-              style={{ padding: '1cm' }}
+              className="bg-white dark:bg-slate-900 border-2 border-emerald-500/40 dark:border-emerald-500/30 rounded-3xl shadow-md animate-in fade-in"
+              style={{
+                padding: '2rem 2.2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.4rem',
+              }}
             >
               <div
                 className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800"
-                style={{ paddingBottom: '0.4cm' }}
+                style={{ paddingBottom: '0.8rem' }}
               >
-                <span className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <span className="text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   Notification Details Inspector
                 </span>
                 <button
                   onClick={() => setSelectedItem(null)}
-                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-all"
                   title="Close inspector"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <h4 className="text-base font-extrabold text-slate-900 dark:text-slate-100 leading-snug">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+                <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 leading-snug">
                   {selectedItem.title}
                 </h4>
 
                 <div
-                  className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed"
-                  style={{ padding: '0.6cm' }}
+                  className="rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/60 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium"
+                  style={{ padding: '1.2rem 1.4rem' }}
                 >
                   {selectedItem.message}
                 </div>
 
                 {selectedItem.actionPayload && Object.keys(selectedItem.actionPayload).length > 0 && (
                   <div
-                    className="rounded-2xl bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/40 space-y-2"
-                    style={{ padding: '0.5cm' }}
+                    className="rounded-2xl bg-slate-100/70 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/40"
+                    style={{ padding: '1.1rem 1.3rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
                   >
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
                       Associated Reference Data
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                       {Object.entries(selectedItem.actionPayload).map(([key, val]) => (
                         <div key={key} className="truncate">
                           <span className="text-slate-400 capitalize">{key}: </span>
@@ -461,11 +512,11 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                 {selectedItem.actionType !== 'none' && (
                   <button
                     onClick={() => handleActionClick(selectedItem)}
-                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-2xl font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    style={{ marginTop: '0.4cm' }}
+                    className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-2xl font-black text-xs sm:text-sm shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    style={{ marginTop: '0.4rem' }}
                   >
                     <span>Proceed to Relevant Clinical Module</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -475,26 +526,32 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
           {notifications.length === 0 ? (
             /* Spacious & Balanced Empty State */
             <div
-              className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl text-center shadow-xs space-y-4"
-              style={{ padding: '1.5cm' }}
+              className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl text-center shadow-xs"
+              style={{
+                padding: '3rem 2rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '1.5rem',
+              }}
             >
-              <div className="w-16 h-16 mx-auto rounded-3xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
+              <div className="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <div className="space-y-2 max-w-md mx-auto">
-                <h4 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-slate-100">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxWidth: '28rem' }}>
+                <h4 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">
                   You're all caught up!
                 </h4>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
                   No notifications match your current filter. When a pharmacist validates your prescription, an order is dispatched with an OTP, or a refill is due, updates will appear here.
                 </p>
               </div>
 
               {(selectedCategory !== 'all' || selectedFilter !== 'all' || searchQuery) && (
-                <div style={{ paddingTop: '0.4cm' }}>
+                <div style={{ paddingTop: '0.5rem' }}>
                   <button
                     onClick={resetFilters}
-                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                    className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-xs transition-all cursor-pointer active:scale-95"
                   >
                     View All Notifications
                   </button>
@@ -515,39 +572,46 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                       setSelectedItem(item);
                       if (!item.isRead) handleMarkAsRead(item.id);
                     }}
-                    className={`rounded-3xl border transition-all cursor-pointer relative space-y-4 ${isSelected
-                        ? 'border-emerald-500 bg-emerald-50/20 dark:bg-emerald-950/20 shadow-md ring-2 ring-emerald-500/30'
+                    className={`rounded-3xl border transition-all cursor-pointer relative ${
+                      isSelected
+                        ? 'border-emerald-500 bg-emerald-50/25 dark:bg-emerald-950/25 shadow-md ring-2 ring-emerald-500/30'
                         : !item.isRead
-                          ? 'bg-white dark:bg-slate-900 border-slate-300/90 dark:border-slate-700 shadow-xs hover:border-emerald-400'
+                          ? 'bg-white dark:bg-slate-900 border-slate-300/90 dark:border-slate-700 shadow-xs hover:border-emerald-400 hover:shadow-sm'
                           : 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300'
-                      }`}
-                    style={{ padding: '1cm' }}
+                    }`}
+                    style={{
+                      padding: '1.75rem 2rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '1.25rem',
+                    }}
                   >
                     {/* Unread Accent Bar */}
                     {!item.isRead && (
-                      <div className="absolute left-0 top-6 bottom-6 w-1.5 bg-emerald-500 rounded-r-full" />
+                      <div className="absolute left-0 top-6 bottom-6 w-1.5 bg-emerald-500 rounded-r-full shadow-xs" />
                     )}
 
                     {/* Top Meta & Badge Row */}
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-2.5 flex-wrap">
                         <span
-                          className={`inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1 rounded-full border shadow-2xs ${meta?.badgeBg || 'bg-slate-100 text-slate-700 border-slate-200'
-                            }`}
+                          className={`inline-flex items-center gap-2 text-xs font-black px-3.5 py-1.5 rounded-xl border shadow-2xs leading-none shrink-0 ${
+                            meta?.badgeBg || 'bg-slate-100 text-slate-700 border-slate-200'
+                          }`}
                         >
                           {getCategoryIcon(item.category)}
                           <span>{meta?.label || item.category}</span>
                         </span>
 
                         {item.priority === 'urgent' && (
-                          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-200 uppercase tracking-wider">
+                          <span className="text-[10px] font-black px-2.5 py-1 rounded-xl bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-200 uppercase tracking-wider leading-none shadow-2xs">
                             Urgent
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
-                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 font-bold shrink-0">
+                        <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0" />
                         <span>
                           {new Date(item.createdAt).toLocaleDateString([], {
                             month: 'short',
@@ -563,54 +627,68 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
                     </div>
 
                     {/* Content Row: Title & Message */}
-                    <div className="space-y-1.5">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
                       <h4
-                        className={`text-base font-extrabold leading-snug ${!item.isRead
+                        className={`text-base sm:text-lg font-black tracking-tight leading-snug ${
+                          !item.isRead
                             ? 'text-slate-900 dark:text-white'
-                            : 'text-slate-800 dark:text-slate-200 font-bold'
-                          }`}
+                            : 'text-slate-800 dark:text-slate-200'
+                        }`}
                       >
                         {item.title}
                       </h4>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
                         {item.message}
                       </p>
                     </div>
 
                     {/* Footer Row: Multi-Channel Delivery Badges & Quick Action */}
                     <div
-                      className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800/80 text-xs"
-                      style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                      className="border-t border-slate-100 dark:border-slate-800/80"
+                      style={{
+                        paddingTop: '1.1rem',
+                        marginTop: '0.2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '1rem',
+                        flexWrap: 'wrap',
+                      }}
                     >
                       {/* Channel delivery confirmations */}
-                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium flex-wrap">
-                        <span className="text-slate-400">Delivered:</span>
+                      <div className="flex items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400 font-semibold flex-wrap">
+                        <span className="text-slate-400 dark:text-slate-500 font-bold text-[11px] uppercase tracking-wider">
+                          Delivered:
+                        </span>
                         {item.channels.in_app && (
-                          <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md font-semibold border border-emerald-200/60 dark:border-emerald-800/60">
-                            <Check className="w-3 h-3 text-emerald-600" /> In-App
+                          <span className="inline-flex items-center gap-1.5 text-emerald-800 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/70 px-3 py-1 rounded-xl text-xs font-bold border border-emerald-200/80 dark:border-emerald-800/80 shadow-2xs leading-none">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>In-App</span>
                           </span>
                         )}
                         {item.channels.sms && (
-                          <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-md font-semibold border border-blue-200/60 dark:border-blue-800/60">
-                            <Check className="w-3 h-3 text-blue-600" /> SMS
+                          <span className="inline-flex items-center gap-1.5 text-blue-800 dark:text-blue-200 bg-blue-50 dark:bg-blue-950/70 px-3 py-1 rounded-xl text-xs font-bold border border-blue-200/80 dark:border-blue-800/80 shadow-2xs leading-none">
+                            <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                            <span>SMS</span>
                           </span>
                         )}
                         {item.channels.whatsapp && (
-                          <span className="inline-flex items-center gap-1 text-emerald-800 dark:text-emerald-200 bg-emerald-100/80 dark:bg-emerald-900/60 px-2 py-0.5 rounded-md font-extrabold border border-emerald-300/60 dark:border-emerald-700/60">
-                            <Check className="w-3 h-3 text-emerald-600" /> WhatsApp
+                          <span className="inline-flex items-center gap-1.5 text-teal-800 dark:text-teal-200 bg-teal-50 dark:bg-teal-950/70 px-3 py-1 rounded-xl text-xs font-bold border border-teal-200/80 dark:border-teal-800/80 shadow-2xs leading-none">
+                            <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                            <span>WhatsApp</span>
                           </span>
                         )}
                       </div>
 
                       {/* Action buttons */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         {item.actionType !== 'none' && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleActionClick(item);
                             }}
-                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-black transition-all shadow-xs flex items-center gap-2 cursor-pointer"
                           >
                             {item.actionType === 'view_prescription' && 'View Rx'}
                             {item.actionType === 'track_order' && 'Track Order'}
@@ -623,7 +701,7 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
 
                         <button
                           onClick={(e) => handleDelete(item.id, e)}
-                          className="p-2 text-slate-400 hover:text-rose-500 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer"
+                          className="p-2.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-xl transition-all cursor-pointer border border-transparent hover:border-rose-200 dark:hover:border-rose-900/60"
                           title="Delete notification"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -637,6 +715,19 @@ export const PatientNotificationCenter: React.FC<PatientNotificationCenterProps>
           )}
         </div>
       </div>
+
+      {/* Bottom Back Navigation */}
+      {onGoBack && (
+        <div className="flex items-center justify-between pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+          <button
+            onClick={onGoBack}
+            className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-black text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+          >
+            <ArrowLeft className="w-4 h-4 text-slate-500" />
+            <span>Back to Previous Page</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };

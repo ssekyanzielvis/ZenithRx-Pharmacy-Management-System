@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import {
   Search,
   Upload,
@@ -41,16 +41,12 @@ import {
   BellRing,
   Menu,
   X,
+  RefreshCw,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { ThemeToggle } from './components/ui/ThemeToggle';
-import { PatientLandingPage } from './components/patient/PatientLandingPage';
-import { PatientAuthModal, PatientAuthPage } from './components/patient/PatientAuthModal';
-import { PatientAICopilot } from './components/patient/PatientAICopilot';
-import { PatientAICopilotPage } from './components/patient/PatientAICopilotPage';
 import { PatientSidebar } from './components/patient/PatientSidebar';
-import { PatientBranchesPage } from './components/patient/PatientBranchesPage';
-import { PatientSupportHub } from './components/patient/PatientSupportHub';
-import { PatientNotificationCenter } from './components/patient/PatientNotificationCenter';
 import { notificationCenterService } from './services/notificationCenterService';
 import {
   advancedStockService,
@@ -61,6 +57,7 @@ import {
 import { patientAuthService, PatientProfile } from './services/patientAuthService';
 import { pharmacyDiscoveryService, PharmacyBranchDetails } from './services/pharmacyDiscoveryService';
 import { getMasterMedicines, MasterMedicineItem } from './services/medicineSafetyService';
+import { MedicineCard } from './components/ui/MedicineCard';
 import { getHealthEducationArticles, HealthEducationArticle } from './services/healthEducationService';
 import { getDeliveryOrders, createDeliveryOrder, DeliveryOrder } from './services/deliveryLogisticsService';
 import { sendSystemNotification } from './services/notificationService';
@@ -69,6 +66,32 @@ import { getTeleconsultationSessions, bookTeleconsultation, TeleconsultationSess
 import { submitPrescriptionForOcrVerification } from './services/prescriptionOcrService';
 import { submitAdrReport } from './services/adrReportingService';
 import { formatUGX } from './services/formatters';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { PatientHealthPassportPage } from './components/patient/PatientHealthPassportPage';
+
+// Lazy-loaded Sub-pages for instantaneous initial bundle delivery
+const PatientLandingPage = React.lazy(() => import('./components/patient/PatientLandingPage').then(m => ({ default: m.PatientLandingPage || (m as any).default })));
+const PatientAuthPage = React.lazy(() => import('./components/patient/PatientAuthModal').then(m => ({ default: m.PatientAuthPage || (m as any).default })));
+const PatientCartPage = React.lazy(() => import('./components/patient/PatientCartPage').then(m => ({ default: m.PatientCartPage || (m as any).default })));
+const PatientAICopilotPage = React.lazy(() => import('./components/patient/PatientAICopilotPage').then(m => ({ default: m.PatientAICopilotPage || (m as any).default })));
+const PatientBranchesPage = React.lazy(() => import('./components/patient/PatientBranchesPage').then(m => ({ default: m.PatientBranchesPage || (m as any).default })));
+const PatientSupportHub = React.lazy(() => import('./components/patient/PatientSupportHub').then(m => ({ default: m.PatientSupportHub || (m as any).default })));
+const PatientNotificationCenter = React.lazy(() => import('./components/patient/PatientNotificationCenter').then(m => ({ default: m.PatientNotificationCenter || (m as any).default })));
+const PatientProfilePage = React.lazy(() => import('./components/patient/PatientProfilePage').then(m => ({ default: m.PatientProfilePage || (m as any).default })));
+const PatientMedicineDetailPage = React.lazy(() => import('./components/patient/PatientMedicineDetailPage').then(m => ({ default: m.PatientMedicineDetailPage || (m as any).default })));
+
+// Sleek fast skeleton fallback
+const PatientTabLoadingFallback: React.FC = () => (
+  <div className="w-full py-24 flex flex-col items-center justify-center gap-4 animate-in fade-in duration-150">
+    <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs">
+      <RefreshCw className="w-5 h-5 animate-spin" />
+    </div>
+    <div className="text-center space-y-1">
+      <p className="text-sm font-black text-slate-800 dark:text-slate-200">Loading Clinical Module...</p>
+      <p className="text-xs text-slate-400 font-medium">Synchronizing verified Uganda health records</p>
+    </div>
+  </div>
+);
 
 interface CartItem {
   id: string;
@@ -93,6 +116,7 @@ export const PatientApp: React.FC = () => {
   // Active Tab & Navigation History Stack
   type PatientTab =
     | 'search'
+    | 'cart'
     | 'branches'
     | 'copilot'
     | 'prescriptions'
@@ -103,14 +127,19 @@ export const PatientApp: React.FC = () => {
     | 'healthLibrary'
     | 'adr'
     | 'support'
-    | 'profile';
+    | 'profile'
+    | 'passport'
+    | 'medicine-detail';
 
   const [activeTab, setActiveTabState] = useState<PatientTab>('search');
   const [tabHistory, setTabHistory] = useState<PatientTab[]>(['search']);
+  const [selectedMedicineForDetail, setSelectedMedicineForDetail] = useState<MasterMedicineItem | null>(null);
 
   const getTabDisplayName = (tab?: PatientTab | string): string => {
     switch (tab) {
       case 'search': return 'Medicine Search';
+      case 'medicine-detail': return selectedMedicineForDetail ? selectedMedicineForDetail.brandName : 'Medicine Monograph';
+      case 'cart': return 'Medicine Cart & Order';
       case 'branches': return 'Partner Pharmacies';
       case 'copilot': return 'RxAI Copilot';
       case 'prescriptions': return 'My Prescriptions';
@@ -121,7 +150,8 @@ export const PatientApp: React.FC = () => {
       case 'healthLibrary': return 'Health Education';
       case 'adr': return 'Report Reaction (ADR)';
       case 'support': return 'Support Hub';
-      case 'profile': return 'Health Passport';
+      case 'passport': return 'Digital Health Passport';
+      case 'profile': return 'Health Records & EHR';
       default: return 'Medicine Search';
     }
   };
@@ -144,9 +174,27 @@ export const PatientApp: React.FC = () => {
     navigateTab(tab, true);
   };
 
+  const handleOpenMedicineDetail = (med: MasterMedicineItem) => {
+    setSelectedMedicineForDetail(med);
+    navigateTab('medicine-detail');
+  };
+
   const goBack = () => {
     if (activeTab === 'branches' && selectedStockMedicine) {
       setSelectedStockMedicine(null);
+      return;
+    }
+    if (activeTab === 'medicine-detail') {
+      if (tabHistory.length > 1) {
+        const updated = [...tabHistory];
+        updated.pop();
+        const prevTab = updated[updated.length - 1] || 'search';
+        setTabHistory(updated);
+        setActiveTabState(prevTab);
+      } else {
+        setActiveTabState('search');
+        setTabHistory(['search']);
+      }
       return;
     }
     if (tabHistory.length > 1) {
@@ -165,6 +213,9 @@ export const PatientApp: React.FC = () => {
     if (activeTab === 'branches' && selectedStockMedicine) {
       return 'All Pharmacies';
     }
+    if (activeTab === 'medicine-detail') {
+      return 'Medicine Search';
+    }
     if (tabHistory.length > 1) {
       const prevTab = tabHistory[tabHistory.length - 2];
       return getTabDisplayName(prevTab);
@@ -172,11 +223,39 @@ export const PatientApp: React.FC = () => {
     return 'Medicine Search';
   };
 
-  // Sync browser popstate (hardware back button / gesture)
+  // Sync browser popstate (hardware back button / gesture) & initial deep link
   useEffect(() => {
+    // Check initial hash route e.g. #passport, #profile, #medicine/med-salb-inh-100
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.replace('#', '');
+      if (hash.startsWith('medicine/') || hash === 'medicine-detail' || hash === 'medicine') {
+        const parts = hash.split('/');
+        const medId = parts[1];
+        const allMeds = getMasterMedicines();
+        const targetMed = medId
+          ? allMeds.find((m) => m.id === medId || m.brandName.toLowerCase().includes(medId.toLowerCase()))
+          : allMeds[0];
+        if (targetMed) {
+          setSelectedMedicineForDetail(targetMed);
+          setActiveTabState('medicine-detail');
+        }
+      } else if ([
+        'passport', 'profile', 'cart', 'branches', 'copilot', 'prescriptions',
+        'refills', 'telehealth', 'orders', 'notifications', 'healthLibrary', 'adr', 'support'
+      ].includes(hash)) {
+        setActiveTabState(hash as PatientTab);
+        setTabHistory(['search', hash as PatientTab]);
+      }
+    }
+
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.tab) {
         setActiveTabState(event.state.tab);
+        if (event.state.medicineId) {
+          const allMeds = getMasterMedicines();
+          const found = allMeds.find((m) => m.id === event.state.medicineId);
+          if (found) setSelectedMedicineForDetail(found);
+        }
         setTabHistory((prev) => {
           if (prev.length > 1) {
             const copy = [...prev];
@@ -202,21 +281,57 @@ export const PatientApp: React.FC = () => {
     return unsub;
   }, []);
 
+  // Guaranteed non-null patient profile with verified array defaults for passport & clinical views
+  const activePassportPatient = useMemo<PatientProfile>(() => {
+    const fallback: PatientProfile = {
+      id: 'PAT-UG-20999',
+      fullName: 'Ssekyanzi Elvis',
+      phone: '0706253680',
+      email: 'elvis.ssekyanzi@zenithrx.ug',
+      nin: 'CM0303110KW57F',
+      allergies: ['None documented'],
+      chronicConditions: ['None recorded'],
+      district: 'Kampala (Central)',
+      gender: 'Male',
+      dateOfBirth: '1995-04-12',
+      registeredAt: '2026-01-10',
+    };
+    if (!patientUser) return fallback;
+    return {
+      ...fallback,
+      ...patientUser,
+      id: patientUser.id || fallback.id,
+      fullName: (patientUser.fullName || (patientUser as any).name || fallback.fullName).trim(),
+      phone: patientUser.phone || fallback.phone,
+      email: patientUser.email || fallback.email,
+      nin: patientUser.nin || fallback.nin,
+      allergies: Array.isArray(patientUser.allergies) && patientUser.allergies.length > 0 ? patientUser.allergies : fallback.allergies,
+      chronicConditions: Array.isArray(patientUser.chronicConditions) && patientUser.chronicConditions.length > 0 ? patientUser.chronicConditions : fallback.chronicConditions,
+      district: patientUser.district || fallback.district,
+      gender: patientUser.gender || fallback.gender,
+      dateOfBirth: patientUser.dateOfBirth || fallback.dateOfBirth,
+    };
+  }, [patientUser]);
+
   // Medicines & Search State
   const [medSearch, setMedSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPharmacyFilter, setSelectedPharmacyFilter] = useState<string>('all');
-  const medicines = getMasterMedicines();
-  const pharmacies = pharmacyDiscoveryService.getAllPharmacies();
+  const medicines = useMemo(() => getMasterMedicines(), []);
+  const pharmacies = useMemo(() => pharmacyDiscoveryService.getAllPharmacies(), []);
 
-  const filteredMeds = medicines.filter((m) => {
-    const matchesSearch =
-      m.brandName.toLowerCase().includes(medSearch.toLowerCase()) ||
-      m.genericName.toLowerCase().includes(medSearch.toLowerCase()) ||
-      m.category.toLowerCase().includes(medSearch.toLowerCase());
-    const matchesCat = selectedCategory === 'all' || m.category.toLowerCase() === selectedCategory.toLowerCase();
-    return matchesSearch && matchesCat;
-  });
+  const filteredMeds = useMemo(() => {
+    const query = medSearch.trim().toLowerCase();
+    const cat = selectedCategory.toLowerCase();
+    return medicines.filter((m) => {
+      const matchesSearch = !query ||
+        m.brandName.toLowerCase().includes(query) ||
+        m.genericName.toLowerCase().includes(query) ||
+        m.category.toLowerCase().includes(query);
+      const matchesCat = cat === 'all' || m.category.toLowerCase() === cat;
+      return matchesSearch && matchesCat;
+    });
+  }, [medicines, medSearch, selectedCategory]);
 
   // Cart & Checkout State
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -227,7 +342,7 @@ export const PatientApp: React.FC = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Health Articles
-  const articles = getHealthEducationArticles(true);
+  const articles = useMemo(() => getHealthEducationArticles(true), []);
 
   // Deliveries / Orders
   const [orders, setOrders] = useState<DeliveryOrder[]>(() => getDeliveryOrders());
@@ -235,6 +350,22 @@ export const PatientApp: React.FC = () => {
   // Refills & Adherence State
   const [refills, setRefills] = useState<AdherenceRecord[]>(() => getAdherenceRecords());
   const [doseLoggedSuccess, setDoseLoggedSuccess] = useState<string | null>(null);
+
+  // Floating RxAI Copilot Widget Mode: 'expanded' | 'minimized' | 'hidden'
+  const [floatingAiMode, setFloatingAiMode] = useState<'expanded' | 'minimized' | 'hidden'>(() => {
+    try {
+      const saved = localStorage.getItem('zenithrx_floating_ai_mode');
+      if (saved === 'minimized' || saved === 'hidden' || saved === 'expanded') return saved;
+    } catch {}
+    return 'expanded';
+  });
+
+  const updateFloatingAiMode = (mode: 'expanded' | 'minimized' | 'hidden') => {
+    setFloatingAiMode(mode);
+    try {
+      localStorage.setItem('zenithrx_floating_ai_mode', mode);
+    } catch {}
+  };
 
   // Teleconsultations
   const [consultations, setConsultations] = useState<TeleconsultationSession[]>(() =>
@@ -360,13 +491,13 @@ export const PatientApp: React.FC = () => {
     setIsAuthModalOpen(true);
   };
 
-  const handleAddToCart = (med: MasterMedicineItem, pharmacyName = 'Kampala City Pharmacy') => {
+  const handleAddToCart = (med: MasterMedicineItem, pharmacyName = 'Kampala City Pharmacy', quantity = 1) => {
     setCartItems((prev) => {
       const existing = prev.find((i) => i.drug.id === med.id && i.pharmacyName === pharmacyName);
       if (existing) {
         return prev.map((i) =>
           i.drug.id === med.id && i.pharmacyName === pharmacyName
-            ? { ...i, quantity: i.quantity + 1 }
+            ? { ...i, quantity: i.quantity + quantity }
             : i
         );
       }
@@ -375,13 +506,13 @@ export const PatientApp: React.FC = () => {
         {
           id: `CART-${Date.now()}-${med.id}`,
           drug: med,
-          quantity: 1,
+          quantity: quantity,
           pharmacyName,
           unitPriceUgx: med.suggestedRetailPriceUgx,
         },
       ];
     });
-    setIsCartOpen(true);
+    setActiveTab('cart');
   };
 
   const handleUpdateCartQty = (id: string, delta: number) => {
@@ -693,16 +824,18 @@ export const PatientApp: React.FC = () => {
   // If Auth page is active (either requested from landing page or in-app), render the dedicated standalone PatientAuthPage
   if (isAuthModalOpen) {
     return (
-      <PatientAuthPage
-        initialMode={authModalMode}
-        redirectReason={authRedirectReason}
-        onBack={() => setIsAuthModalOpen(false)}
-        onSuccess={(patient) => {
-          setPatientUser(patient);
-          setIsAuthModalOpen(false);
-          setForceExploreView(false);
-        }}
-      />
+      <Suspense fallback={<PatientTabLoadingFallback />}>
+        <PatientAuthPage
+          initialMode={authModalMode}
+          redirectReason={authRedirectReason}
+          onBack={() => setIsAuthModalOpen(false)}
+          onSuccess={(patient) => {
+            setPatientUser(patient);
+            setIsAuthModalOpen(false);
+            setForceExploreView(false);
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -743,22 +876,28 @@ export const PatientApp: React.FC = () => {
           </div>
         )}
 
-        <PatientLandingPage
-          currentUser={patientUser}
-          onReturnToPortal={() => setForceExploreView(false)}
-          onOpenAuth={(mode, reason) => {
-            setForceExploreView(false);
-            triggerAuth(mode, reason);
-          }}
-          onSelectAction={(action) => {
-            setForceExploreView(false);
-            if (patientUser) {
-              setActiveTab(action as any);
-            } else {
-              triggerAuth('signin', `Sign in to access ${action}`);
-            }
-          }}
-        />
+        <Suspense fallback={<PatientTabLoadingFallback />}>
+          <PatientLandingPage
+            currentUser={patientUser}
+            onReturnToPortal={() => setForceExploreView(false)}
+            onViewMedicineDetail={(med) => {
+              setForceExploreView(false);
+              handleOpenMedicineDetail(med);
+            }}
+            onOpenAuth={(mode, reason) => {
+              setForceExploreView(false);
+              triggerAuth(mode, reason);
+            }}
+            onSelectAction={(action) => {
+              setForceExploreView(false);
+              if (patientUser) {
+                setActiveTab(action as any);
+              } else {
+                triggerAuth('signin', `Sign in to access ${action}`);
+              }
+            }}
+          />
+        </Suspense>
       </>
     );
   }
@@ -776,7 +915,7 @@ export const PatientApp: React.FC = () => {
         }}
         patientName={patientUser.fullName}
         cartCount={cartItems.reduce((acc, i) => acc + i.quantity, 0)}
-        onOpenCart={() => { setCheckoutStep('cart'); setIsCartOpen(true); }}
+        onOpenCart={() => setActiveTab('cart')}
         onOpenAI={() => setActiveTab('copilot')}
         onLogout={() => patientAuthService.logout()}
         onInstallPWA={deferredPrompt ? handleInstallClick : undefined}
@@ -790,8 +929,14 @@ export const PatientApp: React.FC = () => {
 
         {/* PWA Install Banner — Generously spaced with rounded floating card */}
         {showInstallBanner && (
-          <div className="mx-4 mt-3 mb-0 sm:mx-6 lg:mx-8 rounded-2xl shadow-md overflow-hidden shrink-0 border border-emerald-500/20"
-            style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 60%, #0891b2 100%)' }}
+          <div className="rounded-2xl shadow-md overflow-hidden shrink-0 border border-emerald-500/20"
+            style={{
+              background: 'linear-gradient(135deg, #059669 0%, #0d9488 60%, #0891b2 100%)',
+              marginLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+              marginRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+              marginTop: 'clamp(0.8cm, 2vh, 1cm)',
+              marginBottom: 'clamp(0.8cm, 2vh, 1cm)',
+            }}
           >
             <div className="flex items-center justify-between px-4 sm:px-5 py-3 gap-3 sm:gap-4">
               <div className="flex items-center gap-3 sm:gap-3.5 flex-1 min-w-0">
@@ -825,14 +970,14 @@ export const PatientApp: React.FC = () => {
 
         {/* Top Header — Fixed Clinical Command Bar (Compact on mobile, Spacious on Desktop) */}
         <header
-          className="shrink-0 z-30 flex items-center justify-between border-b bg-[#07111e] border-slate-800 text-slate-100 shadow-md transition-all"
+          className="shrink-0 z-30 flex items-center justify-between border-b bg-white/95 dark:bg-[#07111e]/95 backdrop-blur-md border-slate-200/90 dark:border-slate-800 text-slate-800 dark:text-slate-100 shadow-xs transition-all"
           style={{ paddingLeft: '1cm', paddingRight: '1cm', paddingTop: '0.45cm', paddingBottom: '0.45cm', minHeight: '80px', gap: '1cm' }}
         >
           {/* 1. Left Section: Hamburger + Brand Title + System Online */}
           <div className="flex items-center gap-3 sm:gap-4 shrink-0">
             <button
               onClick={() => setIsMobileNavOpen(true)}
-              className="md:hidden p-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
+              className="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all shrink-0 cursor-pointer shadow-xs active:scale-95"
               aria-label="Open Navigation Menu"
               title="Open Navigation Menu"
             >
@@ -847,29 +992,29 @@ export const PatientApp: React.FC = () => {
               }}
               title="ZenithRx Patient Care Network"
             >
-              <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xs overflow-hidden group-hover:scale-105 transition-transform bg-slate-800 border border-slate-700 p-1 sm:p-1.5 shrink-0">
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-xs overflow-hidden group-hover:scale-105 transition-transform bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 sm:p-1.5 shrink-0">
                 <img src="/icon.png" alt="ZenithRx Logo" className="w-full h-full object-contain" />
               </div>
 
               <div className="hidden sm:block">
                 <div className="flex items-center gap-2.5">
-                  <span className="text-[10px] tracking-widest text-slate-400 font-extrabold uppercase">
+                  <span className="text-[10px] tracking-widest text-slate-500 dark:text-slate-400 font-extrabold uppercase">
                     QUANTUM NETWORKS LTD
                   </span>
-                  <span className="bg-emerald-950 text-emerald-300 border border-emerald-800/80 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                  <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/80 text-[10px] px-2 py-0.5 rounded-full font-bold">
                     SYSTEM ONLINE
                   </span>
                 </div>
-                <h1 className="text-lg font-black tracking-tight text-white mt-0.5">
+                <h1 className="text-lg font-black tracking-tight text-slate-900 dark:text-white mt-0.5">
                   ZenithRx
                 </h1>
               </div>
 
               {/* Mobile compact title */}
               <div className="block sm:hidden">
-                <h1 className="text-base font-black tracking-tight text-white flex items-center gap-1.5 leading-none">
+                <h1 className="text-base font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 leading-none">
                   ZenithRx
-                  <span className="text-[9px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-800/80 px-1.5 py-0.5 rounded-md">
+                  <span className="text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800/80 px-1.5 py-0.5 rounded-md">
                     Live
                   </span>
                 </h1>
@@ -880,18 +1025,18 @@ export const PatientApp: React.FC = () => {
             {activeTab !== 'search' && (
               <button
                 onClick={goBack}
-                className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl sm:rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700/80 hover:border-emerald-500/50 shadow-sm transition-all duration-200 cursor-pointer group active:scale-95 shrink-0"
+                className="flex items-center gap-2 px-3 sm:px-3.5 py-2 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700/80 hover:border-emerald-500/50 shadow-xs transition-all duration-200 cursor-pointer group active:scale-95 shrink-0"
                 title={`Back to ${getPreviousTabName()}`}
                 aria-label={`Back to ${getPreviousTabName()}`}
               >
-                <div className="w-6 h-6 rounded-lg bg-emerald-500/20 group-hover:bg-emerald-500 text-emerald-400 group-hover:text-white flex items-center justify-center transition-colors shadow-2xs">
+                <div className="w-6 h-6 rounded-lg bg-emerald-500/20 group-hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 group-hover:text-white flex items-center justify-center transition-colors shadow-2xs">
                   <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
                 </div>
                 <div className="flex flex-col items-start leading-none text-left hidden sm:flex">
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-emerald-300">Back</span>
-                  <span className="text-xs font-black text-slate-100 truncate max-w-[130px] mt-0.5">{getPreviousTabName()}</span>
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-300">Back</span>
+                  <span className="text-xs font-black text-slate-800 dark:text-slate-100 truncate max-w-[130px] mt-0.5">{getPreviousTabName()}</span>
                 </div>
-                <span className="sm:hidden text-xs font-bold text-slate-200">Back</span>
+                <span className="sm:hidden text-xs font-bold text-slate-700 dark:text-slate-200">Back</span>
               </button>
             )}
           </div>
@@ -902,35 +1047,35 @@ export const PatientApp: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsServicesMenuOpen((prev) => !prev)}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 text-white font-bold text-xs shadow-xs transition cursor-pointer group"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 text-slate-800 dark:text-white font-bold text-xs shadow-xs transition cursor-pointer group"
                 title="Clinical Services & Network Hub"
               >
                 <div className="w-6 h-6 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-100 animate-pulse" />
                 </div>
                 <span>Clinical Services</span>
-                <span className="bg-emerald-950 text-emerald-300 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-800/80">
+                <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800/80">
                   Kampala Hub
                 </span>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform group-hover:text-emerald-400 ${isServicesMenuOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-500 dark:text-slate-400 transition-transform group-hover:text-emerald-600 dark:group-hover:text-emerald-400 ${isServicesMenuOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Clinical Services Dropdown Panel */}
               {isServicesMenuOpen && (
                 <div 
-                  className="absolute left-1/2 -translate-x-1/2 mt-3 w-88 rounded-3xl bg-[#0B131F] border border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100"
+                  className="absolute left-1/2 -translate-x-1/2 mt-3 w-88 rounded-3xl bg-white dark:bg-[#0B131F] border border-slate-200 dark:border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100 text-slate-800 dark:text-white"
                   style={{ padding: '0.6cm', display: 'flex', flexDirection: 'column', gap: '0.45cm' }}
                 >
                   {/* Network Context Header */}
                   <div 
-                    className="border-b border-slate-800 flex items-center justify-between"
+                    className="border-b border-slate-200 dark:border-slate-800 flex items-center justify-between"
                     style={{ paddingBottom: '0.4cm' }}
                   >
                     <div className="flex items-center gap-2.5">
-                      <Building2 className="w-4.5 h-4.5 text-cyan-400 shrink-0" />
-                      <span className="text-xs font-bold text-white">Kampala Care Hub</span>
+                      <Building2 className="w-4.5 h-4.5 text-teal-600 dark:text-cyan-400 shrink-0" />
+                      <span className="text-xs font-bold text-slate-900 dark:text-white">Kampala Care Hub</span>
                     </div>
-                    <span className="bg-cyan-950 text-cyan-300 text-[9px] font-black px-2.5 py-0.5 rounded-full border border-cyan-800">
+                    <span className="bg-teal-100 dark:bg-cyan-950 text-teal-800 dark:text-cyan-300 text-[9px] font-black px-2.5 py-0.5 rounded-full border border-teal-200 dark:border-cyan-800">
                       Enterprise Network
                     </span>
                   </div>
@@ -946,14 +1091,14 @@ export const PatientApp: React.FC = () => {
                         setActiveTab('copilot');
                         setIsServicesMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-emerald-950/40 text-left transition cursor-pointer group"
+                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-left transition cursor-pointer group"
                     >
                       <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                         <Sparkles className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">AI Clinical Assistant</p>
-                        <p className="text-[10px] text-slate-400 truncate">24/7 Dosage triage &amp; drug guidance</p>
+                        <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">AI Clinical Assistant</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">24/7 Dosage triage &amp; drug guidance</p>
                       </div>
                     </button>
 
@@ -963,14 +1108,14 @@ export const PatientApp: React.FC = () => {
                         setActiveTab('prescriptions');
                         setIsServicesMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-violet-950/40 text-left transition cursor-pointer group"
+                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-left transition cursor-pointer group"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-violet-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                         <Upload className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-white group-hover:text-violet-400 transition-colors">Doctor Prescriptions &amp; AI OCR</p>
-                        <p className="text-[10px] text-slate-400 truncate">Upload doctor slips for verification</p>
+                        <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Doctor Prescriptions &amp; AI OCR</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">Upload doctor slips for verification</p>
                       </div>
                     </button>
 
@@ -980,14 +1125,14 @@ export const PatientApp: React.FC = () => {
                         setForceExploreView(true);
                         setIsServicesMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-cyan-950/40 text-left transition cursor-pointer group"
+                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-teal-50 dark:hover:bg-cyan-950/40 text-left transition cursor-pointer group"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-cyan-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <div className="w-9 h-9 rounded-xl bg-teal-600 dark:bg-cyan-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                         <Layers className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">Explore Partner Pharmacies</p>
-                        <p className="text-[10px] text-slate-400 truncate">Live cross-pharmacy stock network</p>
+                        <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-cyan-400 transition-colors">Explore Partner Pharmacies</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">Live cross-pharmacy stock network</p>
                       </div>
                     </button>
 
@@ -997,14 +1142,14 @@ export const PatientApp: React.FC = () => {
                         setActiveTab('branches');
                         setIsServicesMenuOpen(false);
                       }}
-                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-slate-800/80 text-left transition cursor-pointer group"
+                      className="w-full flex items-center gap-3.5 p-3 rounded-2xl hover:bg-blue-50 dark:hover:bg-slate-800/80 text-left transition cursor-pointer group"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                         <Building2 className="w-4.5 h-4.5" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">Branch Stock &amp; Hold</p>
-                        <p className="text-[10px] text-slate-400 truncate">Hold items for counter pickup</p>
+                        <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Branch Stock &amp; Hold</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">Hold items for counter pickup</p>
                       </div>
                     </button>
                   </div>
@@ -1024,7 +1169,7 @@ export const PatientApp: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                  className="flex items-center gap-3 px-3.5 py-2 rounded-2xl bg-slate-900 border border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer shadow-xs group"
+                  className="flex items-center gap-3 px-3.5 py-2 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 transition-all cursor-pointer shadow-xs group"
                   title="Patient Profile & Account Menu"
                 >
                   <div className="relative">
@@ -1032,7 +1177,7 @@ export const PatientApp: React.FC = () => {
                       {patientUser.fullName.charAt(0).toUpperCase()}
                     </div>
                     {(notificationCenterService.getUnreadCount(patientUser?.phone || patientUser?.id) > 0 || cartItems.length > 0) && (
-                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-1 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-black text-white shadow ring-2 ring-[#07111e] animate-pulse">
+                      <span className="absolute -top-1 -right-1 flex h-3.5 min-w-3.5 px-1 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-black text-white shadow ring-2 ring-white dark:ring-[#07111e] animate-pulse">
                         {notificationCenterService.getUnreadCount(patientUser?.phone || patientUser?.id) > 0
                           ? notificationCenterService.getUnreadCount(patientUser?.phone || patientUser?.id)
                           : cartItems.reduce((acc, i) => acc + i.quantity, 0)}
@@ -1040,12 +1185,12 @@ export const PatientApp: React.FC = () => {
                     )}
                   </div>
                   <div className="text-left leading-tight hidden sm:block">
-                    <span className="text-xs font-bold text-slate-200 truncate max-w-[100px] block group-hover:text-emerald-400 transition-colors">
+                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate max-w-[100px] block group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                       {patientUser.fullName.split(' ')[0]}
                     </span>
-                    <span className="text-[10px] text-amber-400 font-bold flex items-center gap-0.5">
+                    <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-0.5">
                       <span>Patient</span>
-                      <ChevronDown className={`w-2.5 h-2.5 text-amber-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`w-2.5 h-2.5 text-amber-600 dark:text-amber-400 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
                     </span>
                   </div>
                 </button>
@@ -1053,21 +1198,21 @@ export const PatientApp: React.FC = () => {
                 {/* Patient Account Dropdown Panel */}
                 {isUserMenuOpen && (
                   <div 
-                    className="absolute right-0 mt-3 w-80 rounded-3xl bg-[#0B131F] border border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100"
+                    className="absolute right-0 mt-3 w-80 rounded-3xl bg-white dark:bg-[#0B131F] border border-slate-200 dark:border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-100 text-slate-800 dark:text-white"
                     style={{ padding: '0.6cm', display: 'flex', flexDirection: 'column', gap: '0.45cm' }}
                   >
                     {/* User Header */}
                     <div 
-                      className="border-b border-slate-800 flex items-center gap-3.5"
+                      className="border-b border-slate-200 dark:border-slate-800 flex items-center gap-3.5"
                       style={{ paddingBottom: '0.45cm' }}
                     >
                       <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-black text-base flex items-center justify-center shrink-0 shadow-xs">
                         {patientUser.fullName.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-black text-white truncate">{patientUser.fullName}</p>
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5">{patientUser.phone}</p>
-                        <span className="inline-block text-[9px] font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded-full mt-1 border border-emerald-800/60">
+                        <p className="text-sm font-black text-slate-900 dark:text-white truncate">{patientUser.fullName}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{patientUser.phone}</p>
+                        <span className="inline-block text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full mt-1 border border-emerald-200 dark:border-emerald-800/60">
                           NDA Verified Patient
                         </span>
                       </div>
@@ -1086,34 +1231,33 @@ export const PatientApp: React.FC = () => {
                         }}
                         className={`w-full flex items-center justify-between p-2.5 rounded-xl transition cursor-pointer text-left ${
                           activeTab === 'notifications'
-                            ? 'bg-emerald-950/50 text-emerald-300 font-bold border border-emerald-800/60'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-emerald-100/70 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-800/60'
+                            : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <Bell className="w-4.5 h-4.5 text-emerald-400" />
+                          <Bell className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
                           <span className="font-semibold text-xs">Notifications &amp; Alerts</span>
                         </div>
                         {notificationCenterService.getUnreadCount(patientUser?.phone || patientUser?.id) > 0 ? (
-                          <span className="bg-emerald-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow ring-1 ring-emerald-400/50 animate-pulse">
+                          <span className="bg-emerald-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow ring-1 ring-emerald-400/50 animate-pulse">
                             {notificationCenterService.getUnreadCount(patientUser?.phone || patientUser?.id)} new
                           </span>
                         ) : (
-                          <span className="text-[10px] text-slate-500">0 unread</span>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500">0 unread</span>
                         )}
                       </button>
 
                       {/* Medicine Cart & Checkout */}
                       <button
                         onClick={() => {
-                          setCheckoutStep('cart');
-                          setIsCartOpen(true);
+                          setActiveTab('cart');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer"
+                        className="w-full flex items-center justify-between p-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white transition cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
-                          <ShoppingCart className="w-4.5 h-4.5 text-amber-400" />
+                          <ShoppingCart className="w-4.5 h-4.5 text-amber-500" />
                           <span className="font-semibold text-xs">Medicine Cart</span>
                         </div>
                         {cartItems.length > 0 ? (
@@ -1121,20 +1265,32 @@ export const PatientApp: React.FC = () => {
                             {cartItems.reduce((acc, i) => acc + i.quantity, 0)} items
                           </span>
                         ) : (
-                          <span className="text-[10px] text-slate-500">Empty</span>
+                          <span className="text-[10px] text-slate-400 dark:text-slate-500">Empty</span>
                         )}
                       </button>
 
-                      {/* Digital Health Passport */}
+                      {/* Digital Health Passport & Smart ID */}
+                      <button
+                        onClick={() => {
+                          setActiveTab('passport');
+                          setIsUserMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white transition cursor-pointer text-left"
+                      >
+                        <CreditCard className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
+                        <span className="font-semibold text-xs">Digital Health Passport</span>
+                      </button>
+
+                      {/* Clinical Health Records & EHR */}
                       <button
                         onClick={() => {
                           setActiveTab('profile');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white transition cursor-pointer text-left"
                       >
-                        <User className="w-4.5 h-4.5 text-emerald-400" />
-                        <span className="font-semibold text-xs">Digital Health Passport</span>
+                        <User className="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
+                        <span className="font-semibold text-xs">Clinical EHR Records</span>
                       </button>
 
                       {/* My Prescriptions */}
@@ -1143,9 +1299,9 @@ export const PatientApp: React.FC = () => {
                           setActiveTab('prescriptions');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white transition cursor-pointer text-left"
                       >
-                        <Upload className="w-4.5 h-4.5 text-violet-400" />
+                        <Upload className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
                         <span className="font-semibold text-xs">My Prescriptions</span>
                       </button>
 
@@ -1155,16 +1311,50 @@ export const PatientApp: React.FC = () => {
                           setActiveTab('orders');
                           setIsUserMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-300 hover:bg-slate-800/80 hover:text-white transition cursor-pointer text-left"
+                        className="w-full flex items-center gap-3 p-2.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white transition cursor-pointer text-left"
                       >
-                        <Truck className="w-4.5 h-4.5 text-cyan-400" />
+                        <Truck className="w-4.5 h-4.5 text-teal-600 dark:text-cyan-400" />
                         <span className="font-semibold text-xs">Live Orders &amp; Deliveries</span>
                       </button>
+
+                      {/* Floating RxAI Widget Visibility Toggle */}
+                      <div className="pt-1.5 pb-1 border-t border-slate-100 dark:border-slate-800">
+                        <div className="flex items-center justify-between p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                          <div className="flex items-center gap-2.5">
+                            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            <div className="text-left">
+                              <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 block">Floating RxAI</span>
+                              <span className="text-[10px] text-slate-400 block">
+                                {floatingAiMode === 'hidden' ? 'Hidden from screen' : floatingAiMode === 'minimized' ? 'Compact bubble' : 'Full helper card'}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              updateFloatingAiMode(floatingAiMode === 'hidden' ? 'expanded' : 'hidden');
+                            }}
+                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                              floatingAiMode !== 'hidden' ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-700'
+                            }`}
+                            role="switch"
+                            aria-checked={floatingAiMode !== 'hidden'}
+                            title={floatingAiMode !== 'hidden' ? 'Turn off floating RxAI button' : 'Turn on floating RxAI button'}
+                          >
+                            <span
+                              className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                                floatingAiMode !== 'hidden' ? 'translate-x-4' : 'translate-x-0'
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Log Out Option in Dropdown */}
                     <div 
-                      className="border-t border-slate-800"
+                      className="border-t border-slate-200 dark:border-slate-800"
                       style={{ paddingTop: '0.45cm' }}
                     >
                       <button
@@ -1172,9 +1362,9 @@ export const PatientApp: React.FC = () => {
                           setIsUserMenuOpen(false);
                           patientAuthService.logout();
                         }}
-                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition cursor-pointer text-xs font-bold text-left"
+                        className="w-full flex items-center gap-2.5 p-2.5 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 dark:hover:text-rose-300 transition cursor-pointer text-xs font-bold text-left"
                       >
-                        <LogOut className="w-4 h-4 text-rose-400" />
+                        <LogOut className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                         <span>Sign Out of Patient Portal</span>
                       </button>
                     </div>
@@ -1187,12 +1377,23 @@ export const PatientApp: React.FC = () => {
 
         {/* Main Content Area — Single-Child Body Scroll View (Header Stays Pinned at Top) */}
         <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col focus:outline-none">
-          {/* Default Clean Responsive Viewport for all screen sizes with expanded canvas for branches */}
-          <div className={`flex-1 w-full ${activeTab === 'branches' ? 'max-w-[1600px]' : 'max-w-7xl'} mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-5 sm:space-y-8`}>
+          {/* Default Clean Responsive Viewport for all screen sizes with expanded canvas for branches & medicine monograph */}
+          <div
+            className={`flex-1 w-full ${activeTab === 'branches' || activeTab === 'medicine-detail' ? 'max-w-[1600px]' : 'max-w-7xl'} mx-auto space-y-6 sm:space-y-10`}
+            style={{
+              paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+              paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+              paddingTop: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+              paddingBottom: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+            }}
+          >
 
-            {/* ── Top-of-Page Contextual Back Navigation Banner ── */}
-            {activeTab !== 'search' && (
-              <div className="flex items-center justify-between gap-4 pb-3 border-b border-slate-200/80 dark:border-slate-800/80">
+            {/* ── Top-of-Page Contextual Back Navigation Banner (Suppressed on medicine-detail which has its own rich navigation bar) ── */}
+            {(tabHistory.length > 1 || activeTab !== 'search') && activeTab !== 'medicine-detail' && (
+              <div 
+                className="flex items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800/80"
+                style={{ paddingBottom: '0.6cm', marginBottom: '0.8cm' }}
+              >
                 <button
                   onClick={goBack}
                   className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200/90 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-800 shadow-xs hover:shadow-md transition-all cursor-pointer font-bold text-xs sm:text-sm group active:scale-95"
@@ -1318,148 +1519,120 @@ export const PatientApp: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-[1cm]" style={{ gap: '1cm' }}>
-                  {filteredMeds.map((med) => {
-                    const isExpanded = expandedMedId === med.id;
-                    return (
-                      <div
-                        key={med.id}
-                        className={`bg-white dark:bg-slate-900 border rounded-2xl sm:rounded-3xl shadow-xs transition-all flex flex-col justify-between hover:shadow-md ${
-                          isExpanded
-                            ? 'border-emerald-500 ring-2 ring-emerald-500/10'
-                            : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                        }`}
-                        style={{ padding: '1cm', gap: '1cm' }}
-                      >
-                        {/* Header & Identification */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm' }}>
-                          <div className="flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full">
-                              {med.category}
-                            </span>
-                            <span className="text-[10px] font-mono text-slate-400 font-medium">
-                              NDA: {med.ndaRegistrationNumber}
-                            </span>
-                          </div>
-
-                          <div>
-                            <h4 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
-                              {med.brandName}
-                            </h4>
-                            <p className="text-xs text-slate-500 italic mt-0.5">{med.genericName}</p>
-                          </div>
-
-                          {/* Formulation Details Inline */}
-                          <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2 flex-wrap font-medium">
-                            <span className="font-bold text-slate-800 dark:text-slate-200">{med.strength}</span>
-                            <span>•</span>
-                            <span>{med.form}</span>
-                            {med.route && (
-                              <>
-                                <span>•</span>
-                                <span>{med.route}</span>
-                              </>
-                            )}
-                          </div>
-
-                          {/* Adult Dose & Usage Guidance */}
-                          <div className="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 pt-1">
-                            <p className="leading-relaxed">
-                              <span className="font-bold text-slate-700 dark:text-slate-300">Adult Dosage:</span> {med.standardDoseAdult}
-                            </p>
-                            {isExpanded && (
-                              <div className="pt-2 text-xs space-y-1 text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 animate-in fade-in">
-                                <p><span className="font-semibold text-slate-700 dark:text-slate-300">Manufacturer:</span> {med.manufacturer} ({med.countryOfManufacture || 'Uganda'})</p>
-                                {med.blackboxWarning && (
-                                  <p className="text-rose-600 dark:text-rose-400 font-semibold pt-1">
-                                    ⚠️ Caution: {med.blackboxWarning}
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Price & Action Row (Clean, uncrowded 2-column layout with generous button padding and spacing) */}
-                        <div className="pt-4 sm:pt-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
-                          <div className="shrink-0">
-                            <span className="text-[11px] text-slate-400 font-bold block uppercase tracking-wider">Price per pack</span>
-                            <span className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5 block">
-                              {formatUGX(med.suggestedRetailPriceUgx)}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2.5 sm:gap-3.5 justify-end flex-wrap">
-                            <button
-                              onClick={() => setExpandedMedId(isExpanded ? null : med.id)}
-                              className="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                            >
-                              {isExpanded ? 'Less' : 'Details'}
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                setSelectedStockMedicine(med);
-                                setActiveTab('branches');
-                              }}
-                              className="px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs"
-                            >
-                              <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                              <span>Branches</span>
-                            </button>
-
-                            <button
-                              onClick={() => handleAddToCart(med, selectedPharmacyFilter === 'all' ? 'Kampala City Pharmacy' : selectedPharmacyFilter)}
-                              className="px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-black shadow-md shadow-emerald-600/20 flex items-center gap-2 transition-all cursor-pointer active:scale-95"
-                            >
-                              <ShoppingCart className="w-4 h-4 shrink-0" />
-                              <span>Order</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 sm:gap-8">
+                  {filteredMeds.map((med) => (
+                    <MedicineCard
+                      key={med.id}
+                      medicine={med}
+                      onViewDetails={handleOpenMedicineDetail}
+                      onOrder={(m) =>
+                        handleAddToCart(
+                          m,
+                          selectedPharmacyFilter === 'all' ? 'Kampala City Pharmacy' : selectedPharmacyFilter
+                        )
+                      }
+                      onViewBranches={(m) => {
+                        setSelectedStockMedicine(m);
+                        setActiveTab('branches');
+                      }}
+                    />
+                  ))}
                 </div>
               )}
             </div>
           )}
 
+          {/* ── 1B. Dedicated Medicine Detail & Clinical Monograph Page ── */}
+          {activeTab === 'medicine-detail' && (
+            <Suspense fallback={<PatientTabLoadingFallback />}>
+              <PatientMedicineDetailPage
+                medicine={selectedMedicineForDetail || filteredMeds[0] || medicines[0]}
+                onGoBack={goBack}
+                patientUser={patientUser}
+                onAddToCart={(med, pharmacyName, qty) => {
+                  handleAddToCart(
+                    med,
+                    pharmacyName || (selectedPharmacyFilter === 'all' ? 'Kampala City Pharmacy' : selectedPharmacyFilter),
+                    qty || 1
+                  );
+                }}
+                onViewBranches={(med) => {
+                  setSelectedStockMedicine(med);
+                  setActiveTab('branches');
+                }}
+                onConsultPharmacist={() => setActiveTab('telehealth')}
+                onReportReaction={() => setActiveTab('adr')}
+                onAskCopilot={() => setActiveTab('copilot')}
+                onSelectAlternative={(altMed) => {
+                  setSelectedMedicineForDetail(altMed);
+                  if (typeof window !== 'undefined' && window.history) {
+                    window.history.pushState({ tab: 'medicine-detail', medicineId: altMed.id }, '', `#medicine/${altMed.id}`);
+                  }
+                }}
+              />
+            </Suspense>
+          )}
+
+          {/* ── 1C. Dedicated Medicine Cart & Mobile Money Checkout Page ── */}
+          {activeTab === 'cart' && (
+            <Suspense fallback={<PatientTabLoadingFallback />}>
+              <PatientCartPage
+                cartItems={cartItems}
+                patientUser={patientUser}
+                onUpdateQty={handleUpdateCartQty}
+                onRemoveItem={handleRemoveCartItem}
+                onClearCart={() => setCartItems([])}
+                onAddToCart={handleAddToCart}
+                onGoBack={goBack}
+                onNavigateTab={(tab, payload) => setActiveTab(tab as any)}
+                onCheckoutSuccess={(createdOrder) => {
+                  setOrders((prev) => [createdOrder, ...prev]);
+                }}
+              />
+            </Suspense>
+          )}
+
           {/* ── 2. Dedicated Pharmacy Branches & Live Stock Network Page ── */}
           {activeTab === 'branches' && (
-            <PatientBranchesPage
-              selectedStockMedicine={selectedStockMedicine}
-              onSelectMedicine={(med) => setSelectedStockMedicine(med)}
-              onBackToSearch={() => setActiveTab('search')}
-              onAddToCart={(med, pharmacyName) => {
-                handleAddToCart(med, pharmacyName);
-                setIsCartOpen(true);
-              }}
-              onReserve={(med, branch) => {
-                setReservationTarget({ med, branch });
-                setReservationSuccessPin(null);
-              }}
-              onWaitlist={(med, branch) => {
-                setWaitlistTarget({ med, branch });
-                setWaitlistSuccessMsg(null);
-              }}
-              patientUser={patientUser}
-              patientReservations={patientReservations}
-              patientWaitlists={patientWaitlists}
-              onRefreshHolds={refreshPatientHolds}
-            />
+            <Suspense fallback={<PatientTabLoadingFallback />}>
+              <PatientBranchesPage
+                selectedStockMedicine={selectedStockMedicine}
+                onSelectMedicine={(med) => setSelectedStockMedicine(med)}
+                onBackToSearch={goBack}
+                onGoBack={goBack}
+                onAddToCart={(med, pharmacyName) => {
+                  handleAddToCart(med, pharmacyName);
+                }}
+                onReserve={(med, branch) => {
+                  setReservationTarget({ med, branch });
+                  setReservationSuccessPin(null);
+                }}
+                onWaitlist={(med, branch) => {
+                  setWaitlistTarget({ med, branch });
+                  setWaitlistSuccessMsg(null);
+                }}
+                patientUser={patientUser}
+                patientReservations={patientReservations}
+                patientWaitlists={patientWaitlists}
+                onRefreshHolds={refreshPatientHolds}
+                onViewDetails={handleOpenMedicineDetail}
+              />
+            </Suspense>
           )}
 
           {/* ── 3. Dedicated Quantum RxAI Copilot Independent Clinical Triage Page ── */}
           {activeTab === 'copilot' && (
-            <PatientAICopilotPage
-              patientUser={patientUser}
-              onOpenTeleconsult={() => setActiveTab('telehealth')}
-              onNavigateToMedSearch={(query) => {
-                setMedSearch(query);
-                setActiveTab('search');
-              }}
-            />
+            <Suspense fallback={<PatientTabLoadingFallback />}>
+              <PatientAICopilotPage
+                patientUser={patientUser}
+                onGoBack={goBack}
+                onOpenTeleconsult={() => setActiveTab('telehealth')}
+                onNavigateToMedSearch={(query) => {
+                  setMedSearch(query);
+                  setActiveTab('search');
+                }}
+              />
+            </Suspense>
           )}
 
           {/* ── 4. Prescription Upload & Verification History ── */}
@@ -1478,9 +1651,18 @@ export const PatientApp: React.FC = () => {
                     Upload handwritten or printed doctor slips for pharmacist clinical validation, drug interaction checks, and automated digitization into your records.
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-violet-50 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 text-xs font-extrabold border border-violet-200 dark:border-violet-800/80 shadow-xs shrink-0 self-start sm:self-auto">
-                  <ShieldCheck className="w-4 h-4 text-violet-600 dark:text-violet-400" />
-                  <span>PSU Registered Pharmacist Review</span>
+                <div className="flex items-center gap-3 self-start sm:self-auto shrink-0 flex-wrap">
+                  <button
+                    onClick={goBack}
+                    className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center gap-2 border border-slate-200 dark:border-slate-800 shadow-xs transition-all cursor-pointer active:scale-95"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-slate-500" />
+                    <span>Previous Page</span>
+                  </button>
+                  <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 text-xs font-extrabold border border-emerald-200 dark:border-emerald-800/80 shadow-xs">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>PSU Registered Pharmacist Review</span>
+                  </div>
                 </div>
               </div>
 
@@ -1490,14 +1672,14 @@ export const PatientApp: React.FC = () => {
               >
                 {/* Prescription Upload Form (Left Column - 6 Cols) */}
                 <div
-                  className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-6"
-                  style={{ padding: '1cm' }}
+                  className="lg:col-span-6 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
+                  style={{ padding: '2.2rem 2.2rem', display: 'flex', flexDirection: 'column', gap: '1.8rem' }}
                 >
-                  <div className="space-y-1.5 border-b border-slate-100 dark:border-slate-800" style={{ paddingBottom: '0.5cm' }}>
-                    <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
+                  <div className="border-b border-slate-100 dark:border-slate-800 flex flex-col gap-1.5 pb-4">
+                    <h3 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-slate-100 leading-tight">
                       Upload New Prescription
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                       Fill out patient details and attach a clear image or document.
                     </p>
                   </div>
@@ -1505,7 +1687,7 @@ export const PatientApp: React.FC = () => {
                   {rxUploadedSuccess && (
                     <div
                       className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-800 dark:text-emerald-200 flex items-center gap-3 shadow-xs"
-                      style={{ padding: '0.6cm' }}
+                      style={{ padding: '1rem 1.2rem' }}
                     >
                       <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
                       <div>
@@ -1517,10 +1699,10 @@ export const PatientApp: React.FC = () => {
                     </div>
                   )}
 
-                  <form onSubmit={handleUploadRx} className="space-y-5">
+                  <form onSubmit={handleUploadRx} style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem' }}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                           Patient Name <span className="text-rose-500">*</span>
                         </label>
                         <input
@@ -1529,12 +1711,12 @@ export const PatientApp: React.FC = () => {
                           value={rxPatientName}
                           onChange={(e) => setRxPatientName(e.target.value)}
                           placeholder="Full Legal Name"
-                          className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
+                          className="w-full h-12 px-4.5 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
                         />
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                           Phone / WhatsApp <span className="text-rose-500">*</span>
                         </label>
                         <input
@@ -1543,41 +1725,44 @@ export const PatientApp: React.FC = () => {
                           value={rxPhone}
                           onChange={(e) => setRxPhone(e.target.value)}
                           placeholder="+256 700 000000"
-                          className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all placeholder:text-slate-400"
+                          className="w-full h-12 px-4.5 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all placeholder:text-slate-400"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
                         Preferred Dispensing Pharmacy <span className="text-rose-500">*</span>
                       </label>
-                      <select
-                        value={rxSelectedPharmacy}
-                        onChange={(e) => setRxSelectedPharmacy(e.target.value)}
-                        className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all cursor-pointer"
-                      >
-                        {pharmacies.map((p) => (
-                          <option key={p.id} value={p.name}>
-                            {p.name} — {p.district}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={rxSelectedPharmacy}
+                          onChange={(e) => setRxSelectedPharmacy(e.target.value)}
+                          className="w-full h-12 px-4.5 pr-10 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all cursor-pointer appearance-none"
+                        >
+                          {pharmacies.map((p) => (
+                            <option key={p.id} value={p.name}>
+                              {p.name} — {p.district}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
                     </div>
 
-                    {/* Elevated Dropzone with 0.8cm internal padding */}
+                    {/* Elevated Centered Dropzone */}
                     <div
-                      className="border-2 border-dashed border-violet-200 dark:border-violet-900/60 hover:border-violet-500 rounded-3xl text-center space-y-3 cursor-pointer transition-all bg-violet-50/30 dark:bg-violet-950/20 hover:bg-violet-50/60 group"
-                      style={{ padding: '0.8cm' }}
+                      className="border-2 border-dashed border-emerald-200/90 dark:border-emerald-800/70 hover:border-emerald-500 rounded-3xl text-center cursor-pointer transition-all bg-emerald-50/40 dark:bg-emerald-950/20 hover:bg-emerald-50/70 group flex flex-col items-center justify-center shadow-2xs"
+                      style={{ padding: '2rem 1.6rem', gap: '0.9rem' }}
                     >
-                      <div className="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400 mx-auto flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                      <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
                         <Upload className="w-6 h-6" />
                       </div>
-                      <div className="space-y-1">
-                        <p className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
+                      <div className="flex flex-col items-center gap-1">
+                        <p className="text-sm font-black text-slate-800 dark:text-slate-100">
                           Snap photo or upload prescription file
                         </p>
-                        <p className="text-[10px] sm:text-[11px] text-slate-400">
+                        <p className="text-xs text-slate-400 font-medium">
                           Supports high-res JPG, PNG, PDF formats up to 10MB
                         </p>
                       </div>
@@ -1585,96 +1770,119 @@ export const PatientApp: React.FC = () => {
 
                     <button
                       type="submit"
-                      className="w-full py-4 rounded-2xl bg-violet-600 hover:bg-violet-700 text-white font-black text-xs sm:text-sm shadow-md shadow-violet-600/25 hover:shadow-lg hover:shadow-violet-600/35 active:scale-[0.98] cursor-pointer transition-all flex items-center justify-center gap-2"
+                      className="w-full h-13 sm:h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-base shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/35 active:scale-[0.98] cursor-pointer transition-all flex items-center justify-center gap-2.5"
                     >
-                      <Upload className="w-4 h-4" />
+                      <Upload className="w-4.5 h-4.5" />
                       <span>Submit for Pharmacist Review</span>
                     </button>
                   </form>
                 </div>
 
                 {/* Prescription Status & History List (Right Column - 6 Cols) */}
-                <div className="lg:col-span-6 flex flex-col" style={{ gap: '0.8cm' }}>
-                  <div className="flex items-center justify-between" style={{ paddingBottom: '0.2cm' }}>
-                    <h3 className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
-                      Verification History ({uploadedPrescriptionsList.length})
-                    </h3>
-                    <span className="text-[11px] sm:text-xs font-semibold text-slate-400">
-                      Live status tracker
+                <div className="lg:col-span-6 flex flex-col" style={{ gap: '1.2rem' }}>
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">
+                        Verification History ({uploadedPrescriptionsList.length})
+                      </h3>
+                      <p className="text-xs text-slate-400 font-medium mt-0.5">
+                        Live clinical pharmacist review status
+                      </p>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] sm:text-xs font-black uppercase tracking-wider border border-emerald-200/60 dark:border-emerald-800/60 shadow-2xs">
+                      Live Tracker
                     </span>
                   </div>
 
-                  <div className="flex flex-col" style={{ gap: '1cm' }}>
+                  <div className="flex flex-col" style={{ gap: '1.4rem' }}>
                     {uploadedPrescriptionsList.map((rx) => (
                       <div
                         key={rx.id}
-                        className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-violet-400/40 rounded-3xl shadow-xs space-y-4 transition-all"
-                        style={{ padding: '1cm' }}
+                        className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 hover:border-emerald-400/50 rounded-3xl shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+                        style={{ padding: '2rem 2rem', gap: '1.6rem' }}
                       >
                         {/* Header with Rx ID and Status Badge */}
-                        <div className="flex justify-between items-start gap-2.5">
-                          <div className="space-y-1 min-w-0">
-                            <span className="inline-block font-mono text-[10px] sm:text-[11px] font-extrabold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-950/60 px-2.5 py-1 rounded-md border border-violet-200/60 dark:border-violet-800/60">
-                              {rx.id}
-                            </span>
-                            <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug truncate">
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                          <div className="flex flex-col gap-1.5 min-w-0">
+                            <div>
+                              <span className="inline-block font-mono text-[11px] font-black text-emerald-700 dark:text-emerald-300 bg-emerald-100/70 dark:bg-emerald-950/80 px-3 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800/80 shadow-2xs">
+                                {rx.id}
+                              </span>
+                            </div>
+                            <h4 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
                               {rx.pharmacy}
                             </h4>
-                            <span className="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1.5 font-medium">
-                              <Clock className="w-3.5 h-3.5 text-slate-400" />
-                              Uploaded on {rx.date}
+                            <span className="text-xs text-slate-400 flex items-center gap-1.5 font-medium">
+                              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              <span>Uploaded on {rx.date}</span>
                             </span>
                           </div>
 
                           <span
-                            className={`text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full shrink-0 shadow-2xs ${
+                            className={`text-xs font-black px-3.5 py-1.5 rounded-full shrink-0 shadow-2xs ${
                               rx.status === 'Verified by Pharmacist'
-                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60'
+                                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
                             }`}
                           >
                             {rx.status}
                           </span>
                         </div>
 
-                        {/* Digitized Medicines Breakdown with 0.5cm top spacing */}
+                        {/* Digitized Medicines Breakdown */}
                         <div
-                          className="space-y-2.5 border-t border-slate-100 dark:border-slate-800"
-                          style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                          className="border-t border-slate-100 dark:border-slate-800 flex flex-col gap-3 pt-4"
                         >
-                          <span className="text-[10px] sm:text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                          <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
                             Digitized Medications:
                           </span>
-                          <ul className="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                          <ul className="flex flex-col gap-2.5">
                             {rx.medicines.map((m, idx) => (
-                              <li key={idx} className="flex items-center gap-2.5 bg-slate-50/80 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
-                                <span className="w-2 h-2 rounded-full bg-violet-500 shrink-0" />
-                                <span className="font-semibold text-xs">{m}</span>
+                              <li
+                                key={idx}
+                                className="flex items-center gap-3 bg-slate-50/90 dark:bg-slate-800/60 rounded-2xl border border-slate-200/70 dark:border-slate-700/60"
+                                style={{ padding: '0.8rem 1.1rem' }}
+                              >
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0 ring-4 ring-emerald-100 dark:ring-emerald-950" />
+                                <span className="font-bold text-xs sm:text-[13px] text-slate-800 dark:text-slate-200">{m}</span>
                               </li>
                             ))}
                           </ul>
                         </div>
 
-                        {/* Reviewer and Track Order Action with 0.5cm top spacing */}
+                        {/* Reviewer and Track Order Action */}
                         <div
-                          className="flex items-center justify-between text-xs border-t border-slate-100 dark:border-slate-800"
-                          style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                          className="flex items-center justify-between gap-3 text-xs sm:text-sm border-t border-slate-100 dark:border-slate-800 pt-4 flex-wrap"
                         >
-                          <span className="text-slate-500 dark:text-slate-400 font-medium">
-                            Reviewer: <strong className="text-slate-700 dark:text-slate-300">{rx.pharmacistName}</strong>
-                          </span>
+                          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 font-medium">
+                            <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                            <span>
+                              Reviewer: <strong className="text-slate-900 dark:text-slate-100 font-bold">{rx.pharmacistName}</strong>
+                            </span>
+                          </div>
                           <button
                             onClick={() => setActiveTab('orders')}
-                            className="inline-flex items-center gap-1.5 font-bold text-violet-600 dark:text-violet-400 hover:text-violet-700 hover:underline cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 font-bold text-xs transition-all cursor-pointer shrink-0 shadow-2xs whitespace-nowrap active:scale-95"
                           >
                             <span>Track Order</span>
-                            <ArrowRight className="w-4 h-4" />
+                            <ArrowRight className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
+              </div>
+
+              {/* Bottom Back Navigation */}
+              <div className="flex items-center justify-between pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+                <button
+                  onClick={goBack}
+                  className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-black text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-slate-500" />
+                  <span>Back to Previous Page</span>
+                </button>
               </div>
             </div>
           )}
@@ -1694,9 +1902,18 @@ export const PatientApp: React.FC = () => {
                     Track daily intake schedules, maintain your streak, and order 30-day refills before your supply ends.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800 shadow-xs self-start sm:self-auto shrink-0">
-                  <HeartPulse className="w-4 h-4 text-emerald-600" />
-                  <span>94% Adherence · 18-Day Streak 🔥</span>
+                <div className="flex items-center gap-3 self-start sm:self-auto shrink-0 flex-wrap">
+                  <button
+                    onClick={goBack}
+                    className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center gap-2 border border-slate-200 dark:border-slate-800 shadow-xs transition-all cursor-pointer active:scale-95"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-slate-500" />
+                    <span>Previous Page</span>
+                  </button>
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800 shadow-xs">
+                    <HeartPulse className="w-4 h-4 text-emerald-600" />
+                    <span>94% Adherence · 18-Day Streak 🔥</span>
+                  </div>
                 </div>
               </div>
 
@@ -1782,6 +1999,17 @@ export const PatientApp: React.FC = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Bottom Back Navigation */}
+              <div className="flex items-center justify-between pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+                <button
+                  onClick={goBack}
+                  className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-black text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-slate-500" />
+                  <span>Back to Previous Page</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -1801,12 +2029,21 @@ export const PatientApp: React.FC = () => {
                     Virtual clinical triage for dosage questions, drug interactions, and medical guidance.
                   </p>
                 </div>
-                <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800/80 shadow-xs shrink-0 self-start sm:self-auto">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                  </span>
-                  <span>3 Pharmacists Online Now</span>
+                <div className="flex items-center gap-3 self-start sm:self-auto shrink-0 flex-wrap">
+                  <button
+                    onClick={goBack}
+                    className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center gap-2 border border-slate-200 dark:border-slate-800 shadow-xs transition-all cursor-pointer active:scale-95"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-slate-500" />
+                    <span>Previous Page</span>
+                  </button>
+                  <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800/80 shadow-xs">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span>3 Pharmacists Online Now</span>
+                  </div>
                 </div>
               </div>
 
@@ -1817,14 +2054,14 @@ export const PatientApp: React.FC = () => {
               >
                 {/* Left Column: Submit Clinical Inquiry (lg:col-span-5) */}
                 <div
-                  className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs space-y-6"
-                  style={{ padding: '1cm' }}
+                  className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs"
+                  style={{ padding: '2.4rem 2.2rem', display: 'flex', flexDirection: 'column', gap: '1.8rem' }}
                 >
-                  <div className="space-y-1.5 border-b border-slate-100 dark:border-slate-800" style={{ paddingBottom: '0.5cm' }}>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
+                  <div className="border-b border-slate-100 dark:border-slate-800 flex flex-col gap-2 pb-4">
+                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 leading-tight">
                       Submit Clinical Inquiry
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
                       Ask our clinical pharmacy team about dosage instructions, drug interactions, side effects, or general health concerns.
                     </p>
                   </div>
@@ -1832,21 +2069,21 @@ export const PatientApp: React.FC = () => {
                   {consultSuccess && (
                     <div
                       className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-medium text-emerald-800 dark:text-emerald-200 flex items-start gap-3 shadow-xs animate-in fade-in"
-                      style={{ padding: '0.6cm' }}
+                      style={{ padding: '1rem 1.2rem' }}
                     >
                       <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                      <div className="space-y-1">
-                        <p className="font-bold">Inquiry submitted successfully!</p>
-                        <p className="text-emerald-700 dark:text-emerald-300">
+                      <div className="flex flex-col gap-1">
+                        <p className="font-bold text-sm">Inquiry submitted successfully!</p>
+                        <p className="text-emerald-700 dark:text-emerald-300 leading-relaxed">
                           A licensed pharmacist has received your request and will review it in our clinical queue.
                         </p>
                       </div>
                     </div>
                   )}
 
-                  <form onSubmit={handleBookConsult} className="space-y-5">
-                    <div className="space-y-2">
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <form onSubmit={handleBookConsult} style={{ display: 'flex', flexDirection: 'column', gap: '1.6rem' }}>
+                    <div className="flex flex-col gap-2.5">
+                      <label className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
                         Your Medication or Health Query <span className="text-rose-500">*</span>
                       </label>
                       <textarea
@@ -1855,25 +2092,26 @@ export const PatientApp: React.FC = () => {
                         placeholder="Describe your symptoms or medicine dosage question..."
                         value={consultComplaint}
                         onChange={(e) => setConsultComplaint(e.target.value)}
-                        className="w-full px-4 py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-normal text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-y min-h-[130px] max-h-[260px] leading-relaxed"
+                        className="w-full px-4.5 py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all resize-y min-h-[140px] leading-relaxed shadow-2xs"
                       />
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full py-4 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-600/20 hover:shadow-lg hover:shadow-blue-600/30 active:scale-[0.99] cursor-pointer transition-all flex items-center justify-center gap-2"
+                      className="w-full h-13 sm:h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm sm:text-base shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/35 active:scale-[0.98] cursor-pointer transition-all flex items-center justify-center gap-2.5"
                     >
-                      <MessageSquare className="w-4 h-4" />
+                      <MessageSquare className="w-4.5 h-4.5" />
                       <span>Submit Pharmacist Inquiry</span>
                     </button>
                   </form>
 
                   <div
-                    className="border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-3 text-xs text-slate-400"
-                    style={{ marginTop: '0.5cm', paddingTop: '0.5cm' }}
+                    className="border-t border-slate-100 dark:border-slate-800 pt-4 flex items-center gap-2.5 text-xs text-slate-500 dark:text-slate-400 font-medium"
                   >
-                    <ShieldCheck className="w-4 h-4 text-blue-500 shrink-0" />
-                    <span className="leading-snug">Encrypted &amp; reviewed by PSU registered pharmacists</span>
+                    <div className="w-7 h-7 rounded-xl bg-blue-50 dark:bg-blue-950/70 border border-blue-100 dark:border-blue-900/60 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <span>Encrypted &amp; reviewed by PSU registered clinical pharmacists</span>
                   </div>
                 </div>
 
@@ -2010,6 +2248,17 @@ export const PatientApp: React.FC = () => {
                   )}
                 </div>
               </div>
+
+              {/* Bottom Back Navigation */}
+              <div className="flex items-center justify-between pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+                <button
+                  onClick={goBack}
+                  className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-black text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-slate-500" />
+                  <span>Back to Previous Page</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -2017,27 +2266,36 @@ export const PatientApp: React.FC = () => {
           {activeTab === 'orders' && (
             <div className="space-y-[1cm]" style={{ gap: '1cm', display: 'flex', flexDirection: 'column' }}>
               <div
-                className="border-b border-slate-200 dark:border-slate-800"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800"
                 style={{ paddingBottom: '1cm', marginBottom: '0.5cm' }}
               >
-                <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
-                  Live Deliveries &amp; Orders
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
-                  Track express motorcycle delivery orders and view your 4-digit handover OTP code.
-                </p>
+                <div className="space-y-1">
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+                    Live Deliveries &amp; Orders
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                    Track express motorcycle delivery orders and view your 4-digit handover OTP code.
+                  </p>
+                </div>
+                <button
+                  onClick={goBack}
+                  className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center gap-2 border border-slate-200 dark:border-slate-800 shadow-xs transition-all cursor-pointer self-start sm:self-auto shrink-0 active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-slate-500" />
+                  <span>Previous Page</span>
+                </button>
               </div>
 
               <div className="flex flex-col" style={{ gap: '1cm' }}>
                 {orders.map((order) => (
                   <div
                     key={order.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-xs space-y-5 transition-all hover:border-indigo-400/40"
+                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl shadow-xs space-y-5 transition-all hover:border-emerald-400/40"
                     style={{ padding: '1cm' }}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="space-y-1 min-w-0">
-                        <span className="inline-block font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-0.5 rounded-md border border-indigo-200/60 dark:border-indigo-800/60">
+                        <span className="inline-block font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">
                           {order.orderNumber}
                         </span>
                         <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 mt-1">
@@ -2049,7 +2307,7 @@ export const PatientApp: React.FC = () => {
                         className={`text-xs font-bold px-3 py-1 rounded-full self-start sm:self-auto shadow-2xs ${
                           order.status === 'Delivered'
                             ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-                            : 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60'
+                            : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
                         }`}
                       >
                         {order.status}
@@ -2077,6 +2335,17 @@ export const PatientApp: React.FC = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Bottom Back Navigation */}
+              <div className="flex items-center justify-between pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+                <button
+                  onClick={goBack}
+                  className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-black text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-slate-500" />
+                  <span>Back to Previous Page</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -2084,15 +2353,24 @@ export const PatientApp: React.FC = () => {
           {activeTab === 'healthLibrary' && (
             <div className="space-y-[1cm]" style={{ gap: '1cm', display: 'flex', flexDirection: 'column' }}>
               <div
-                className="border-b border-slate-200 dark:border-slate-800"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800"
                 style={{ paddingBottom: '1cm', marginBottom: '0.5cm' }}
               >
-                <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
-                  Health Education &amp; Advice
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
-                  Clinically verified health advice written by registered Ugandan pharmacists.
-                </p>
+                <div className="space-y-1">
+                  <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+                    Health Education &amp; Advice
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                    Clinically verified health advice written by registered Ugandan pharmacists.
+                  </p>
+                </div>
+                <button
+                  onClick={goBack}
+                  className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm flex items-center gap-2 border border-slate-200 dark:border-slate-800 shadow-xs transition-all cursor-pointer self-start sm:self-auto shrink-0 active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-slate-500" />
+                  <span>Previous Page</span>
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" style={{ gap: '1cm' }}>
@@ -2124,6 +2402,17 @@ export const PatientApp: React.FC = () => {
                   </div>
                 ))}
               </div>
+
+              {/* Bottom Back Navigation */}
+              <div className="flex items-center justify-between pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+                <button
+                  onClick={goBack}
+                  className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-black text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-slate-500" />
+                  <span>Back to Previous Page</span>
+                </button>
+              </div>
             </div>
           )}
 
@@ -2133,6 +2422,17 @@ export const PatientApp: React.FC = () => {
               className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl max-w-xl mx-auto shadow-xs space-y-6"
               style={{ padding: '1cm' }}
             >
+              <div className="flex items-center justify-between pb-1">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold border border-slate-200 dark:border-slate-700 shadow-xs transition-all cursor-pointer active:scale-95"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Previous Page</span>
+                </button>
+              </div>
+
               <div className="text-center space-y-2 border-b border-slate-100 dark:border-slate-800" style={{ paddingBottom: '0.6cm' }}>
                 <div className="w-14 h-14 rounded-2xl bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 mx-auto flex items-center justify-center shadow-xs">
                   <AlertTriangle className="w-7 h-7" />
@@ -2214,141 +2514,99 @@ export const PatientApp: React.FC = () => {
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-black text-xs sm:text-sm shadow-md shadow-rose-600/20 transition-all cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>Submit Patient Safety Report</span>
-                </button>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={goBack}
+                    className="w-full sm:w-auto px-6 py-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm transition-all cursor-pointer text-center active:scale-95"
+                  >
+                    Cancel &amp; Go Back
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 w-full py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-black text-xs sm:text-sm shadow-md shadow-rose-600/20 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>Submit Patient Safety Report</span>
+                  </button>
+                </div>
               </form>
             </div>
           )}
 
           {/* ── 8. Customer Support & Complaints Desk ── */}
           {activeTab === 'support' && (
-            <PatientSupportHub
-              patient={patientUser}
-              onOpenAuth={triggerAuth}
-            />
+            <Suspense fallback={<PatientTabLoadingFallback />}>
+              <PatientSupportHub
+                patient={patientUser}
+                onOpenAuth={triggerAuth}
+                onGoBack={goBack}
+              />
+            </Suspense>
           )}
 
           {/* ── 9. Notification Center & Clinical Inbox ── */}
           {activeTab === 'notifications' && (
-            <PatientNotificationCenter
-              patientPhoneOrId={patientUser?.phone || patientUser?.id}
-              patientName={patientUser?.fullName}
-              onNavigateTab={(tab, payload) => setActiveTab(tab as any)}
-            />
+            <Suspense fallback={<PatientTabLoadingFallback />}>
+              <PatientNotificationCenter
+                patientPhoneOrId={patientUser?.phone || patientUser?.id}
+                patientName={patientUser?.fullName}
+                onNavigateTab={(tab, payload) => setActiveTab(tab as any)}
+                onGoBack={goBack}
+              />
+            </Suspense>
           )}
 
-          {/* ── 10. My Health Profile (Streamlined & Clean) ── */}
+          {/* ── 10. My Health Profile & EHR Records (Dedicated Page) ── */}
           {activeTab === 'profile' && patientUser && (
-            <div 
-              className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl max-w-2xl mx-auto shadow-xs"
-              style={{ padding: '1cm', display: 'flex', flexDirection: 'column', gap: '1cm' }}
-            >
-              <div 
-                className="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800"
-                style={{ paddingBottom: '0.6cm' }}
-              >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-black text-2xl shadow-xs shrink-0">
-                  {patientUser.fullName.slice(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100">{patientUser.fullName}</h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">{patientUser.phone} • {patientUser.district}</p>
-                  {patientUser.nin && <p className="text-[11px] font-mono text-slate-400 mt-1">National ID (NIN): {patientUser.nin}</p>}
-                </div>
-              </div>
+            <Suspense fallback={<PatientTabLoadingFallback />}>
+              <PatientProfilePage
+                patient={patientUser}
+                reservations={patientReservations}
+                onNavigateTab={(tab, payload) => setActiveTab(tab as any)}
+                onRefreshReservations={refreshPatientHolds}
+                onSignOut={() => patientAuthService.logout()}
+                onGoBack={goBack}
+              />
+            </Suspense>
+          )}
 
-              <div 
-                className="text-xs"
-                style={{ display: 'flex', flexDirection: 'column', gap: '0.6cm' }}
-              >
-                <div className="space-y-1">
-                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">Known Allergies:</span>
-                  <p className="text-rose-600 dark:text-rose-400 font-bold text-sm">{patientUser.allergies.join(', ') || 'None documented'}</p>
-                </div>
-
-                <div 
-                  className="space-y-1 border-t border-slate-100 dark:border-slate-800"
-                  style={{ paddingTop: '0.6cm' }}
-                >
-                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">Chronic Conditions:</span>
-                  <p className="text-purple-600 dark:text-purple-400 font-bold text-sm">{patientUser.chronicConditions.join(', ') || 'None documented'}</p>
-                </div>
-
-                {/* Active Reservations */}
-                {patientReservations.length > 0 && (
-                  <div 
-                    className="space-y-3 border-t border-slate-100 dark:border-slate-800"
-                    style={{ paddingTop: '0.6cm' }}
-                  >
-                    <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider text-[11px]">
-                      Active 24h Counter Reservations ({patientReservations.filter((r) => r.status === 'active').length})
-                    </span>
-                    <div className="space-y-2">
-                      {patientReservations.map((r) => (
-                        <div key={r.id} className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                          <div>
-                            <span className="font-bold text-slate-900 dark:text-slate-100">{r.quantityReserved}x {r.brandName}</span>
-                            <span className="text-[11px] text-slate-400 ml-2">({r.pharmacyName})</span>
-                          </div>
-                          <span className="font-mono font-bold text-xs text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                            PIN: {r.reservationPin}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div 
-                  className="border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 font-medium"
-                  style={{ paddingTop: '0.6cm' }}
-                >
-                  Data securely cached offline for seamless emergency access.
-                </div>
-              </div>
-
-              <div 
-                className="border-t border-slate-100 dark:border-slate-800"
-                style={{ paddingTop: '0.6cm' }}
-              >
-                <button
-                  onClick={() => patientAuthService.logout()}
-                  className="w-full py-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200/60 dark:border-rose-800/60 transition-all cursor-pointer shadow-xs active:scale-[0.99]"
-                >
-                  Sign Out of Patient Portal
-                </button>
-              </div>
-            </div>
+          {/* ── 11. Official Digital Health Passport & Smart ID Card (Dedicated Page) ── */}
+          {activeTab === 'passport' && (
+            <ErrorBoundary fallbackTitle="Digital Health Passport Module" onReset={() => setActiveTab('search')}>
+              <PatientHealthPassportPage
+                patient={activePassportPatient}
+                reservations={patientReservations}
+                onNavigateTab={(tab, payload) => setActiveTab(tab as any)}
+                onGoBack={goBack}
+                onEditProfile={() => setActiveTab('profile')}
+              />
+            </ErrorBoundary>
           )}
 
           </div>
 
           {/* ── Executive Clinical Footer (Expanded Length & Height with Generous Spacing) ── */}
           <footer 
-            className="w-full bg-[#07111e] border-t border-slate-800 mt-20 sm:mt-28 text-center text-xs shadow-md shrink-0 text-slate-400"
+            className="w-full bg-slate-100/90 dark:bg-[#07111e] border-t border-slate-200/90 dark:border-slate-800 mt-20 sm:mt-28 text-center text-xs shadow-md shrink-0 text-slate-600 dark:text-slate-400 transition-colors duration-200"
             style={{ padding: '1cm', paddingBottom: '3.5cm' }}
           >
             <div 
               className="max-w-7xl mx-auto"
               style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm' }}
             >
-              <p className="text-white font-black tracking-wider text-sm sm:text-base uppercase">
+              <p className="text-slate-900 dark:text-white font-black tracking-wider text-sm sm:text-base uppercase">
                 ZENITHRX – CLINICAL PHARMACY MANAGEMENT SYSTEM
               </p>
-              <p className="text-slate-300 text-xs sm:text-sm font-medium">
-                WhatsApp: <span className="text-emerald-400 font-bold">+256-755091826</span> | Call:{' '}
-                <span className="text-blue-400 font-bold">0200 913 555</span> | Email:{' '}
-                <span className="text-slate-200 font-semibold">quantumnetworks@gmail.com</span>
+              <p className="text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-medium">
+                WhatsApp: <span className="text-emerald-600 dark:text-emerald-400 font-bold">+256-755091826</span> | Call:{' '}
+                <span className="text-blue-600 dark:text-blue-400 font-bold">0200 913 555</span> | Email:{' '}
+                <span className="text-slate-800 dark:text-slate-200 font-semibold">quantumnetworks@gmail.com</span>
               </p>
-              <p className="text-slate-400 text-xs pt-1">
-                Official Web: <span className="text-slate-300 underline font-medium">www.quantumnetworks.com</span> • Powered by Gemini AI Clinical Engine
+              <p className="text-slate-500 dark:text-slate-400 text-xs pt-1">
+                Official Web: <span className="text-slate-700 dark:text-slate-300 underline font-medium">www.quantumnetworks.com</span> • Powered by Gemini AI Clinical Engine
                 {patientUser && (
-                  <span className="ml-2 text-slate-300 font-medium">
+                  <span className="ml-2 text-slate-700 dark:text-slate-300 font-medium">
                     | {patientUser.fullName} (Patient Portal) • NDA Verified Network
                   </span>
                 )}
@@ -2357,455 +2615,6 @@ export const PatientApp: React.FC = () => {
           </footer>
         </main>
       </div>
-
-      {/* ── Slide-Over Cart & Mobile Money Checkout Drawer ── */}
-      {/* ── Slide-Over Cart & Mobile Money Checkout Drawer ── */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-[100] flex justify-end bg-slate-950/70 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md sm:max-w-lg bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col border-l border-slate-200 dark:border-slate-800">
-            
-            {/* Drawer Header with Generous Padding */}
-            <div className="p-6 sm:p-7 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 flex items-center justify-center">
-                  <ShoppingCart className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                    {checkoutStep === 'cart' ? 'Medicine Cart' : checkoutStep === 'payment' ? 'Mobile Money Checkout' : 'Order Confirmed'}
-                  </h3>
-                  <span className="text-xs text-slate-400 font-medium">
-                    {cartItems.length} item{cartItems.length === 1 ? '' : 's'} in prescription order
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsCartOpen(false)}
-                className="w-9 h-9 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center transition-all cursor-pointer text-sm font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Drawer Content */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-7" style={{ paddingTop: '1cm', paddingBottom: '1cm' }}>
-              {checkoutStep === 'cart' ? (
-                cartItems.length === 0 ? (
-                  <div className="text-center py-16 space-y-3">
-                    <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600 mx-auto flex items-center justify-center">
-                      <ShoppingCart className="w-8 h-8" />
-                    </div>
-                    <p className="text-sm sm:text-base font-bold text-slate-700 dark:text-slate-300">Your cart is empty</p>
-                    <p className="text-xs text-slate-400 max-w-xs mx-auto">Search medicines in the verified formulary to add to your order.</p>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1cm' }}>
-                    {cartItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200/90 dark:border-slate-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all"
-                      >
-                        <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100/80 dark:border-emerald-800/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                            <Pill className="w-5 h-5 sm:w-6 sm:h-6" />
-                          </div>
-
-                          <div className="min-w-0 flex-1 space-y-1">
-                            <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug truncate">
-                              {item.drug.brandName}
-                            </h4>
-                            <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
-                              <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                              <span className="truncate">{item.pharmacyName}</span>
-                            </div>
-                            <div className="flex items-center gap-2 pt-1">
-                              <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400">
-                                {formatUGX(item.unitPriceUgx * item.quantity)}
-                              </span>
-                              {item.quantity > 1 && (
-                                <span className="text-[11px] text-slate-400 font-semibold">
-                                  ({formatUGX(item.unitPriceUgx)} each)
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Right: Stepper & Remove */}
-                        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 dark:border-slate-700/50">
-                          <div className="flex items-center gap-1 bg-slate-100/90 dark:bg-slate-900/90 p-1.5 rounded-2xl border border-slate-200/90 dark:border-slate-700 shadow-inner">
-                            <button
-                              onClick={() => handleUpdateCartQty(item.id, -1)}
-                              className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer active:scale-90 shadow-2xs transition-all"
-                              title="Decrease quantity"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="text-sm font-black w-8 text-center text-slate-900 dark:text-slate-100">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => handleUpdateCartQty(item.id, 1)}
-                              className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 cursor-pointer active:scale-90 shadow-2xs transition-all"
-                              title="Increase quantity"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-
-                          <button
-                            onClick={() => handleRemoveCartItem(item.id)}
-                            className="w-9 h-9 rounded-2xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 border border-rose-200/80 dark:border-rose-800/60 text-rose-500 hover:text-rose-600 dark:text-rose-400 flex items-center justify-center cursor-pointer transition-all active:scale-90 shadow-2xs"
-                            title="Remove from cart"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )
-              ) : checkoutStep === 'payment' ? (
-                <form
-                  onSubmit={handleProcessCheckout}
-                  style={{ display: 'flex', flexDirection: 'column', gap: '0.8cm', paddingTop: '0.2cm', paddingBottom: '1cm' }}
-                >
-                  {/* High-End Order Summary Box */}
-                  <div
-                    className="p-5 sm:p-6 rounded-3xl bg-slate-50/95 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 shadow-xs"
-                    style={{ display: 'flex', flexDirection: 'column', gap: '0.45cm' }}
-                  >
-                    <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                      <span className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-xl bg-slate-200/70 dark:bg-slate-700/70 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
-                          <ShoppingCart className="w-3.5 h-3.5" />
-                        </div>
-                        <span>Items Total</span>
-                      </span>
-                      <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(cartTotalUgx)}</span>
-                    </div>
-
-                    <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                      <span className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                          <Truck className="w-3.5 h-3.5" />
-                        </div>
-                        <span>Express Rider Delivery</span>
-                      </span>
-                      <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(deliveryFeeUgx)}</span>
-                    </div>
-
-                    {/* Grand Total Dedicated Highlight Card */}
-                    <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-200/90 dark:border-emerald-800/80 flex justify-between items-center shadow-xs">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                          <ShieldCheck className="w-4 h-4" />
-                        </div>
-                        <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">Total Amount</span>
-                      </div>
-                      <span className="text-base sm:text-xl font-black text-emerald-600 dark:text-emerald-400">
-                        {formatUGX(grandTotalUgx)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Provider Selection */}
-                  <div className="space-y-3">
-                    <label className="block text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                      Select Mobile Money Provider *
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      {/* MTN MoMo Tile */}
-                      <button
-                        type="button"
-                        onClick={() => setMomoProvider('MTN')}
-                        className={`p-4 sm:p-5 rounded-3xl border-2 transition-all cursor-pointer text-left flex items-center justify-between gap-3 ${
-                          momoProvider === 'MTN'
-                            ? 'bg-amber-400 border-amber-500 text-amber-950 shadow-lg shadow-amber-400/25 ring-2 ring-amber-400/50'
-                            : 'bg-white dark:bg-slate-800/90 border-slate-200/90 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:border-amber-300 dark:hover:border-amber-500/50 shadow-xs'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shrink-0 shadow-xs ${
-                              momoProvider === 'MTN'
-                                ? 'bg-amber-950 text-amber-300'
-                                : 'bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-400'
-                            }`}
-                          >
-                            MTN
-                          </div>
-                          <div>
-                            <span className="block text-sm font-black tracking-tight leading-snug">MTN MoMo</span>
-                            <span className={`text-[11px] font-medium block ${momoProvider === 'MTN' ? 'text-amber-900/80' : 'text-slate-400'}`}>
-                              Uganda • Instant Push
-                            </span>
-                          </div>
-                        </div>
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                            momoProvider === 'MTN' ? 'border-amber-950 bg-amber-950 text-amber-300' : 'border-slate-300 dark:border-slate-600'
-                          }`}
-                        >
-                          {momoProvider === 'MTN' && <div className="w-2 h-2 rounded-full bg-amber-400" />}
-                        </div>
-                      </button>
-
-                      {/* Airtel Money Tile */}
-                      <button
-                        type="button"
-                        onClick={() => setMomoProvider('Airtel')}
-                        className={`p-4 sm:p-5 rounded-3xl border-2 transition-all cursor-pointer text-left flex items-center justify-between gap-3 ${
-                          momoProvider === 'Airtel'
-                            ? 'bg-rose-600 border-rose-700 text-white shadow-lg shadow-rose-600/25 ring-2 ring-rose-500/50'
-                            : 'bg-white dark:bg-slate-800/90 border-slate-200/90 dark:border-slate-700/80 text-slate-700 dark:text-slate-300 hover:border-rose-300 dark:hover:border-rose-500/50 shadow-xs'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shrink-0 shadow-xs ${
-                              momoProvider === 'Airtel' ? 'bg-white text-rose-600' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-400'
-                            }`}
-                          >
-                            airtel
-                          </div>
-                          <div>
-                            <span className="block text-sm font-black tracking-tight leading-snug">Airtel Money</span>
-                            <span className={`text-[11px] font-medium block ${momoProvider === 'Airtel' ? 'text-rose-100' : 'text-slate-400'}`}>
-                              Uganda • Instant Push
-                            </span>
-                          </div>
-                        </div>
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                            momoProvider === 'Airtel' ? 'border-white bg-white' : 'border-slate-300 dark:border-slate-600'
-                          }`}
-                        >
-                          {momoProvider === 'Airtel' && <div className="w-2 h-2 rounded-full bg-rose-600" />}
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Phone Input with Dedicated Left Country Code Addon & Auto-Formatting */}
-                  <div className="space-y-2.5">
-                    <label className="block text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                      Phone Number for USSD Prompt *
-                    </label>
-                    
-                    <div className="flex items-center rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 shadow-xs focus-within:border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/10 transition-all overflow-hidden">
-                      {/* Left Prefix Addon */}
-                      <div className="px-4 py-4 bg-slate-50 dark:bg-slate-900/70 border-r border-slate-200 dark:border-slate-700 flex items-center gap-2.5 text-slate-700 dark:text-slate-300 shrink-0 select-none">
-                        <div className="w-7 h-7 rounded-xl bg-emerald-50 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                          <Smartphone className="w-4 h-4" />
-                        </div>
-                        <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">+256</span>
-                      </div>
-
-                      {/* Number Input Field */}
-                      <input
-                        type="tel"
-                        required
-                        value={momoPhone.replace(/^\+?256\s*|^0/, '')}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/[^0-9\s]/g, '');
-                          setMomoPhone(raw);
-                        }}
-                        placeholder="772 987 654"
-                        className="flex-1 py-4 sm:py-4.5 px-4 bg-transparent border-0 text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 focus:outline-none placeholder:text-slate-400 placeholder:font-normal tracking-wider"
-                      />
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium pl-1 pt-0.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                      <span>Instant USSD prompt will appear on this device to enter your secret PIN.</span>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="space-y-3 pt-2" style={{ display: 'flex', flexDirection: 'column', gap: '0.4cm' }}>
-                    <button
-                      type="submit"
-                      disabled={isProcessingPayment}
-                      className="w-full py-4.5 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50 active:scale-98"
-                    >
-                      {isProcessingPayment ? (
-                        <span>Sending MoMo PIN Prompt to Phone...</span>
-                      ) : (
-                        <>
-                          <span>Pay {formatUGX(grandTotalUgx)} via {momoProvider}</span>
-                          <ArrowRight className="w-5 h-5" />
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setCheckoutStep('cart')}
-                      className="w-full py-3.5 sm:py-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/80 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-98 shadow-2xs"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      <span>Back to Cart Items</span>
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div
-                  className="text-center py-6 sm:py-8"
-                  style={{ display: 'flex', flexDirection: 'column', gap: '0.8cm', alignItems: 'center' }}
-                >
-                  {/* Celebratory Icon & Headings */}
-                  <div className="space-y-3 max-w-sm mx-auto">
-                    <div className="w-20 h-20 rounded-3xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-8 ring-emerald-50 dark:ring-emerald-950/40 animate-in zoom-in-75 duration-300">
-                      <CheckCircle2 className="w-10 h-10" />
-                    </div>
-
-                    <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight pt-2">
-                      Order Confirmed!
-                    </h3>
-
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-xs mx-auto">
-                      Your payment was received securely. The pharmacy is now assembling your medications for express dispatch.
-                    </p>
-                  </div>
-
-                  {/* Live Dispatch Preview Card */}
-                  <div
-                    className="w-full p-6 sm:p-7 rounded-3xl bg-slate-50/95 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 text-left shadow-xs"
-                    style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm' }}
-                  >
-                    <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-200/60 dark:border-slate-700/60">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-xl bg-slate-200/80 dark:bg-slate-700/80 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
-                          <Clock className="w-3.5 h-3.5" />
-                        </div>
-                        <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                          Order Dispatch Status
-                        </span>
-                      </div>
-
-                      <span className="text-xs font-black text-emerald-800 dark:text-emerald-300 bg-emerald-100/90 dark:bg-emerald-950/90 px-3.5 py-1.5 rounded-full border border-emerald-300/80 dark:border-emerald-700/80 flex items-center gap-2 shadow-xs shrink-0">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                        </span>
-                        <span>Out for Delivery</span>
-                      </span>
-                    </div>
-
-                    <div className="p-4 sm:p-4.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 flex items-center gap-4 shadow-xs">
-                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                        <Truck className="w-6 h-6" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 truncate tracking-tight">
-                          Juma Kigozi (Boda Express #41)
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
-                          Estimated Arrival: <span className="text-emerald-600 dark:text-emerald-400 font-black">~25 mins</span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Full-Width Action Buttons with 1cm Vertical Spacing */}
-                  <div className="w-full" style={{ display: 'flex', flexDirection: 'column', gap: '0.5cm', paddingTop: '0.2cm', paddingBottom: '1cm' }}>
-                    <button
-                      onClick={() => {
-                        setIsCartOpen(false);
-                        setCheckoutStep('cart');
-                        setActiveTab('orders');
-                      }}
-                      className="w-full py-5 sm:py-5.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-between gap-3 cursor-pointer active:scale-98"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Truck className="w-5 h-5 text-emerald-100" />
-                        <span>Track Live Delivery</span>
-                      </div>
-                      <ArrowRight className="w-5 h-5" />
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setIsCartOpen(false);
-                        setCheckoutStep('cart');
-                      }}
-                      className="w-full py-4.5 sm:py-5 px-6 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center gap-2.5 active:scale-98 shadow-xs"
-                    >
-                      <ArrowLeft className="w-4 h-4 text-slate-400" />
-                      <span>Back to Formulary</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Drawer Footer with Generous Padding & Distinct Totals */}
-            {/* Drawer Footer with Generous Padding & Distinct Totals */}
-            {checkoutStep === 'cart' && cartItems.length > 0 && (
-              <div
-                className="p-6 sm:p-7 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-2xl"
-                style={{ display: 'flex', flexDirection: 'column', gap: '0.8cm', paddingBottom: '1.2cm' }}
-              >
-                {/* Financial Summary Card */}
-                <div
-                  className="p-5 sm:p-6 rounded-3xl bg-slate-50/95 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700/80 shadow-xs"
-                  style={{ display: 'flex', flexDirection: 'column', gap: '0.45cm' }}
-                >
-                  <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                    <span className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-xl bg-slate-200/70 dark:bg-slate-700/70 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0">
-                        <ShoppingCart className="w-3.5 h-3.5" />
-                      </div>
-                      <span>Items Subtotal</span>
-                    </span>
-                    <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(cartTotalUgx)}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300">
-                    <span className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                        <Truck className="w-3.5 h-3.5" />
-                      </div>
-                      <span>Express Rider Delivery</span>
-                    </span>
-                    <span className="font-bold text-slate-900 dark:text-slate-100">{formatUGX(deliveryFeeUgx)}</span>
-                  </div>
-
-                  {/* Grand Total Dedicated Highlight Card */}
-                  <div className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-slate-900 border border-emerald-200/90 dark:border-emerald-800/80 flex justify-between items-center shadow-xs">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                        <ShieldCheck className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">Grand Total</span>
-                    </div>
-                    <span className="text-base sm:text-xl font-black text-emerald-600 dark:text-emerald-400">
-                      {formatUGX(grandTotalUgx)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Primary CTA Button */}
-                <div className="space-y-2.5">
-                  <button
-                    onClick={() => setCheckoutStep('payment')}
-                    className="w-full py-4.5 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-600/30 transition-all flex items-center justify-center gap-3 cursor-pointer active:scale-98"
-                  >
-                    <span>Proceed to Mobile Money Checkout</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 font-medium pt-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    <span>Instant MTN & Airtel Prompt • Encrypted Pharmacy Escrow</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* ── Modal: Medication Reservation Sheet ── */}
       {reservationTarget && (
@@ -2936,7 +2745,7 @@ export const PatientApp: React.FC = () => {
                     setReservationSuccessPin(res.reservationPin);
                     refreshPatientHolds();
                   }}
-                  className="w-full py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/20 cursor-pointer transition-all"
+                  className="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 cursor-pointer transition-all"
                 >
                   Confirm Hold &amp; Generate Pickup PIN
                 </button>
@@ -3060,30 +2869,89 @@ export const PatientApp: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Quantum RxAI Copilot Launcher (when not already on copilot page and no drawer open) */}
-      {activeTab !== 'copilot' && !isCartOpen && !reservationTarget && (
-        <aside aria-label="Clinical AI Assistant" className="fixed bottom-6 right-6 z-40">
-          <button
-            onClick={() => setActiveTab('copilot')}
-            className="flex items-center gap-3.5 px-5 py-3.5 sm:px-6 sm:py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-3xl shadow-2xl shadow-teal-900/40 border border-white/25 transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md"
-            title="Ask Quantum RxAI Copilot"
-          >
-            <div className="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0 shadow-xs">
-              <Sparkles className="w-5 h-5 text-amber-200 animate-pulse" />
+      {/* Floating Quantum RxAI Copilot Launcher with Toggle On/Off & Minimize Capability */}
+      {activeTab !== 'copilot' && activeTab !== 'cart' && !isCartOpen && !reservationTarget && (
+        <aside
+          aria-label="Clinical AI Assistant"
+          className="fixed z-40 transition-all duration-300"
+          style={{
+            right: 'clamp(0.8cm, 2.5vw, 1.5rem)',
+            bottom: 'clamp(0.8cm, 2.5vw, 1.5rem)',
+          }}
+        >
+          {floatingAiMode === 'expanded' && (
+            <div className="relative group animate-in fade-in slide-in-from-bottom-3 duration-200">
+              <button
+                onClick={() => setActiveTab('copilot')}
+                className="flex items-center gap-3.5 pl-5 pr-13 py-3.5 sm:pl-6 sm:pr-14 sm:py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 hover:from-emerald-500 hover:to-teal-500 text-white rounded-3xl shadow-2xl shadow-teal-900/40 border border-white/25 transition-all hover:scale-[1.02] active:scale-98 cursor-pointer backdrop-blur-md"
+                title="Ask Quantum RxAI Copilot (Click to open clinical triage)"
+              >
+                <div className="w-10 h-10 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0 shadow-xs">
+                  <Sparkles className="w-5 h-5 text-amber-200 animate-pulse" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs sm:text-sm font-black tracking-tight flex items-center gap-2">
+                    <span>Stuck? Ask RxAI</span>
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-300" />
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-teal-100 font-semibold tracking-normal mt-0.5 whitespace-nowrap">
+                    24/7 Clinical Triage &amp; Q&amp;A
+                  </div>
+                </div>
+              </button>
+
+              {/* Quick Dismiss / Minimize Toggle Button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateFloatingAiMode('minimized');
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/25 hover:bg-black/50 text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer backdrop-blur-xs border border-white/20 hover:scale-110 active:scale-95"
+                title="Minimize RxAI button"
+                aria-label="Minimize RxAI button"
+              >
+                <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </button>
             </div>
-            <div className="text-left">
-              <div className="text-xs sm:text-sm font-black tracking-tight flex items-center gap-2">
-                <span>Stuck? Ask RxAI</span>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-300" />
-                </span>
-              </div>
-              <div className="text-[11px] text-teal-100 font-semibold tracking-normal mt-0.5 whitespace-nowrap">
-                24/7 Clinical Triage &amp; Q&amp;A
-              </div>
+          )}
+
+          {floatingAiMode === 'minimized' && (
+            <div className="flex items-center gap-1.5 p-1.5 rounded-full bg-slate-900/85 dark:bg-slate-900/90 border border-emerald-500/40 shadow-2xl shadow-emerald-950/40 backdrop-blur-md animate-in fade-in zoom-in-95 duration-200">
+              <button
+                onClick={() => updateFloatingAiMode('expanded')}
+                className="flex items-center gap-2 pl-3 pr-3.5 py-2 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-md shadow-emerald-900/30 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                title="Click to expand RxAI full helper"
+              >
+                <Sparkles className="w-4 h-4 text-amber-200 animate-pulse" />
+                <span>Ask RxAI</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => updateFloatingAiMode('hidden')}
+                className="w-7 h-7 rounded-full text-slate-400 hover:text-rose-300 hover:bg-white/10 flex items-center justify-center transition-colors cursor-pointer"
+                title="Hide completely from screen"
+                aria-label="Hide completely from screen"
+              >
+                <EyeOff className="w-3.5 h-3.5" />
+              </button>
             </div>
-          </button>
+          )}
+
+          {floatingAiMode === 'hidden' && (
+            <button
+              onClick={() => updateFloatingAiMode('expanded')}
+              className="group flex items-center gap-2 px-3 py-2 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-900/30 border border-emerald-400/40 backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer opacity-70 hover:opacity-100"
+              title="Show RxAI Assistant (Toggle back ON)"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-200 group-hover:rotate-12 transition-transform" />
+              <span className="text-[11px] font-black">Show RxAI</span>
+            </button>
+          )}
         </aside>
       )}
     </div>

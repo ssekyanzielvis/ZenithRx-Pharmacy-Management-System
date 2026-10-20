@@ -24,6 +24,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { MasterMedicineItem, getMasterMedicines } from '../../services/medicineSafetyService';
+import { MedicineCard } from '../ui/MedicineCard';
 import {
   advancedStockService,
   CrossPharmacyStockEntry,
@@ -37,6 +38,7 @@ interface PatientBranchesPageProps {
   selectedStockMedicine: MasterMedicineItem | null;
   onSelectMedicine: (med: MasterMedicineItem | null) => void;
   onBackToSearch: () => void;
+  onGoBack?: () => void;
   onAddToCart: (med: MasterMedicineItem, pharmacyName: string) => void;
   onReserve: (med: MasterMedicineItem, branch: CrossPharmacyStockEntry) => void;
   onWaitlist: (med: MasterMedicineItem, branch: CrossPharmacyStockEntry) => void;
@@ -44,12 +46,14 @@ interface PatientBranchesPageProps {
   patientReservations: StockReservation[];
   patientWaitlists: StockWaitlistEntry[];
   onRefreshHolds: () => void;
+  onViewDetails?: (med: MasterMedicineItem) => void;
 }
 
 export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
   selectedStockMedicine,
   onSelectMedicine,
   onBackToSearch,
+  onGoBack,
   onAddToCart,
   onReserve,
   onWaitlist,
@@ -57,6 +61,7 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
   patientReservations,
   patientWaitlists,
   onRefreshHolds,
+  onViewDetails,
 }) => {
   const allMedicines = getMasterMedicines();
   const [sortBy, setSortBy] = useState<'distance' | 'price' | 'stock'>('distance');
@@ -135,49 +140,23 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </button>
       </div>
 
-      {/* ── Medicine Hero Card (Full Width Banner with 1cm Spacing) ── */}
-      <div
-        className="w-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex flex-col sm:flex-row items-start"
-        style={{ padding: '1cm', gap: '1cm' }}
-      >
-        {/* Pill Icon illustration */}
-        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-100 dark:border-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
-          <Pill className="w-9 h-9 sm:w-11 sm:h-11 rotate-45" />
-        </div>
+      {/* ── High-Fidelity Medicine Showcase Card ── */}
+      <MedicineCard
+        medicine={currentMed}
+        className="w-full shadow-md"
+        featured
+        onViewDetails={onViewDetails}
+        onOrder={() => {
+          if (branches[0] && onAddToCart) {
+            onAddToCart(currentMed, branches[0].pharmacyName);
+          }
+        }}
+      />
 
-        <div className="min-w-0 flex-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.4cm' }}>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 text-xs font-black uppercase tracking-wider">
-              {currentMed.category}
-            </span>
-            <span className="px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-mono font-bold">
-              {currentMed.ndaRegistrationNumber || 'NDA Verified'}
-            </span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-slate-100 leading-tight">
-            {currentMed.brandName}
-          </h1>
-
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium break-words">
-            <span className="font-bold text-slate-800 dark:text-slate-200">Active Generic:</span> {currentMed.genericName}
-          </p>
-
-          {currentMed.standardDoseAdult && (
-            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed pt-1">
-              <span className="font-bold text-slate-700 dark:text-slate-300">Adult Dosage Guidance:</span> {currentMed.standardDoseAdult}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* ── Row 2: 4 Clean KPI Metric Cards (Responsive Grid with 1cm Spacing) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[1cm]" style={{ gap: '1cm' }}>
+      {/* ── Row 2: 4 Clean KPI Metric Cards (Responsive Grid) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
         {/* Metric 1: Green Box */}
-        <div
-          className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex items-start min-w-0"
-          style={{ padding: '0.8cm', gap: '0.5cm' }}
-        >
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs flex items-start gap-4 p-5 sm:p-6 min-w-0">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/30">
             <Building2 className="w-6 h-6" />
           </div>
@@ -196,10 +175,7 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
 
         {/* Metric 2: Blue Tag */}
-        <div
-          className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex items-start min-w-0"
-          style={{ padding: '0.8cm', gap: '0.5cm' }}
-        >
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs flex items-start gap-4 p-5 sm:p-6 min-w-0">
           <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/30">
             <Tag className="w-6 h-6" />
           </div>
@@ -213,16 +189,13 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
 
         {/* Metric 3: Purple Pin */}
-        <div
-          className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex items-start min-w-0"
-          style={{ padding: '0.8cm', gap: '0.5cm' }}
-        >
-          <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 border border-purple-100 dark:border-purple-900/30">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs flex items-start gap-4 p-5 sm:p-6 min-w-0">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/30">
             <MapPin className="w-6 h-6" />
           </div>
           <div className="space-y-1 min-w-0 flex-1">
             <span className="text-xs font-bold text-slate-400 block truncate">
-              <span className="text-purple-600 dark:text-purple-400 font-extrabold">Nearest Available</span> Branch
+              <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">Nearest Available</span> Branch
             </span>
             <p className="text-xl font-black text-slate-900 dark:text-slate-100">
               {minDist} km away
@@ -232,10 +205,7 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
 
         {/* Metric 4: Orange Clock */}
-        <div
-          className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl shadow-xs flex items-start min-w-0"
-          style={{ padding: '0.8cm', gap: '0.5cm' }}
-        >
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-xs flex items-start gap-4 p-5 sm:p-6 min-w-0">
           <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/30">
             <Truck className="w-6 h-6" />
           </div>
@@ -249,8 +219,8 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
         </div>
       </div>
 
-      {/* ── Section Title & Filter Bar with 1cm Spacing ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200 dark:border-slate-800" style={{ paddingTop: '0.4cm' }}>
+      {/* ── Section Title & Filter Bar ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 sm:pt-4 pb-3 border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs">
             <Building2 className="w-6 h-6" />
@@ -572,7 +542,7 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
                     <span>Free 24–48h Counter Reservation</span>
                   </div>
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/70 font-semibold">
-                    <ShieldCheck className="w-4 h-4 text-purple-500" />
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
                     <span>Free Prescription Counseling</span>
                   </div>
                 </div>
@@ -611,6 +581,17 @@ export const PatientBranchesPage: React.FC<PatientBranchesPageProps> = ({
             </div>
           );
         })}
+      </div>
+
+      {/* Bottom Back Action */}
+      <div className="flex items-center justify-between pt-6 border-t border-slate-200/80 dark:border-slate-800/80">
+        <button
+          onClick={onGoBack || onBackToSearch}
+          className="inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm font-black text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:border-emerald-500/40 transition-all cursor-pointer shadow-xs active:scale-95"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to Previous Page</span>
+        </button>
       </div>
     </div>
   );

@@ -39,34 +39,23 @@ export const QuantumAdminGate: React.FC<QuantumAdminGateProps> = ({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setLoading(true);
 
-    setTimeout(() => {
-      const res = verifyQuantumEngineerAccess(accessKey, employeeId);
-      setLoading(false);
+    const res = await verifyQuantumEngineerAccess(accessKey, employeeId);
+    setLoading(false);
 
-      if (res.success) {
-        setSuccessMessage(res.message);
-        setTimeout(() => {
-          onSuccessAuth();
-        }, 800);
-      } else {
-        setErrorMessage(res.message);
-      }
-    }, 400);
-  };
-
-  const handleQuickEngineerBypass = () => {
-    setAccessKey('QUANTUM-SYS-2026');
-    setLoading(true);
-    setTimeout(() => {
-      verifyQuantumEngineerAccess('QUANTUM-SYS-2026', QUANTUM_NETWORKS_LEAD_ENGINEER.employeeId);
-      setLoading(false);
-      onSuccessAuth();
-    }, 300);
+    if (res.success) {
+      setAccessKey(''); // don't keep the key in memory/DOM after use
+      setSuccessMessage(res.message);
+      setTimeout(() => {
+        onSuccessAuth();
+      }, 800);
+    } else {
+      setErrorMessage(res.message);
+    }
   };
 
   return (
@@ -193,14 +182,9 @@ export const QuantumAdminGate: React.FC<QuantumAdminGateProps> = ({
                 <ArrowRight className="w-3.5 h-3.5 rotate-180" /> Return to Pharmacy Workspace
               </button>
 
-              <button
-                type="button"
-                onClick={handleQuickEngineerBypass}
-                className="text-[11px] text-cyan-700 dark:text-cyan-400 hover:text-cyan-800 dark:hover:text-cyan-300 font-mono font-semibold flex items-center gap-1 hover:underline cursor-pointer"
-                title="Direct Quantum Networks Lead Architect Authorization (Dev/Demo)"
-              >
-                <Zap className="w-3 h-3 text-cyan-600 dark:text-cyan-400" /> Fast Engineer Login
-              </button>
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1">
+                <Lock className="w-3 h-3" /> Server-verified · 5 attempts then lockout
+              </span>
             </div>
           </div>
         </form>

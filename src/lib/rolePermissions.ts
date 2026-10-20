@@ -17,6 +17,7 @@ export const SYSTEM_ADMIN_TABS: string[] = [
   'adminFeedback',
   'adminPolicies',
   'adminDelegated',
+  'adminInviteCollaborator',
   'adminDualControl',
   'adminIncidents',
   'adminMatrix',

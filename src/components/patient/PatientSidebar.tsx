@@ -17,11 +17,16 @@ import {
   AlertTriangle,
   Headphones,
   User,
+  CreditCard,
+  Sun,
+  Moon,
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type PatientTab =
   | 'search'
+  | 'cart'
   | 'branches'
   | 'copilot'
   | 'prescriptions'
@@ -32,7 +37,9 @@ export type PatientTab =
   | 'healthLibrary'
   | 'adr'
   | 'support'
-  | 'profile';
+  | 'profile'
+  | 'passport'
+  | 'medicine-detail';
 
 export interface NavItem {
   id: PatientTab;
@@ -63,7 +70,7 @@ const NAV_ITEMS: NavItem[] = [
     sublabel: 'Clinical triage & copilot',
     icon: Sparkles,
     badge: 'AI 24/7',
-    badgeColor: 'bg-gradient-to-r from-teal-500 to-emerald-600 text-white',
+    badgeColor: 'bg-emerald-600 text-white',
   },
   {
     id: 'prescriptions',
@@ -71,7 +78,7 @@ const NAV_ITEMS: NavItem[] = [
     sublabel: 'Upload & verify Rx',
     icon: Upload,
     badge: 'NEW',
-    badgeColor: 'bg-purple-600 text-white',
+    badgeColor: 'bg-emerald-600 text-white',
   },
   {
     id: 'refills',
@@ -85,7 +92,7 @@ const NAV_ITEMS: NavItem[] = [
     sublabel: 'Virtual consultation',
     icon: MessageSquare,
     badge: 'LIVE',
-    badgeColor: 'bg-orange-600 text-white',
+    badgeColor: 'bg-emerald-600 text-white',
   },
   {
     id: 'orders',
@@ -118,9 +125,17 @@ const NAV_ITEMS: NavItem[] = [
     icon: Headphones,
   },
   {
-    id: 'profile',
+    id: 'passport',
     label: 'Health Passport',
-    sublabel: 'Digital medical ID',
+    sublabel: 'National Smart ID Card',
+    icon: CreditCard,
+    badge: 'OFFICIAL',
+    badgeColor: 'bg-emerald-600 text-white',
+  },
+  {
+    id: 'profile',
+    label: 'Health Records / EHR',
+    sublabel: 'Clinical profile & holds',
     icon: User,
   },
 ];
@@ -155,33 +170,32 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
   onCloseMobile,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const { resolvedTheme, toggleTheme } = useTheme();
 
   const renderNavContent = (isDrawer = false) => (
     <div
-      className="flex flex-col h-full relative overflow-hidden select-none"
-      style={{
-        background: '#07111e',
-        borderRight: isDrawer ? 'none' : '1px solid rgba(255,255,255,0.06)',
-      }}
+      className={`flex flex-col h-full relative overflow-hidden select-none bg-white/95 dark:bg-[#07111e]/95 backdrop-blur-xl transition-colors duration-200 ${
+        isDrawer ? '' : 'border-r border-slate-200/90 dark:border-slate-800/80 shadow-sm'
+      }`}
     >
       {/* ── 1. Top Brand Header ── */}
-      <div 
-        className={`flex items-center shrink-0 border-b border-slate-800/80 transition-all ${
+      <div
+        className={`flex items-center shrink-0 border-b border-slate-200/80 dark:border-slate-800/80 transition-all ${
           collapsed && !isDrawer ? 'flex-col justify-center p-3 gap-2' : 'justify-between p-4 gap-3'
         }`}
       >
-        <div 
+        <div
           onClick={() => collapsed && !isDrawer && setCollapsed(false)}
           className={`flex items-center gap-3.5 min-w-0 ${collapsed && !isDrawer ? 'cursor-pointer group' : ''}`}
           title={collapsed ? 'Click to expand sidebar' : undefined}
         >
-          <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0 shadow-xs group-hover:scale-105 transition-all">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-500/30 dark:border-emerald-500/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-xs group-hover:scale-105 transition-all">
             <Pill className="w-5 h-5 rotate-45" />
           </div>
           {(!collapsed || isDrawer) && (
             <div className="min-w-0 flex-1 overflow-hidden">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-400">ZenithRx</p>
-              <p className="text-white font-extrabold text-sm leading-tight">Patient Portal</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400">ZenithRx</p>
+              <p className="text-slate-900 dark:text-white font-extrabold text-sm leading-tight">Patient Portal</p>
             </div>
           )}
         </div>
@@ -190,9 +204,9 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
           <button
             onClick={() => setCollapsed(!collapsed)}
             className={`rounded-xl flex items-center justify-center transition-all cursor-pointer ${
-              collapsed 
-                ? 'w-8 h-8 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/40 shadow-xs' 
-                : 'w-8 h-8 text-slate-400 hover:text-white hover:bg-white/10 shrink-0 ml-auto'
+              collapsed
+                ? 'w-8 h-8 bg-emerald-500/15 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white border border-emerald-500/40 shadow-xs'
+                : 'w-8 h-8 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 shrink-0 ml-auto'
             }`}
             title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -204,7 +218,7 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
         {isDrawer && (
           <button
             onClick={onCloseMobile}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-auto"
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-all cursor-pointer shrink-0 ml-auto"
           >
             ✕
           </button>
@@ -213,8 +227,8 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
 
       {/* ── 2. Signed In Profile Card ── */}
       {(!collapsed || isDrawer) && (
-        <div 
-          className="rounded-2xl bg-[#0e1d33] border border-slate-800/80 flex items-center justify-between gap-3 shadow-xs"
+        <div
+          className="rounded-2xl bg-slate-100/90 dark:bg-[#0e1d33] border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between gap-3 shadow-xs transition-colors"
           style={{ margin: '0.35cm 0.35cm 0.2cm 0.35cm', padding: '0.35cm' }}
         >
           <div className="flex items-center gap-2.5 min-w-0">
@@ -222,8 +236,8 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
               {patientName ? patientName.slice(0, 1).toUpperCase() : 'G'}
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] text-slate-400 leading-tight">Signed in as</p>
-              <p className="text-xs font-extrabold text-white truncate">{patientName || 'Grace Nakato'}</p>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">Signed in as</p>
+              <p className="text-xs font-extrabold text-slate-900 dark:text-white truncate">{patientName || 'Grace Nakato'}</p>
             </div>
           </div>
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 shadow-xs ring-2 ring-emerald-500/20" />
@@ -231,36 +245,39 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
       )}
 
       {/* ── 3. Nav Items (MY HEALTH MODULES) ── */}
-      <nav 
+      <nav
         className="flex-1 overflow-y-auto scrollbar-none"
-        style={{ padding: '0.35cm', display: 'flex', flexDirection: 'column', gap: '0.25cm' }}
+        style={{ padding: '0.35cm', display: 'flex', flexDirection: 'column', gap: '0.2cm' }}
       >
         {(!collapsed || isDrawer) && (
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400 px-3 pt-1 pb-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500 px-3 pt-1 pb-1">
             MY HEALTH MODULES
           </p>
         )}
 
         {NAV_ITEMS.map((item, idx) => {
           const Icon = item.icon;
-          const isActive = activeTab === item.id;
+          const isActive = activeTab === item.id || (item.id === 'search' && activeTab === 'medicine-detail');
 
           if (item.isAi) {
             return (
               <button
                 key={`${item.id}-${idx}`}
-                onClick={() => onOpenAI()}
+                onClick={() => {
+                  onOpenAI();
+                  if (isDrawer && onCloseMobile) onCloseMobile();
+                }}
                 className={`w-full flex items-center gap-3.5 rounded-2xl cursor-pointer transition-all p-3 text-left border ${
                   collapsed && !isDrawer ? 'justify-center' : ''
-                } bg-emerald-950/40 border-emerald-500/40 hover:bg-emerald-950/60 text-white shadow-xs`}
+                } bg-gradient-to-r from-emerald-500/10 to-teal-500/10 dark:from-emerald-950/40 dark:to-teal-950/40 border-emerald-500/30 dark:border-emerald-500/40 hover:border-emerald-500 hover:shadow-md text-emerald-900 dark:text-white shadow-xs group`}
               >
-                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0">
-                  <Sparkles className="w-4.5 h-4.5 text-emerald-300 animate-pulse" />
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-600 dark:text-emerald-300 shrink-0 group-hover:scale-105 transition-transform">
+                  <Sparkles className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-300 animate-pulse" />
                 </div>
                 {(!collapsed || isDrawer) && (
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-black text-white">Ask RxAI</p>
-                    <p className="text-[10px] text-emerald-400 font-medium">AI Clinical Copilot</p>
+                    <p className="text-xs font-black text-slate-900 dark:text-white">Ask RxAI</p>
+                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">AI Clinical Copilot</p>
                   </div>
                 )}
               </button>
@@ -278,15 +295,15 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
                 collapsed && !isDrawer ? 'justify-center' : ''
               } ${
                 isActive
-                  ? 'bg-emerald-600 text-white font-bold shadow-md shadow-emerald-600/30 border border-emerald-500/50'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5 border border-transparent'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25 border border-emerald-500/50'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/90 dark:hover:bg-white/5 border border-transparent'
               }`}
             >
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all ${
                   isActive
-                    ? 'bg-white text-emerald-800 shadow-xs'
-                    : 'bg-slate-800/80 text-slate-300'
+                    ? 'bg-white text-emerald-700 shadow-xs'
+                    : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'
                 }`}
               >
                 <Icon className="w-4.5 h-4.5" />
@@ -297,7 +314,7 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
                   <p className="text-xs font-extrabold leading-snug truncate">{item.label}</p>
                   <p
                     className={`text-[10px] leading-snug truncate ${
-                      isActive ? 'text-emerald-100' : 'text-slate-500'
+                      isActive ? 'text-emerald-100' : 'text-slate-400 dark:text-slate-500'
                     }`}
                   >
                     {item.sublabel}
@@ -317,28 +334,43 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
             </button>
           );
         })}
+
         {/* ── Medicine Cart Item in Navigation ── */}
         <button
           onClick={() => {
-            onOpenCart();
+            onTabChange('cart');
             if (isDrawer && onCloseMobile) onCloseMobile();
           }}
           className={`w-full flex items-center gap-3.5 rounded-2xl cursor-pointer transition-all p-3 text-left ${
             collapsed && !isDrawer ? 'justify-center' : ''
-          } text-slate-300 hover:text-white hover:bg-white/5 border border-transparent`}
+          } ${
+            activeTab === 'cart'
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25 border border-emerald-500/50'
+              : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/90 dark:hover:bg-white/5 border border-transparent'
+          }`}
           title={collapsed && !isDrawer ? `Medicine Cart (${cartCount} items)` : undefined}
         >
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-slate-800/80 text-amber-400 relative">
+          <div
+            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 relative transition-all ${
+              activeTab === 'cart'
+                ? 'bg-white text-emerald-700 shadow-xs'
+                : 'bg-amber-500/15 dark:bg-slate-800/80 text-amber-600 dark:text-amber-400'
+            }`}
+          >
             <ShoppingCart className="w-4.5 h-4.5" />
             {collapsed && !isDrawer && cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-[#07111e]" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white dark:ring-[#07111e]" />
             )}
           </div>
 
           {(!collapsed || isDrawer) && (
             <div className="min-w-0 flex-1">
               <p className="text-xs font-extrabold leading-snug truncate">Medicine Cart</p>
-              <p className="text-[10px] leading-snug truncate text-slate-500">
+              <p
+                className={`text-[10px] leading-snug truncate ${
+                  activeTab === 'cart' ? 'text-emerald-100' : 'text-slate-400 dark:text-slate-500'
+                }`}
+              >
                 Review &amp; Checkout
               </p>
             </div>
@@ -347,7 +379,11 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
           {(!collapsed || isDrawer) && (
             <span
               className={`text-[9px] font-black px-2.5 py-0.5 rounded-full shrink-0 shadow-xs ${
-                cartCount > 0 ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'
+                activeTab === 'cart'
+                  ? 'bg-white/20 text-white'
+                  : cartCount > 0
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
               }`}
             >
               {cartCount > 0 ? `${cartCount} items` : '0 items'}
@@ -356,29 +392,49 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
         </button>
       </nav>
 
-      {/* ── 4. Bottom Actions (Sign Out & Platform License) ── */}
-      <div 
-        className="shrink-0 border-t border-slate-800/80"
-        style={{ padding: '0.4cm', display: 'flex', flexDirection: 'column', gap: '0.3cm' }}
+      {/* ── 4. Bottom Actions (Theme Toggle, Sign Out & Platform License) ── */}
+      <div
+        className="shrink-0 border-t border-slate-200/80 dark:border-slate-800/80"
+        style={{ padding: '0.35cm', display: 'flex', flexDirection: 'column', gap: '0.25cm' }}
       >
+        {/* Quick Theme Toggle inside Sidebar */}
+        <button
+          onClick={toggleTheme}
+          className={`w-full flex items-center gap-3 rounded-2xl cursor-pointer transition-all p-2.5 text-left border border-slate-200/80 dark:border-slate-800/70 bg-slate-50 dark:bg-[#0e1d33]/80 hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 group ${
+            collapsed && !isDrawer ? 'justify-center' : ''
+          }`}
+          title={`Switch to ${resolvedTheme === 'dark' ? 'Light' : 'Dark'} Mode`}
+        >
+          <div className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-amber-400 shrink-0">
+            {resolvedTheme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+          </div>
+          {(!collapsed || isDrawer) && (
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold leading-snug">{resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}</p>
+              <p className="text-[10px] text-slate-400 dark:text-slate-500">Toggle display theme</p>
+            </div>
+          )}
+        </button>
+
+        {/* Sign Out Button */}
         <button
           onClick={() => {
             if (isDrawer && onCloseMobile) onCloseMobile();
             onLogout();
           }}
-          className={`w-full flex items-center gap-3 rounded-2xl cursor-pointer transition-all p-3 text-left border border-slate-800/70 bg-[#0e1d33]/80 hover:bg-rose-950/40 hover:border-rose-800/50 text-slate-300 hover:text-rose-300 group ${
+          className={`w-full flex items-center gap-3 rounded-2xl cursor-pointer transition-all p-2.5 text-left border border-slate-200/80 dark:border-slate-800/70 bg-slate-50 dark:bg-[#0e1d33]/80 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:border-rose-300 dark:hover:border-rose-800/50 text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 group ${
             collapsed && !isDrawer ? 'justify-center' : ''
           }`}
           title={collapsed && !isDrawer ? 'Sign Out of Patient Portal' : undefined}
         >
-          <div className="w-9 h-9 rounded-xl bg-slate-800/90 group-hover:bg-rose-900/40 border border-slate-700/60 group-hover:border-rose-700/50 flex items-center justify-center text-slate-400 group-hover:text-rose-400 shrink-0 transition-all">
+          <div className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800/90 group-hover:bg-rose-100 dark:group-hover:bg-rose-900/40 border border-transparent group-hover:border-rose-300 dark:group-hover:border-rose-700/50 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-rose-600 dark:group-hover:text-rose-400 shrink-0 transition-all">
             <LogOut className="w-4 h-4" />
           </div>
 
           {(!collapsed || isDrawer) && (
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold leading-snug text-slate-200 group-hover:text-rose-200">Sign Out</p>
-              <p className="text-[10px] leading-snug text-slate-500 group-hover:text-rose-400/80">
+              <p className="text-xs font-bold leading-snug text-slate-800 dark:text-slate-200 group-hover:text-rose-600 dark:group-hover:text-rose-200">Sign Out</p>
+              <p className="text-[10px] leading-snug text-slate-400 dark:text-slate-500 group-hover:text-rose-500/80">
                 End patient session
               </p>
             </div>
@@ -386,8 +442,8 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
         </button>
 
         {(!collapsed || isDrawer) && (
-          <p className="text-[10px] text-slate-500 text-center leading-tight font-medium pt-1">
-            ZenithRx PWA v2.0 · NDA &amp; PSU Licensed Platform
+          <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center leading-tight font-medium pt-0.5">
+            ZenithRx PWA v2.0 · NDA &amp; PSU Licensed
           </p>
         )}
       </div>
@@ -407,7 +463,7 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
         {/* Floating Quick Expand/Collapse Handle on Outer Right Edge */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute -right-3.5 top-6 z-40 w-7 h-7 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl border-2 border-[#07111e] flex items-center justify-center cursor-pointer transition-all hover:scale-110 active:scale-95"
+          className="absolute -right-3.5 top-6 z-40 w-7 h-7 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl border-2 border-white dark:border-[#07111e] flex items-center justify-center cursor-pointer transition-all hover:scale-110 active:scale-95"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
@@ -430,3 +486,4 @@ export const PatientSidebar: React.FC<PatientSidebarProps> = ({
     </>
   );
 };
+

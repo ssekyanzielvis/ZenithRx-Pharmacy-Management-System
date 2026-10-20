@@ -34,6 +34,7 @@ import { LoginPage } from './components/auth/LoginPage';
 import { AdminLoginPage } from './components/auth/AdminLoginPage';
 import { LandingPage } from './components/LandingPage';
 import { SubscriptionPage } from './components/auth/SubscriptionPage';
+import { AcceptCollaboratorInvitePage } from './components/auth/AcceptCollaboratorInvitePage';
 
 // ─── Components ───────────────────────────────────────────────────────────────
 import { ArrowLeft, LayoutDashboard } from 'lucide-react';
@@ -70,6 +71,12 @@ const getTabLabel = (tab: ModuleTab): string => {
     case 'collaborators': return 'Staff & Collaborators';
     case 'ownerDashboard': return 'Owner Executive Cockpit';
     case 'adminControlPlane': return 'Superuser Control Plane';
+    case 'adminInviteCollaborator': return 'Invite Delegated Collaborator';
+    case 'adminDelegated': return 'Delegated Collaborators';
+    case 'adminExecutive': return 'Executive Cockpit';
+    case 'adminPolicies': return 'Global Policy Engine';
+    case 'adminDualControl': return 'Dual-Control 4-Eyes Queue';
+    case 'adminIncidents': return 'Security Incidents';
     case 'adminMatrix': return 'Tenant Feature Matrix';
     case 'adminUsers': return 'Branch Staff Accounts';
     case 'adminBilling': return 'Package & Billing Control';
@@ -122,6 +129,8 @@ import { TeleconsultationHub }    from './components/TeleconsultationHub';
 import { AdminExecutiveCockpit }  from './components/admin/AdminExecutiveCockpit';
 import { AdminPoliciesPanel }     from './components/admin/AdminPoliciesPanel';
 import { AdminDualControl }       from './components/admin/AdminDualControl';
+import { AdminControlPlane }      from './components/AdminControlPlane';
+import { InviteCollaboratorPage }  from './components/admin/InviteCollaboratorPage';
 import { AdminIncidentResponse }  from './components/admin/AdminIncidentResponse';
 import { AdminAccessMatrix }      from './components/admin/AdminAccessMatrix';
 import { AdminPharmacistVerification } from './components/admin/AdminPharmacistVerification';
@@ -152,19 +161,27 @@ export default function App() {
   const auth = useAuth();
 
   const getInitialTab = (): ModuleTab => {
-    const path = (window.location.pathname + window.location.hash).toLowerCase();
+    const hash = (typeof window !== 'undefined' ? window.location.hash : '').toLowerCase();
+    const pathname = (typeof window !== 'undefined' ? window.location.pathname : '').toLowerCase();
+    const path = (pathname + hash).toLowerCase();
+
+    // Priority 1: Direct action hashes
+    if (hash.includes('invite-collaborator') || hash.includes('invitecollaborator') || path.includes('admininvitecollaborator')) return 'adminInviteCollaborator';
+    if (hash.includes('accept-invite') || hash.includes('token=')) return 'adminDelegated';
+
+    // Priority 2: Specific Admin modules
     if (path.includes('adminquantumworkbench') || path.includes('quantum')) return 'adminQuantumWorkbench';
     if (path.includes('adminpharmacyregistry')) return 'adminPharmacyRegistry';
     if (path.includes('admincapacity')) return 'adminCapacity';
     if (path.includes('adminmessaginghub')) return 'adminMessagingHub';
     if (path.includes('adminrevenueledger') || path.includes('revenue')) return 'adminRevenueLedger';
-    if (path.includes('admincontrolplane')) return 'adminControlPlane';
     if (path.includes('adminexecutive')) return 'adminExecutive';
     if (path.includes('adminpolicies')) return 'adminPolicies';
     if (path.includes('admindelegated')) return 'adminDelegated';
     if (path.includes('admindualcontrol')) return 'adminDualControl';
     if (path.includes('adminincidents')) return 'adminIncidents';
     if (path.includes('adminmatrix')) return 'adminMatrix';
+    if (path.includes('admincontrolplane')) return 'adminControlPlane';
     if (path.includes('adminusers')) return 'adminUsers';
     if (path.includes('adminbilling')) return 'adminBilling';
     if (path.includes('adminregister')) return 'adminRegister';
@@ -200,7 +217,11 @@ export default function App() {
 
   const [activeTab, setActiveTab]         = useState<ModuleTab>(getInitialTab);
   const [navigationHistory, setNavigationHistory] = useState<ModuleTab[]>([]);
-  const [showLanding, setShowLanding]     = useState<boolean>(!window.location.hash.includes('app'));
+  const [showLanding, setShowLanding]     = useState<boolean>(() => {
+    const p = (window.location.pathname + window.location.hash + window.location.search).toLowerCase();
+    if (p.includes('app') || p.includes('accept-invite') || p.includes('token=') || p.includes('invite') || p.includes('admin')) return false;
+    return true;
+  });
   const [showPromoFlyer, setShowPromoFlyer] = useState<boolean>(false);
   const [dataLoading, setDataLoading]     = useState(false);
   const [isR2ArchiveOpen, setIsR2ArchiveOpen] = useState(false);
@@ -257,6 +278,10 @@ export default function App() {
     document.title = 'ZenithRx Pharmacy Management System';
 
     const handleLocationChange = () => {
+      const p = (window.location.pathname + window.location.hash + window.location.search).toLowerCase();
+      if (p.includes('invite') || p.includes('admin') || p.includes('app') || p.includes('accept-invite')) {
+        setShowLanding(false);
+      }
       setActiveTab(getInitialTab());
     };
     window.addEventListener('popstate', handleLocationChange);
@@ -421,6 +446,41 @@ export default function App() {
     );
   }
 
+  // ─── Dedicated Delegated Collaborator Invitation Acceptance Page ─────────
+  const isAcceptingInviteRoute =
+    window.location.pathname.toLowerCase().includes('accept-invite') ||
+    window.location.hash.toLowerCase().includes('accept-invite') ||
+    window.location.search.toLowerCase().includes('token=inv-') ||
+    window.location.hash.toLowerCase().includes('token=inv-');
+
+  if (isAcceptingInviteRoute) {
+    return (
+      <AcceptCollaboratorInvitePage
+        onNavigateHome={() => {
+          if (window.history && window.history.pushState) {
+            window.history.pushState(null, '', '/');
+          }
+          window.location.hash = '';
+          setActiveTab('overview');
+        }}
+        onNavigateLogin={() => {
+          if (window.history && window.history.pushState) {
+            window.history.pushState(null, '', '/admin');
+          }
+          window.location.hash = '#admin';
+          setActiveTab('adminControlPlane');
+        }}
+        onSuccessLaunch={() => {
+          if (window.history && window.history.pushState) {
+            window.history.pushState(null, '', '/adminControlPlane');
+          }
+          window.location.hash = '#adminControlPlane';
+          setActiveTab('adminControlPlane');
+        }}
+      />
+    );
+  }
+
   // ─── Direct Admin Route Gate (/admin) ────────────────────────────────────
   const isVisitingAdminRoute =
     activeTab.startsWith('admin') ||
@@ -579,8 +639,16 @@ export default function App() {
           />
         )}
 
-        {/* Main View Area */}
-        <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 min-w-0">
+        {/* Main View Area (Guaranteed at least 0.8cm lateral and vertical margin across all viewports) */}
+        <main
+          className="flex-1 max-w-7xl w-full mx-auto min-w-0"
+          style={{
+            paddingLeft: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+            paddingRight: 'clamp(0.8cm, 2.5vw, 1.2cm)',
+            paddingTop: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+            paddingBottom: 'clamp(0.8cm, 2.5vh, 1.2cm)',
+          }}
+        >
         {showPromoFlyer ? (
           <PromoBannerView
             onSelectFeature={handleSelectFeatureFromPoster}
@@ -1001,6 +1069,22 @@ export default function App() {
               </RoleAccessGuard>
             )}
 
+            {activeTab === 'adminDelegated' && (
+              <RoleAccessGuard user={auth.user} tab="adminDelegated" onNavigateTab={handleTabChange}>
+                <AdminControlPlane governanceTab="adminDelegated" onNavigateTab={handleTabChange} />
+              </RoleAccessGuard>
+            )}
+
+            {activeTab === 'adminInviteCollaborator' && (
+              <RoleAccessGuard user={auth.user} tab="adminDelegated" onNavigateTab={handleTabChange}>
+                <InviteCollaboratorPage
+                  currentSuperAdminName={auth.user?.fullName || 'Dr. Arthur Ssenabulya'}
+                  onBack={() => handleTabChange('adminDelegated')}
+                  onSuccess={() => handleTabChange('adminDelegated')}
+                />
+              </RoleAccessGuard>
+            )}
+
             {activeTab === 'adminDualControl' && (
               <RoleAccessGuard user={auth.user} tab="adminDualControl" onNavigateTab={handleTabChange}>
                 <AdminDualControl />
@@ -1080,7 +1164,6 @@ export default function App() {
               activeTab === 'adminCapacity' ||
               activeTab === 'adminMessagingHub' ||
               activeTab === 'adminRevenueLedger' ||
-              activeTab === 'adminDelegated' ||
               activeTab === 'adminUsers' ||
               activeTab === 'adminBilling' ||
               activeTab === 'adminRegister' ||
@@ -1090,6 +1173,7 @@ export default function App() {
                   activeClient={activeClient}
                   setActiveClient={setActiveClient}
                   subTab={activeTab}
+                  onNavigateTab={handleTabChange}
                 />
               </RoleAccessGuard>
             )}

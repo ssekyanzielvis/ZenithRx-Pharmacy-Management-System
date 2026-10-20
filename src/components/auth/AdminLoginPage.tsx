@@ -19,7 +19,7 @@ import {
   Sun,
   Moon,
 } from 'lucide-react';
-import { UseAuthReturn } from '../../hooks/useAuth';
+import { UseAuthReturn, DEMO_LOGIN_ENABLED } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
 
 interface AdminLoginPageProps {
@@ -36,11 +36,11 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
   isModal = false,
 }) => {
   const { resolvedTheme, toggleTheme } = useTheme();
-  const [email, setEmail] = useState('admin@zenithrx.ug');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState(DEMO_LOGIN_ENABLED ? 'admin@zenithrx.ug' : '');
+  const [password, setPassword] = useState(DEMO_LOGIN_ENABLED ? 'admin123' : '');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [mfaCode, setMfaCode] = useState('849201');
+  const [mfaCode, setMfaCode] = useState('');
   const [showMfaInput, setShowMfaInput] = useState(false);
 
   const handleAdminSignIn = async (e?: React.FormEvent) => {
@@ -48,7 +48,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
     auth.clearError();
     setSubmitting(true);
     try {
-      await auth.signIn(email || 'admin@zenithrx.ug', password || 'admin123');
+      await auth.signIn(email, password);
       if (onSuccess) {
         onSuccess();
       }
@@ -135,7 +135,8 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
         </div>
       </div>
 
-      {/* Demo Credentials Box */}
+      {/* Demo Credentials Box — rendered ONLY in a dev build with VITE_ENABLE_DEMO_LOGIN=true */}
+      {DEMO_LOGIN_ENABLED && (
       <div className="mb-6 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
@@ -186,6 +187,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({
           <span>One-Click Sign In as System Administrator</span>
         </button>
       </div>
+      )}
 
       {/* Error Banner */}
       {auth.error && (
