@@ -485,6 +485,33 @@ function loadServerCollaborators() {
     serverCollaborators.set(namuliRecord.id, namuliRecord);
     serverCollaborators.set(`email:${namuliRecord.email.toLowerCase()}`, namuliRecord);
   }
+
+  // Populate Quantum Engineering Registry so QuantumAdminGate accepts them immediately
+  for (const c of serverCollaborators.values()) {
+    const key = (c.engineeringMasterKey || c.password || 'QUANTUM-SYS-2026').trim();
+    const entry = { key, password: c.password ? String(c.password).trim() : undefined, name: c.fullName, email: c.email };
+    if (c.engineerId) {
+      registeredQuantumEngineers.set(c.engineerId.trim(), entry);
+      registeredQuantumEngineers.set(c.engineerId.trim().toUpperCase(), entry);
+    }
+    if (c.email) {
+      registeredQuantumEngineers.set(c.email.trim().toLowerCase(), entry);
+    }
+  }
+
+  // Pre-register Lead Systems Architect Dr. Arthur Ssenabulya
+  registeredQuantumEngineers.set('QN-ENG-8801', {
+    key: process.env.QUANTUM_ENGINEERING_MASTER_KEY || 'QUANTUM-SYS-2026',
+    name: 'Dr. Arthur Ssenabulya (Lead Systems Architect)',
+    email: 'arthur.ssenabulya@quantumnetworks.ug',
+  });
+
+  // Pre-register Platform System Administrator Elvis Ssekyanzi
+  registeredQuantumEngineers.set('ssekyanzielvis1@gmail.com', {
+    key: 'Su4at3#0',
+    name: 'Elvis Ssekyanzi (Platform SysAdmin)',
+    email: 'ssekyanzielvis1@gmail.com',
+  });
 }
 
 function saveServerCollaborators() {
