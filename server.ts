@@ -531,6 +531,102 @@ app.get('/api/collaborators', (_req, res) => {
   return res.json({ success: true, collaborators: unique });
 });
 
+// ─── Supabase Admin Synchronization Engine ──────────────────────────────────
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseAdmin = (supabaseUrl && supabaseServiceKey) ? createSupabaseClient(supabaseUrl, supabaseServiceKey) : null;
+
+async function syncCollaboratorToSupabase(collab: any, plainPassword?: string) {
+  if (!supabaseAdmin || !collab?.email) return;
+  try {
+    const email = collab.email.toLowerCase().trim();
+    const pwd = plainPassword || collab.password || 'ZenithRx#2026Admin!';
+    
+    // 1. Try to create or retrieve user in auth.users
+    let userId: string | null = null;
+    const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password: pwd,
+      email_confirm: true,
+      user_metadata: {
+        full_name: collab.fullName || 'Enterprise Administrator',
+        role: 'Super Admin',
+        is_owner: true,
+        is_super_admin: true,
+        domain_scope: collab.domainScope || 'FULL_PLATFORM'
+      },
+      app_metadata: {
+        is_super_admin: true
+      }
+    });
+
+    if (createData?.user?.id) {
+      userId = createData.user.id;
+    } else if (createError) {
+      // If user already exists, retrieve ID from auth.users
+      const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
+      const userList = (listData?.users || []) as any[];
+      const existing = userList.find((u) => u.email?.toLowerCase() === email);
+      if (existing) {
+        userId = existing.id;
+        if (plainPassword || collab.password) {
+          await supabaseAdmin.auth.admin.updateUserById(userId, {
+            password: pwd,
+            email_confirm: true,
+            user_metadata: {
+              full_name: collab.fullName || 'Enterprise Administrator',
+              role: 'Super Admin',
+              is_owner: true,
+              is_super_admin: true
+            },
+            app_metadata: {
+              is_super_admin: true
+            }
+          });
+        }
+      } else {
+        console.warn(`[SupabaseSync] Notice creating auth user (${email}):`, createError.message);
+      }
+    }
+
+    // 2. Synchronize to public.users table
+    if (userId) {
+      const { error: profileError } = await supabaseAdmin.from('users').upsert({
+        id: userId,
+        tenant_id: '00000000-0000-0000-0000-000000000001',
+        email,
+        full_name: collab.fullName || 'Enterprise Administrator',
+        phone: collab.phone || '',
+        rank_role: 'Super Admin',
+        is_owner: true,
+        is_super_admin: true,
+        status: 'active',
+        subscription_status: 'active',
+        billing_cycle: 'monthly',
+        selected_tier: 'Professional',
+        access_rights: {
+          can_access_pos: true,
+          can_manage_inventory: true,
+          can_process_prescriptions: true,
+          can_approve_reorders: true,
+          can_view_reports: true,
+          can_submit_insurance: true,
+          can_use_ai_assistant: true,
+          can_manage_staff_accounts: true
+        }
+      }, { onConflict: 'id' });
+
+      if (profileError) {
+        console.warn(`[SupabaseSync] Notice syncing public.users profile (${email}):`, profileError.message);
+      } else {
+        console.log(`[SupabaseSync] Successfully synced administrator ${email} to auth.users and public.users`);
+      }
+    }
+  } catch (err: any) {
+    console.warn(`[SupabaseSync] Background sync exception for ${collab?.email}:`, err?.message || err);
+  }
+}
+
 // Endpoint: Sync collaborator from client into persistent server store
 app.post('/api/collaborators/sync', (req, res) => {
   const { collaborator } = req.body;
@@ -539,6 +635,9 @@ app.post('/api/collaborators/sync', (req, res) => {
     if (collaborator.id) serverCollaborators.set(collaborator.id, collaborator);
     if (collaborator.email) serverCollaborators.set(`email:${collaborator.email.toLowerCase()}`, collaborator);
     saveServerCollaborators();
+
+    // Trigger background sync to Supabase auth.users & public.users
+    syncCollaboratorToSupabase(collaborator, collaborator.password).catch(() => {});
   }
   return res.json({ success: true });
 });
@@ -604,6 +703,9 @@ app.post('/api/collaborators/login', (req, res) => {
     });
   }
 
+  // Sync administrator profile to Supabase auth.users & public.users
+  syncCollaboratorToSupabase(found, password).catch(() => {});
+
   const token = signToken({ sub: found.id || found.email, role: 'quantum_admin', name: found.fullName }, 12 * 3600);
   return res.json({
     success: true,
@@ -658,6 +760,7 @@ app.post('/api/collaborators/send-invite-email', async (req, res) => {
     serverCollaborators.set(collabRecord.id, collabRecord);
     serverCollaborators.set(`email:${recipientEmail.toLowerCase()}`, collabRecord);
     saveServerCollaborators();
+    syncCollaboratorToSupabase(collabRecord).catch(() => {});
 
     const emailHtml = generateInviteEmailHtml({
       recipientName,
